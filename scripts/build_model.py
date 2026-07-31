@@ -138,6 +138,19 @@ PREP = {
   "https://www.directoalpaladar.com/recetas-de-aperitivos/como-se-hace-el-cazon-en-adobo-receta-de-bienmesabe"),
 }
 
+# Pasos PREVIOS (preparacion con antelacion), separados del modo de preparacion.
+PREVIOS = {
+ "Fritura de pescado":"El dia anterior: adoba el cazon y la rosada (ajo, comino, oregano, pimenton, vinagre de Jerez, laurel y sal) y macera en nevera 8-12 h. Saca a temperatura antes de enharinar.",
+ "Couscous":"La noche anterior: deja los garbanzos en remojo (o usa garbanzos ya cocidos). Puedes guisar la carrillera la vispera; gana de un dia para otro.",
+ "Mousaka griega":"Con antelacion: lava las laminas de berenjena con agua y sal y dejalas 30-45 min para quitar el amargor; escurre y seca. Hornea o frie las laminas de patata y de berenjena antes de montar. Necesitas papel vegetal de horno.",
+ "Salmorejo con acompanamiento":"Preparalo con antelacion y enfrialo en nevera al menos 2 h antes de servir.",
+ "Barbacoa 1":"Enciende las brasas 30-40 min antes (carbon + pastillas). Ten la carne fresca (sin congelar) y las salsas listas.",
+ "Barbacoa 2":"Enciende las brasas 30-40 min antes. Saca el vacuno de la nevera para atemperar. Ten el chimichurri preparado.",
+ "Chili con carne":"Se puede cocinar la vispera; gana de un dia para otro.",
+ "Asado de pollo y patatas":"Precalienta el horno a 180C. Cubre la bandeja con papel vegetal o engrasala bien.",
+ "Arroz campero":"Descongela la aguja de vaca la noche antes en la nevera.",
+}
+
 # ---------------------------------------------------------------- INGREDIENTES
 # (Ingrediente, Categoria, Unidad, EsStaple, ListaStaple)
 S = "Si"; N = "No"
@@ -368,6 +381,10 @@ STAPLES = [
  ("Mostaza","Cocina","Bote","No"),("Mayonesa","Cocina","Bote","No"),
  ("Alioli","Cocina","Bote","No"),("Chimichurri","Cocina","Bote/casero","No"),
  ("Vino tinto (cocina)","Cocina","Botella","No"),("Vino blanco (cocina)","Cocina","Botella","No"),
+ # Menaje / materiales (requisitos de receta)
+ ("Papel vegetal de horno","Cocina","Rollo","No"),("Papel de aluminio","Cocina","Rollo","No"),
+ ("Carbon para barbacoa","Cocina","Saco","No"),("Pastillas de encendido","Cocina","Caja","No"),
+ ("Bolsas de congelacion","Cocina","Caja","No"),
 ]
 
 # ---------------------------------------------------------------- LISTAS ABIERTAS (por paquete)
@@ -475,8 +492,8 @@ def build():
 
     tables={
       "Config":(["Clave","Valor","Descripcion"],[list(x) for x in CONFIG]),
-      "Comidas":(["Comida","MomentoSugerido","Cocinero","Preparacion","Fuente","Notas"],
-                 [[c[0],c[1],c[2],PREP.get(c[0],(c[3],""))[0],PREP.get(c[0],("",""))[1],c[4]] for c in COMIDAS]),
+      "Comidas":(["Comida","MomentoSugerido","Cocinero","PasosPrevios","Preparacion","Fuente","Notas"],
+                 [[c[0],c[1],c[2],PREVIOS.get(c[0],""),PREP.get(c[0],(c[3],""))[0],PREP.get(c[0],("",""))[1],c[4]] for c in COMIDAS]),
       "Ingredientes":(["Ingrediente","Categoria","Unidad","EsBasico","ListaBasico"],[list(x) for x in INGREDIENTES]),
       "Recetas":(["Comida","Ingrediente","CantidadPorComensal","Grupo","PesoEnGrupo","Opcional"],[list(x) for x in RECETAS]),
       "Calendario":(["Fecha","DiaSemana","Momento","Comida","Cocinero","NivelCarne","Notas"],[list(x) for x in CALENDARIO]),
