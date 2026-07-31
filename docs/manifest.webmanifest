@@ -1,0 +1,16 @@
+{
+  "name": "CompraSanJose",
+  "short_name": "SanJose",
+  "description": "Lista de la compra y menu del grupo — 14 adultos y 3 ninos",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F2F5EC",
+  "theme_color": "#3E6B45",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
