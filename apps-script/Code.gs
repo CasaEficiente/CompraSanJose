@@ -66,7 +66,8 @@ function allowed(email){
 }
 
 /* --------------------------- data --------------------------- */
-function ss(){ return SpreadsheetApp.getActiveSpreadsheet(); }
+var SHEET_ID = '1dViCbOztGH_I4ar8ff_Gv86aUo-rK1zigi4Cma5e47E'; // Google Sheet CompraSanJose
+function ss(){ return SHEET_ID ? SpreadsheetApp.openById(SHEET_ID) : SpreadsheetApp.getActiveSpreadsheet(); }
 function readAll(){
   var data = {};
   SHEETS.forEach(function(name){
