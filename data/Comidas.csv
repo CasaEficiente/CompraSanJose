@@ -1,0 +1,16 @@
+Comida,Tipo,Incluir,Acompanamiento,Notas
+Arroz campero,Almuerzo,Si,,
+Mousaka griega,Almuerzo,Si,,
+Couscous,Almuerzo,Si,,
+Plato alpujarreno con huevos,Almuerzo,Si,,Con huevos fritos
+Salmorejo con acompanamiento,Almuerzo,Si,Filetes de ternera,Acompanamiento elegible: Filetes de ternera / Lomo de cerdo / Pechuga de pollo / Flamenquines
+Migas,Almuerzo,Si,,
+Chili con carne,Almuerzo,Si,,Con guarnicion de arroz
+Asado de pollo y patatas,Almuerzo,Si,,
+Pisto de verduras con huevos,Almuerzo,Si,,"OPCION DE RESPALDO (cebolla, tomate frito y pimiento verde + huevos fritos)"
+Barbacoa 1,Cena,Si,,Cerdo y embutido
+Barbacoa 2,Cena,Si,,"Vacuno, pollo y verdura a la brasa"
+Fajitas,Cena,Si,,
+Hamburguesas,Cena,Si,,
+Pizzas,Cena,Si,,
+Fritura de pescado,Cena,Si,,

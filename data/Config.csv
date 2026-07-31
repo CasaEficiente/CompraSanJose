@@ -1,0 +1,4 @@
+Clave,Valor,Descripcion
+Adultos,14,Numero de comensales adultos
+Ninos,3,Numero de comensales ninos
+FactorNino,0.5,Racion equivalente de un nino respecto a un adulto
