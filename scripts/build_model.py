@@ -39,7 +39,7 @@ CONFIG = [
 # ---------------------------------------------------------------- COMIDAS
 # (Comida, MomentoSugerido, Cocinero, Preparacion, Notas)
 COMIDAS = [
- ("Arroz campero","Almuerzo","Paco",
+ ("Arroz campero","Almuerzo","Luis",
   "1. Sofrie cebolla, pimientos y ajo en aceite.\n2. Dora el pollo troceado y el chorizo.\n3. Anade tomate natural y pimenton; rehoga.\n4. Incorpora el arroz y el caldo caliente (doble volumen).\n5. Anade guisantes; cuece 18 min y reposa 5 min.",
   ""),
  ("Mousaka griega","Almuerzo","Paco",
@@ -84,7 +84,59 @@ COMIDAS = [
  ("Fritura de pescado","Cena","Paco",
   "1. Adoba el cazon (vinagre, pimenton, comino, ajo, oregano) unas horas.\n2. Limpia y trocea los pescados.\n3. Enharina con harina de freir/tempura.\n4. Frie en abundante aceite caliente por tandas.\n5. Sirve con limon.",
   "Surtido elegible; incluye adobo y tempura."),
+ ("Paella de marisco","Almuerzo","Paco",
+  "1. Sofrie cebolla, pimiento y ajo en aceite; anade tomate natural.\n2. Rehoga el arroz con pimenton y azafran.\n3. Anade el caldo de pescado caliente (doble volumen) y los guisantes.\n4. Incorpora el calamar; a media coccion anade gambas, mejillones y almejas.\n5. Cuece 18 min sin remover; reposa 5 min. Sirve con limon.",
+  "Opcion alternativa de arroz."),
 ]
+
+# Preparacion (de recetarios reales) y fuente, adaptada a nuestros ingredientes.
+PREP = {
+ "Arroz campero":(
+  "1. Pica pimiento verde, ajos y tomate. En la paellera, sofrie pimiento y ajos; anade la aguja de vaca troceada y el chorizo salpimentados y dora.\n2. Incorpora el tomate natural y rehoga.\n3. Anade el arroz (90-100 g/persona) y sofrielo 2 min con pimenton y colorante o azafran.\n4. Vierte el caldo caliente (3 veces el volumen de arroz) y cuece a fuego fuerte 8 min.\n5. Anade guisantes y el pimiento morron asado; baja a fuego minimo y cuece 8 min mas.\n6. Apaga, tapa con un pano y reposa 7-8 min.",
+  "https://www.directoalpaladar.com/recetas-de-arroces/receta-arroz-campero-tipico-andalucia"),
+ "Mousaka griega":(
+  "1. Lamina las berenjenas, salalas y dejalas sudar; frielas ligeramente y reserva.\n2. Corta las patatas en rodajas y frielas ligeramente para la base.\n3. Pocha cebolla, anade tomate tamizado (nunca concentrado ni frito) y haz el sofrito.\n4. Incorpora la ternera picada dorada, un chorro de vino tinto y caldo; cuece 10 min hasta que no quede liquido.\n5. Prepara la bechamel (25 g mantequilla, 25 g harina, 500 ml leche) hasta que espese.\n6. Monta por capas: patata, berenjena, carne, berenjena; cubre con bechamel y queso.\n7. Hornea 20 min a 160C y gratina 3 min a 220C.",
+  "https://www.directoalpaladar.com/recetas-de-carnes-y-aves/moussaka-receta-griega"),
+ "Couscous":(
+  "1. Trocea la carrillera de ternera, salpimienta y dorala a fuego alto en la cazuela.\n2. Baja el fuego, anade cebolla y pocha 10 min.\n3. Incorpora muy poco tomate tamizado y cocina hasta evaporar.\n4. Anade caldo, la zanahoria en dados (opcional), jengibre, comino y curcuma; guisa a fuego lento hasta que la carne este muy tierna.\n5. Anade el calabacin y los garbanzos; cuece 10-15 min mas.\n6. Aparte, hidrata la semola con caldo hirviendo, tapa 5 min y desgrana con un tenedor.\n7. Sirve la semola de base y reparte el guiso por encima.",
+  "https://www.todosacomer.net/recetas/guisos-pasta-arroces/cuscus-con-verduras-y-pollo"),
+ "Plato alpujarreno con huevos":(
+  "1. Corta las patatas en rodajas de 1/2 cm; pica ajo y corta cebolla y pimiento verde.\n2. En abundante aceite, frie ajo y luego patatas, cebolla y pimiento; 5 min a fuego fuerte.\n3. Baja el fuego y cocina 25 min removiendo hasta que las patatas a lo pobre esten tiernas; escurre y sala.\n4. Aparte, frie los embutidos (chorizo, morcilla, longaniza, lomo) 5 min; escurre.\n5. Frie los huevos en aceite muy caliente para que la puntilla quede crujiente.\n6. Emplata: base de patatas, encima embutidos, huevos fritos y unas lonchas de jamon.",
+  "https://bonviveur.com/es/recetas/plato-alpujarreno"),
+ "Salmorejo con acompanamiento":(
+  "1. Tritura los tomates (1 kg por cada 6 raciones); no hace falta pelar ni despepitar.\n2. Anade el pan (unos 200 g de telera por cada 6) y deja que se empape 10 min.\n3. Anade el ajo y tritura hasta una crema espesa.\n4. Incorpora el AOVE en hilo y bate hasta emulsionar; sala y enfria.\n5. Sirve frio con jamon picado y huevo cocido.\n6. De acompanamiento, salpimienta los filetes y hazlos a la plancha 2-3 min por cara.",
+  "https://www.directoalpaladar.com/recetas-de-sopas-y-cremas/receta-de-salmorejo-cordobes-tradicional"),
+ "Migas":(
+  "1. Corta pan candeal asentado en cubos de 1 cm; humedecelo con agua salada, tapa con un pano y reposa (mejor de un dia para otro).\n2. Frie el chorizo en rodajas y la panceta en dados hasta que suelten grasa; reserva.\n3. En esa grasa, rehoga los ajos aplastados con piel 2-3 min sin quemar.\n4. Anade las migas de pan y el pimenton; cocina a fuego suave 10 min removiendo.\n5. Cuando esten sueltas y doradas, devuelve chorizo y panceta y mezcla.\n6. Para grupo grande, trabaja por tandas o en perol amplio; sirve muy caliente.",
+  "https://www.directoalpaladar.com/recetas-tradicionales/mejor-receta-migas-pan-chorizo-clasico-potente-como-tradicional"),
+ "Chili con carne":(
+  "1. Pocha la cebolla en aceite hasta transparente.\n2. Anade ajo, pimenton picante y comino; rehoga.\n3. Incorpora la carne picada y cocina hasta que pierda el color.\n4. Anade tomate, un poco de caldo y una pizca de azucar; cuece destapado 30 min.\n5. Anade las alubias rojas y la lata de maiz; cuece unos minutos.\n6. Rectifica de sal y picante; sirve con arroz blanco y nachos.",
+  "https://www.directoalpaladar.com/recetas-de-carnes-y-aves/chili-receta-mexicana-con-y-sin-thermomix"),
+ "Asado de pollo y patatas":(
+  "1. Precalienta el horno a 180C. Mezcla sal, pimienta y tomillo/romero.\n2. Parte las patatas, hazles cortes y colocalas en la bandeja engrasada.\n3. Sazona el pollo por dentro y fuera; introduce ajos en cortes y en la cavidad.\n4. Coloca el pollo sobre las patatas y hornea a 180C unos 45-60 min (remueve las patatas a media coccion).\n5. Pasa los jugos a un cazo, hierve y liga con un poco de maicena.\n6. Trincha, riega con la salsa y sirve; para mas comensales reparte en varias bandejas sin amontonar.",
+  "https://www.hogarmania.com/cocina/recetas/carnes/pollo-asado-patatas-ensalada-verde-16651.html"),
+ "Pisto de verduras con huevos":(
+  "1. Pica en cuadraditos la cebolla y el pimiento verde; pica una pizca de ajo.\n2. Pocha cebolla, pimiento y ajo en aceite 10-15 min a fuego medio.\n3. Anade el tomate natural y cuece despacio hasta que quede meloso (no caldoso).\n4. Rectifica de sal (pizca de azucar si esta acido).\n5. Aparte, frie los huevos.\n6. Sirve el pisto con los huevos fritos por encima.",
+  "https://www.directoalpaladar.com/recetas-de-legumbres-y-verduras/pisto-de-pimientos-y-tomates-la-receta-de-mi-abuela"),
+ "Barbacoa 1":(
+  "1. Enciende la barbacoa 30-40 min antes; espera a que las brasas esten blanquecinas, sin llama.\n2. Reparte el carbon para calor uniforme; parrilla no muy pegada a las brasas.\n3. Empieza por el embutido y las piezas grasas: chorizo, panceta y morcilla.\n4. Asa la presa, el secreto y la pluma de cerdo a calor medio, girando cada pocos minutos.\n5. Haz los pinchitos dandoles vueltas para que se doren sin secarse.\n6. Usa carne fresca (sin congelar); retira cada pieza segun se dora.\n7. NO sales antes: echa la sal SOLO AL FINAL, en el plato.",
+  "https://www.directoalpaladar.com/cultura-gastronomica/los-9-trucos-imprescindibles-para-convertirte-en-el-maestro-de-las-barbacoas"),
+ "Barbacoa 2":(
+  "1. Enciende las brasas 30-40 min antes; saca el vacuno de la nevera para atemperar.\n2. Sella el entrecot y el chuleton sobre brasa fuerte ~5 min por cara; una sola vuelta.\n3. Asa las chuletas de cordero hasta que esten doradas y jugosas.\n4. Haz la chistorra y el chorizo cerca del borde para que no revienten.\n5. Deja reposar el vacuno 5 min antes de trocear; acompana con chimichurri.\n6. Asa las verduras (calabacin, cebolleta, pimiento) y las mazorcas untadas de aceite, 5-10 min por lado.\n7. Echa la sal AL FINAL para no resecar la carne.",
+  "https://www.directoalpaladar.com/recetario/83-mejores-recetas-barbacoa-para-sacar-todo-partido-a-parrilla-este-verano"),
+ "Fajitas":(
+  "1. Corta el pollo en tiras y la cebolla y los pimientos en tiras anchas.\n2. Salpimienta el pollo y saltealo en aceite muy caliente; reserva.\n3. Saltea los pimientos y la cebolla hasta tiernos pero firmes.\n4. Devuelve el pollo, anade especias fajita (comino, pimenton) y un chorrito de lima.\n5. Calienta las tortillas en sarten seca por ambas caras.\n6. Rellena y enrolla; sirve con guacamole, nata agria, queso, tomate y lechuga.",
+  "https://www.divinacocina.es/fajitas-de-pollo-faciles/"),
+ "Hamburguesas":(
+  "1. Usa carne picada fresca; salpimienta.\n2. Mezcla sin amasar en exceso y forma discos regulares.\n3. Deja reposar 10 min a temperatura ambiente.\n4. Plancha o parrilla a fuego medio-fuerte; coloca la hamburguesa untada de aceite.\n5. 2-3 min sin moverla; da la vuelta una vez y pon el queso encima; 2-4 min segun punto.\n6. Tuesta el pan por dentro.\n7. Monta: pan, lechuga y tomate, hamburguesa, bacon, cebolla y pepinillos, salsa y cierra. Acompana con patatas.",
+  "https://www.directoalpaladar.com/recetas-de-carnes-y-aves/como-hacer-hamburguesas-caseras"),
+ "Pizzas":(
+  "1. Mezcla la masa (harina, agua, levadura, sal, aceite) hasta homogenea; reposa 1-3 h.\n2. Divide, bolea y deja reposar; sacala 1-2 h antes si estaba en frio.\n3. Estira cada bola del centro a los bordes dejando el borde mas grueso.\n4. Precalienta el horno 45 min a la maxima temperatura (250C+).\n5. Extiende una capa fina de tomate, la mozzarella y los ingredientes sin sobrecargar.\n6. Hornea 3-4 min abajo y 3-4 min arriba, vigilando.\n7. Reposa unos minutos; anade oregano y aceite al salir.",
+  "https://www.directoalpaladar.com/recetas-de-panes/pizza-casera-la-guia-definitiva"),
+ "Fritura de pescado":(
+  "1. Adobo del cazon: maja ajo, comino, oregano y pimenton, anade vinagre, laurel y sal.\n2. Corta el cazon en tacos, cubrelo con el adobo y macera en nevera 8 h (mejor toda la noche).\n3. Limpia y seca boquerones, calamar en anillas, rosada y el cazon escurrido.\n4. Enharina con harina de freir/tempura y sacude el exceso.\n5. Calienta abundante aceite a 180C sin que humee.\n6. Frie en tandas pequenas 30 s-2 min segun el pescado, una sola vuelta.\n7. Escurre en papel y sirve al momento con limon.",
+  "https://www.directoalpaladar.com/recetas-de-aperitivos/como-se-hace-el-cazon-en-adobo-receta-de-bienmesabe"),
+}
 
 # ---------------------------------------------------------------- INGREDIENTES
 # (Ingrediente, Categoria, Unidad, EsStaple, ListaStaple)
@@ -96,6 +148,10 @@ INGREDIENTES = [
  ("Filetes de ternera","Carniceria","g",N,""),("Entrecot de vaca","Carniceria","g",N,""),
  ("Costillas de cerdo","Carniceria","g",N,""),("Lomo de cerdo","Carniceria","g",N,""),
  ("Pinchitos","Carniceria","g",N,""),("Chuletas de cerdo","Carniceria","g",N,""),
+ ("Aguja de vaca","Carniceria","g",N,""),("Carrillera de ternera","Carniceria","g",N,""),
+ ("Presa de cerdo","Carniceria","g",N,""),("Secreto de cerdo","Carniceria","g",N,""),
+ ("Pluma de cerdo","Carniceria","g",N,""),("Chuleton de buey","Carniceria","g",N,""),
+ ("Chuletas de cordero","Carniceria","g",N,""),
  # Charcuteria
  ("Chorizo","Charcuteria","g",N,""),("Chorizo parrilla","Charcuteria","g",N,""),
  ("Morcilla","Charcuteria","g",N,""),("Longaniza","Charcuteria","g",N,""),
@@ -106,6 +162,8 @@ INGREDIENTES = [
  # Pescaderia
  ("Boquerones","Pescaderia","g",N,""),("Calamar","Pescaderia","g",N,""),
  ("Rosada","Pescaderia","g",N,""),("Cazon","Pescaderia","g",N,""),
+ ("Gambas/langostinos","Pescaderia","g",N,""),("Mejillones","Pescaderia","g",N,""),
+ ("Almejas","Pescaderia","g",N,""),
  # Fruteria
  ("Berenjena","Fruteria","g",N,""),("Patata","Fruteria","g",N,""),
  ("Cebolla","Fruteria","g",N,""),("Cebolleta","Fruteria","g",N,""),
@@ -129,8 +187,10 @@ INGREDIENTES = [
  ("Garbanzos cocidos","Despensa","g",N,""),("Alubias rojas cocidas","Despensa","g",N,""),
  ("Lata de maiz","Despensa","g",N,""),("Pasas","Despensa","g",N,""),
  ("Caldo de pollo","Despensa","ml",N,""),("Caldo de carne","Despensa","ml",N,""),
+ ("Caldo de pescado","Despensa","ml",N,""),("Azafran","Despensa","g",S,"Cocina"),
  ("Tomate natural","Despensa","g",N,""),("Tomate tamizado","Despensa","g",N,""),
  ("Tomate frito","Despensa","g",N,""),("Guacamole","Despensa","g",N,""),
+ ("Pimiento morron asado","Despensa","g",N,""),
  ("Aceitunas negras","Despensa","g",N,""),("Pepinillos","Despensa","g",N,""),
  ("Harina","Despensa","g",S,"Cocina"),("Harina de freir","Despensa","g",S,"Cocina"),
  ("Aceite de oliva","Despensa","ml",S,"Cocina"),("AOVE","Despensa","ml",S,"Cocina"),
@@ -157,7 +217,8 @@ INGREDIENTES = [
 def r(c,i,q,g="",p="",o="No"): return (c,i,q,g,p,o)
 RECETAS = [
  # Arroz campero
- r("Arroz campero","Arroz",100),r("Arroz campero","Pollo troceado",150),
+ r("Arroz campero","Arroz",100),r("Arroz campero","Aguja de vaca",150),
+ r("Arroz campero","Pimiento morron asado",30),
  r("Arroz campero","Chorizo",30),r("Arroz campero","Pimiento rojo",40),
  r("Arroz campero","Pimiento verde",40),r("Arroz campero","Cebolla",40),
  r("Arroz campero","Tomate natural",50),r("Arroz campero","Guisantes",30),
@@ -173,7 +234,7 @@ RECETAS = [
  r("Mousaka griega","Aceite de oliva",20),r("Mousaka griega","Canela",0.5),
  r("Mousaka griega","Nuez moscada",0.2),r("Mousaka griega","Sal",2),
  # Couscous
- r("Couscous","Semola couscous",90),r("Couscous","Pollo troceado",150),
+ r("Couscous","Semola couscous",90),r("Couscous","Carrillera de ternera",150),
  r("Couscous","Cebolla",60),r("Couscous","Zanahoria",60,"","","Si"),
  r("Couscous","Calabacin",60),r("Couscous","Garbanzos cocidos",50),
  r("Couscous","Tomate tamizado",30),r("Couscous","Pimiento rojo",40),
@@ -212,17 +273,18 @@ RECETAS = [
  r("Pisto de verduras con huevos","Cebolla",100),r("Pisto de verduras con huevos","Pimiento verde",100),
  r("Pisto de verduras con huevos","Tomate frito",120),r("Pisto de verduras con huevos","Huevo",1.5),
  r("Pisto de verduras con huevos","Aceite de oliva",25),r("Pisto de verduras con huevos","Sal",2),
- # Barbacoa 1 (grupo Carne)
- r("Barbacoa 1","Costillas de cerdo",110,"Carne","110"),r("Barbacoa 1","Pinchitos",70,"Carne","70"),
- r("Barbacoa 1","Chorizo parrilla",40,"Carne","40"),r("Barbacoa 1","Panceta",40,"Carne","40"),
- r("Barbacoa 1","Morcilla",30,"Carne","30"),r("Barbacoa 1","Mazorcas",0.5),
+ # Barbacoa 1 (grupo Carne) - cerdo y embutido, carne fresca
+ r("Barbacoa 1","Presa de cerdo",70,"Carne","70"),r("Barbacoa 1","Secreto de cerdo",50,"Carne","50"),
+ r("Barbacoa 1","Pluma de cerdo",40,"Carne","40"),r("Barbacoa 1","Panceta",40,"Carne","40"),
+ r("Barbacoa 1","Pinchitos",40,"Carne","40"),r("Barbacoa 1","Chorizo parrilla",30,"Carne","30"),
+ r("Barbacoa 1","Morcilla",20,"Carne","20"),r("Barbacoa 1","Mazorcas",0.5),
  r("Barbacoa 1","Pan",80),r("Barbacoa 1","Pimiento verde",40),
  r("Barbacoa 1","Sal gorda",3),r("Barbacoa 1","Alioli",20),
- # Barbacoa 2 (grupo Carne)
- r("Barbacoa 2","Entrecot de vaca",130,"Carne","130"),r("Barbacoa 2","Alitas de pollo",90,"Carne","90"),
- r("Barbacoa 2","Chistorra",40,"Carne","40"),r("Barbacoa 2","Chorizo parrilla",30,"Carne","30"),
- r("Barbacoa 2","Calabacin",60),r("Barbacoa 2","Cebolleta",40),
- r("Barbacoa 2","Pimiento rojo",40),r("Barbacoa 2","Mazorcas",0.5),
+ # Barbacoa 2 (grupo Carne) - vacuno, cordero y verdura, sin pollo, carne fresca
+ r("Barbacoa 2","Entrecot de vaca",100,"Carne","100"),r("Barbacoa 2","Chuleton de buey",70,"Carne","70"),
+ r("Barbacoa 2","Chuletas de cordero",60,"Carne","60"),r("Barbacoa 2","Chistorra",30,"Carne","30"),
+ r("Barbacoa 2","Chorizo parrilla",30,"Carne","30"),r("Barbacoa 2","Calabacin",60),
+ r("Barbacoa 2","Cebolleta",40),r("Barbacoa 2","Pimiento rojo",40),r("Barbacoa 2","Mazorcas",0.5),
  r("Barbacoa 2","Pan",80),r("Barbacoa 2","Sal gorda",3),r("Barbacoa 2","Chimichurri",20),
  # Fajitas
  r("Fajitas","Pollo en tiras",150),r("Fajitas","Tortillas de trigo",2),
@@ -250,6 +312,15 @@ RECETAS = [
  r("Fritura de pescado","Limon",0.5),r("Fritura de pescado","Sal",2),r("Fritura de pescado","Perejil",1),
  r("Fritura de pescado","Vinagre",10),r("Fritura de pescado","Pimenton",2),
  r("Fritura de pescado","Comino",1),r("Fritura de pescado","Ajo",3),r("Fritura de pescado","Oregano",1),
+ # Paella de marisco (opcion alternativa de arroz)
+ r("Paella de marisco","Arroz",100),r("Paella de marisco","Gambas/langostinos",80),
+ r("Paella de marisco","Mejillones",80),r("Paella de marisco","Calamar",60),
+ r("Paella de marisco","Almejas",50),r("Paella de marisco","Caldo de pescado",250),
+ r("Paella de marisco","Tomate natural",40),r("Paella de marisco","Cebolla",30),
+ r("Paella de marisco","Pimiento rojo",30),r("Paella de marisco","Ajo",3),
+ r("Paella de marisco","Guisantes",20),r("Paella de marisco","Aceite de oliva",15),
+ r("Paella de marisco","Pimenton",2),r("Paella de marisco","Azafran",1),
+ r("Paella de marisco","Limon",0.25),r("Paella de marisco","Sal",2),
 ]
 
 # ---------------------------------------------------------------- CALENDARIO (slots vacios)
@@ -404,7 +475,8 @@ def build():
 
     tables={
       "Config":(["Clave","Valor","Descripcion"],[list(x) for x in CONFIG]),
-      "Comidas":(["Comida","MomentoSugerido","Cocinero","Preparacion","Notas"],[list(x) for x in COMIDAS]),
+      "Comidas":(["Comida","MomentoSugerido","Cocinero","Preparacion","Fuente","Notas"],
+                 [[c[0],c[1],c[2],PREP.get(c[0],(c[3],""))[0],PREP.get(c[0],("",""))[1],c[4]] for c in COMIDAS]),
       "Ingredientes":(["Ingrediente","Categoria","Unidad","EsBasico","ListaBasico"],[list(x) for x in INGREDIENTES]),
       "Recetas":(["Comida","Ingrediente","CantidadPorComensal","Grupo","PesoEnGrupo","Opcional"],[list(x) for x in RECETAS]),
       "Calendario":(["Fecha","DiaSemana","Momento","Comida","Cocinero","NivelCarne","Notas"],[list(x) for x in CALENDARIO]),

@@ -1,73 +1,103 @@
-Comida,MomentoSugerido,Cocinero,Preparacion,Notas
-Arroz campero,Almuerzo,Paco,"1. Sofrie cebolla, pimientos y ajo en aceite.
-2. Dora el pollo troceado y el chorizo.
-3. Anade tomate natural y pimenton; rehoga.
-4. Incorpora el arroz y el caldo caliente (doble volumen).
-5. Anade guisantes; cuece 18 min y reposa 5 min.",
-Mousaka griega,Almuerzo,Paco,"1. Lamina berenjena y patata; frie o asa.
-2. Sofrie cebolla y ajo; anade la ternera picada.
-3. Agrega tomate tamizado, vino y canela; reduce.
-4. Monta capas: patata, berenjena, carne.
-5. Cubre con bechamel (mantequilla, harina, leche, huevo, queso) y hornea 35 min a 190C.",Con ternera (no cordero); tomate tamizado.
-Couscous,Almuerzo,Paco,"1. Sofrie cebolla, zanahoria (opcional), calabacin y pimiento.
-2. Anade el pollo y el ras el hanout.
-3. Incorpora tomate tamizado, garbanzos, pasas y caldo; guisa.
-4. Hidrata la semola con caldo caliente y aceite; desgrana.
-5. Sirve el guiso sobre el couscous.",Zanahoria opcional; tomate tamizado (poco).
-Plato alpujarreno con huevos,Almuerzo,Paco,"1. Frie las patatas en laminas a fuego medio hasta tiernas.
-2. Frie morcilla, chorizo, longaniza y lomo.
-3. Anade el jamon al final.
-4. Frie los huevos.
-5. Sirve todo junto con pimiento frito.",Patatas a lo pobre + embutido + huevos.
-Salmorejo con acompanamiento,Almuerzo,Paco,"1. Tritura tomate, pan remojado, ajo y sal.
-2. Emulsiona anadiendo el AOVE en hilo.
-3. Ajusta con un poco de vinagre; enfria.
-4. Sirve con huevo duro y jamon picados.
-5. Acompana con los filetes a la plancha (o la opcion elegida).",Acompanamiento elegible; por defecto filetes de ternera.
-Migas,Almuerzo,Manolo,"1. Humedece el pan troceado la noche antes.
-2. Frie ajos, chorizo y panceta; reserva.
-3. En esa grasa anade el pan y el pimenton.
-4. Remueve a fuego medio hasta que quede suelto y dorado.
-5. Sirve con los tropezones.",
-Chili con carne,Almuerzo,Dan,"1. Sofrie cebolla, pimiento y ajo.
-2. Dora la carne picada.
-3. Anade comino, pimenton picante, tomate y caldo; guisa 30 min.
-4. Incorpora alubias y la lata de maiz; cuece 10 min.
-5. Sirve con arroz blanco.",Con guarnicion de arroz.
-Asado de pollo y patatas,Almuerzo,Paco,"1. Trocea el pollo y salpimienta.
-2. Coloca con patata y cebolla en bandeja.
-3. Riega con vino, aceite, limon y romero.
-4. Hornea 60-75 min a 200C regando de vez en cuando.",El 'asado de carne/pescado'.
-Pisto de verduras con huevos,Almuerzo,Paco,"1. Pocha la cebolla y el pimiento verde en aceite.
-2. Anade el tomate frito; cuece 20 min a fuego lento.
-3. Sazona.
-4. Frie los huevos y sirvelos encima.","RESPALDO: solo cebolla, tomate frito y pimiento verde + huevos."
-Barbacoa 1,Cena,Manolo,"1. Enciende las brasas con antelacion.
-2. Sala las carnes justo antes de asar.
-3. Asa primero lo que mas tarda (costillas).
-4. Anade embutidos y mazorcas.
-5. Sirve con pan y salsas.",Cerdo y embutido. Tope de carne por comensal (RF-26).
-Barbacoa 2,Cena,Manolo,"1. Enciende las brasas con antelacion.
-2. Sala las carnes justo antes de asar.
-3. Asa primero el entrecot y las alitas.
-4. Anade la verdura y las mazorcas.
-5. Sirve con pan y chimichurri.","Vacuno, pollo y verdura. Tope de carne por comensal (RF-26)."
-Fajitas,Cena,Manolo,"1. Marca el pollo en tiras con las especias.
-2. Saltea con pimientos y cebolla.
-3. Calienta las tortillas.
-4. Monta con queso, guacamole, nata agria, tomate y lechuga.",
-Hamburguesas,Cena,,"1. Forma las hamburguesas y salpimienta.
-2. Marca a la plancha al punto deseado.
-3. Tuesta el pan; funde el queso sobre la carne.
-4. Frie el bacon.
-5. Monta con lechuga, tomate, cebolla, pepinillos y salsas. Acompana con patatas.",
-Pizzas,Cena,,"1. Estira la masa.
-2. Extiende el tomate.
-3. Reparte mozzarella y los ingredientes.
-4. Hornea a maxima temperatura 8-12 min.
-5. Oregano y aceite al salir.",
-Fritura de pescado,Cena,Paco,"1. Adoba el cazon (vinagre, pimenton, comino, ajo, oregano) unas horas.
-2. Limpia y trocea los pescados.
-3. Enharina con harina de freir/tempura.
-4. Frie en abundante aceite caliente por tandas.
-5. Sirve con limon.",Surtido elegible; incluye adobo y tempura.
+Comida,MomentoSugerido,Cocinero,Preparacion,Fuente,Notas
+Arroz campero,Almuerzo,Luis,"1. Pica pimiento verde, ajos y tomate. En la paellera, sofrie pimiento y ajos; anade la aguja de vaca troceada y el chorizo salpimentados y dora.
+2. Incorpora el tomate natural y rehoga.
+3. Anade el arroz (90-100 g/persona) y sofrielo 2 min con pimenton y colorante o azafran.
+4. Vierte el caldo caliente (3 veces el volumen de arroz) y cuece a fuego fuerte 8 min.
+5. Anade guisantes y el pimiento morron asado; baja a fuego minimo y cuece 8 min mas.
+6. Apaga, tapa con un pano y reposa 7-8 min.",https://www.directoalpaladar.com/recetas-de-arroces/receta-arroz-campero-tipico-andalucia,
+Mousaka griega,Almuerzo,Paco,"1. Lamina las berenjenas, salalas y dejalas sudar; frielas ligeramente y reserva.
+2. Corta las patatas en rodajas y frielas ligeramente para la base.
+3. Pocha cebolla, anade tomate tamizado (nunca concentrado ni frito) y haz el sofrito.
+4. Incorpora la ternera picada dorada, un chorro de vino tinto y caldo; cuece 10 min hasta que no quede liquido.
+5. Prepara la bechamel (25 g mantequilla, 25 g harina, 500 ml leche) hasta que espese.
+6. Monta por capas: patata, berenjena, carne, berenjena; cubre con bechamel y queso.
+7. Hornea 20 min a 160C y gratina 3 min a 220C.",https://www.directoalpaladar.com/recetas-de-carnes-y-aves/moussaka-receta-griega,Con ternera (no cordero); tomate tamizado.
+Couscous,Almuerzo,Paco,"1. Trocea la carrillera de ternera, salpimienta y dorala a fuego alto en la cazuela.
+2. Baja el fuego, anade cebolla y pocha 10 min.
+3. Incorpora muy poco tomate tamizado y cocina hasta evaporar.
+4. Anade caldo, la zanahoria en dados (opcional), jengibre, comino y curcuma; guisa a fuego lento hasta que la carne este muy tierna.
+5. Anade el calabacin y los garbanzos; cuece 10-15 min mas.
+6. Aparte, hidrata la semola con caldo hirviendo, tapa 5 min y desgrana con un tenedor.
+7. Sirve la semola de base y reparte el guiso por encima.",https://www.todosacomer.net/recetas/guisos-pasta-arroces/cuscus-con-verduras-y-pollo,Zanahoria opcional; tomate tamizado (poco).
+Plato alpujarreno con huevos,Almuerzo,Paco,"1. Corta las patatas en rodajas de 1/2 cm; pica ajo y corta cebolla y pimiento verde.
+2. En abundante aceite, frie ajo y luego patatas, cebolla y pimiento; 5 min a fuego fuerte.
+3. Baja el fuego y cocina 25 min removiendo hasta que las patatas a lo pobre esten tiernas; escurre y sala.
+4. Aparte, frie los embutidos (chorizo, morcilla, longaniza, lomo) 5 min; escurre.
+5. Frie los huevos en aceite muy caliente para que la puntilla quede crujiente.
+6. Emplata: base de patatas, encima embutidos, huevos fritos y unas lonchas de jamon.",https://bonviveur.com/es/recetas/plato-alpujarreno,Patatas a lo pobre + embutido + huevos.
+Salmorejo con acompanamiento,Almuerzo,Paco,"1. Tritura los tomates (1 kg por cada 6 raciones); no hace falta pelar ni despepitar.
+2. Anade el pan (unos 200 g de telera por cada 6) y deja que se empape 10 min.
+3. Anade el ajo y tritura hasta una crema espesa.
+4. Incorpora el AOVE en hilo y bate hasta emulsionar; sala y enfria.
+5. Sirve frio con jamon picado y huevo cocido.
+6. De acompanamiento, salpimienta los filetes y hazlos a la plancha 2-3 min por cara.",https://www.directoalpaladar.com/recetas-de-sopas-y-cremas/receta-de-salmorejo-cordobes-tradicional,Acompanamiento elegible; por defecto filetes de ternera.
+Migas,Almuerzo,Manolo,"1. Corta pan candeal asentado en cubos de 1 cm; humedecelo con agua salada, tapa con un pano y reposa (mejor de un dia para otro).
+2. Frie el chorizo en rodajas y la panceta en dados hasta que suelten grasa; reserva.
+3. En esa grasa, rehoga los ajos aplastados con piel 2-3 min sin quemar.
+4. Anade las migas de pan y el pimenton; cocina a fuego suave 10 min removiendo.
+5. Cuando esten sueltas y doradas, devuelve chorizo y panceta y mezcla.
+6. Para grupo grande, trabaja por tandas o en perol amplio; sirve muy caliente.",https://www.directoalpaladar.com/recetas-tradicionales/mejor-receta-migas-pan-chorizo-clasico-potente-como-tradicional,
+Chili con carne,Almuerzo,Dan,"1. Pocha la cebolla en aceite hasta transparente.
+2. Anade ajo, pimenton picante y comino; rehoga.
+3. Incorpora la carne picada y cocina hasta que pierda el color.
+4. Anade tomate, un poco de caldo y una pizca de azucar; cuece destapado 30 min.
+5. Anade las alubias rojas y la lata de maiz; cuece unos minutos.
+6. Rectifica de sal y picante; sirve con arroz blanco y nachos.",https://www.directoalpaladar.com/recetas-de-carnes-y-aves/chili-receta-mexicana-con-y-sin-thermomix,Con guarnicion de arroz.
+Asado de pollo y patatas,Almuerzo,Paco,"1. Precalienta el horno a 180C. Mezcla sal, pimienta y tomillo/romero.
+2. Parte las patatas, hazles cortes y colocalas en la bandeja engrasada.
+3. Sazona el pollo por dentro y fuera; introduce ajos en cortes y en la cavidad.
+4. Coloca el pollo sobre las patatas y hornea a 180C unos 45-60 min (remueve las patatas a media coccion).
+5. Pasa los jugos a un cazo, hierve y liga con un poco de maicena.
+6. Trincha, riega con la salsa y sirve; para mas comensales reparte en varias bandejas sin amontonar.",https://www.hogarmania.com/cocina/recetas/carnes/pollo-asado-patatas-ensalada-verde-16651.html,El 'asado de carne/pescado'.
+Pisto de verduras con huevos,Almuerzo,Paco,"1. Pica en cuadraditos la cebolla y el pimiento verde; pica una pizca de ajo.
+2. Pocha cebolla, pimiento y ajo en aceite 10-15 min a fuego medio.
+3. Anade el tomate natural y cuece despacio hasta que quede meloso (no caldoso).
+4. Rectifica de sal (pizca de azucar si esta acido).
+5. Aparte, frie los huevos.
+6. Sirve el pisto con los huevos fritos por encima.",https://www.directoalpaladar.com/recetas-de-legumbres-y-verduras/pisto-de-pimientos-y-tomates-la-receta-de-mi-abuela,"RESPALDO: solo cebolla, tomate frito y pimiento verde + huevos."
+Barbacoa 1,Cena,Manolo,"1. Enciende la barbacoa 30-40 min antes; espera a que las brasas esten blanquecinas, sin llama.
+2. Reparte el carbon para calor uniforme; parrilla no muy pegada a las brasas.
+3. Empieza por el embutido y las piezas grasas: chorizo, panceta y morcilla.
+4. Asa la presa, el secreto y la pluma de cerdo a calor medio, girando cada pocos minutos.
+5. Haz los pinchitos dandoles vueltas para que se doren sin secarse.
+6. Usa carne fresca (sin congelar); retira cada pieza segun se dora.
+7. NO sales antes: echa la sal SOLO AL FINAL, en el plato.",https://www.directoalpaladar.com/cultura-gastronomica/los-9-trucos-imprescindibles-para-convertirte-en-el-maestro-de-las-barbacoas,Cerdo y embutido. Tope de carne por comensal (RF-26).
+Barbacoa 2,Cena,Manolo,"1. Enciende las brasas 30-40 min antes; saca el vacuno de la nevera para atemperar.
+2. Sella el entrecot y el chuleton sobre brasa fuerte ~5 min por cara; una sola vuelta.
+3. Asa las chuletas de cordero hasta que esten doradas y jugosas.
+4. Haz la chistorra y el chorizo cerca del borde para que no revienten.
+5. Deja reposar el vacuno 5 min antes de trocear; acompana con chimichurri.
+6. Asa las verduras (calabacin, cebolleta, pimiento) y las mazorcas untadas de aceite, 5-10 min por lado.
+7. Echa la sal AL FINAL para no resecar la carne.",https://www.directoalpaladar.com/recetario/83-mejores-recetas-barbacoa-para-sacar-todo-partido-a-parrilla-este-verano,"Vacuno, pollo y verdura. Tope de carne por comensal (RF-26)."
+Fajitas,Cena,Manolo,"1. Corta el pollo en tiras y la cebolla y los pimientos en tiras anchas.
+2. Salpimienta el pollo y saltealo en aceite muy caliente; reserva.
+3. Saltea los pimientos y la cebolla hasta tiernos pero firmes.
+4. Devuelve el pollo, anade especias fajita (comino, pimenton) y un chorrito de lima.
+5. Calienta las tortillas en sarten seca por ambas caras.
+6. Rellena y enrolla; sirve con guacamole, nata agria, queso, tomate y lechuga.",https://www.divinacocina.es/fajitas-de-pollo-faciles/,
+Hamburguesas,Cena,,"1. Usa carne picada fresca; salpimienta.
+2. Mezcla sin amasar en exceso y forma discos regulares.
+3. Deja reposar 10 min a temperatura ambiente.
+4. Plancha o parrilla a fuego medio-fuerte; coloca la hamburguesa untada de aceite.
+5. 2-3 min sin moverla; da la vuelta una vez y pon el queso encima; 2-4 min segun punto.
+6. Tuesta el pan por dentro.
+7. Monta: pan, lechuga y tomate, hamburguesa, bacon, cebolla y pepinillos, salsa y cierra. Acompana con patatas.",https://www.directoalpaladar.com/recetas-de-carnes-y-aves/como-hacer-hamburguesas-caseras,
+Pizzas,Cena,,"1. Mezcla la masa (harina, agua, levadura, sal, aceite) hasta homogenea; reposa 1-3 h.
+2. Divide, bolea y deja reposar; sacala 1-2 h antes si estaba en frio.
+3. Estira cada bola del centro a los bordes dejando el borde mas grueso.
+4. Precalienta el horno 45 min a la maxima temperatura (250C+).
+5. Extiende una capa fina de tomate, la mozzarella y los ingredientes sin sobrecargar.
+6. Hornea 3-4 min abajo y 3-4 min arriba, vigilando.
+7. Reposa unos minutos; anade oregano y aceite al salir.",https://www.directoalpaladar.com/recetas-de-panes/pizza-casera-la-guia-definitiva,
+Fritura de pescado,Cena,Paco,"1. Adobo del cazon: maja ajo, comino, oregano y pimenton, anade vinagre, laurel y sal.
+2. Corta el cazon en tacos, cubrelo con el adobo y macera en nevera 8 h (mejor toda la noche).
+3. Limpia y seca boquerones, calamar en anillas, rosada y el cazon escurrido.
+4. Enharina con harina de freir/tempura y sacude el exceso.
+5. Calienta abundante aceite a 180C sin que humee.
+6. Frie en tandas pequenas 30 s-2 min segun el pescado, una sola vuelta.
+7. Escurre en papel y sirve al momento con limon.",https://www.directoalpaladar.com/recetas-de-aperitivos/como-se-hace-el-cazon-en-adobo-receta-de-bienmesabe,Surtido elegible; incluye adobo y tempura.
+Paella de marisco,Almuerzo,Paco,"1. Sofrie cebolla, pimiento y ajo en aceite; anade tomate natural.
+2. Rehoga el arroz con pimenton y azafran.
+3. Anade el caldo de pescado caliente (doble volumen) y los guisantes.
+4. Incorpora el calamar; a media coccion anade gambas, mejillones y almejas.
+5. Cuece 18 min sin remover; reposa 5 min. Sirve con limon.",,Opcion alternativa de arroz.

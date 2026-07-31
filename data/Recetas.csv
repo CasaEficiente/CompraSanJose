@@ -1,6 +1,7 @@
 Comida,Ingrediente,CantidadPorComensal,Grupo,PesoEnGrupo,Opcional
 Arroz campero,Arroz,100,,,No
-Arroz campero,Pollo troceado,150,,,No
+Arroz campero,Aguja de vaca,150,,,No
+Arroz campero,Pimiento morron asado,30,,,No
 Arroz campero,Chorizo,30,,,No
 Arroz campero,Pimiento rojo,40,,,No
 Arroz campero,Pimiento verde,40,,,No
@@ -29,7 +30,7 @@ Mousaka griega,Canela,0.5,,,No
 Mousaka griega,Nuez moscada,0.2,,,No
 Mousaka griega,Sal,2,,,No
 Couscous,Semola couscous,90,,,No
-Couscous,Pollo troceado,150,,,No
+Couscous,Carrillera de ternera,150,,,No
 Couscous,Cebolla,60,,,No
 Couscous,Zanahoria,60,,,Si
 Couscous,Calabacin,60,,,No
@@ -96,19 +97,22 @@ Pisto de verduras con huevos,Tomate frito,120,,,No
 Pisto de verduras con huevos,Huevo,1.5,,,No
 Pisto de verduras con huevos,Aceite de oliva,25,,,No
 Pisto de verduras con huevos,Sal,2,,,No
-Barbacoa 1,Costillas de cerdo,110,Carne,110,No
-Barbacoa 1,Pinchitos,70,Carne,70,No
-Barbacoa 1,Chorizo parrilla,40,Carne,40,No
+Barbacoa 1,Presa de cerdo,70,Carne,70,No
+Barbacoa 1,Secreto de cerdo,50,Carne,50,No
+Barbacoa 1,Pluma de cerdo,40,Carne,40,No
 Barbacoa 1,Panceta,40,Carne,40,No
-Barbacoa 1,Morcilla,30,Carne,30,No
+Barbacoa 1,Pinchitos,40,Carne,40,No
+Barbacoa 1,Chorizo parrilla,30,Carne,30,No
+Barbacoa 1,Morcilla,20,Carne,20,No
 Barbacoa 1,Mazorcas,0.5,,,No
 Barbacoa 1,Pan,80,,,No
 Barbacoa 1,Pimiento verde,40,,,No
 Barbacoa 1,Sal gorda,3,,,No
 Barbacoa 1,Alioli,20,,,No
-Barbacoa 2,Entrecot de vaca,130,Carne,130,No
-Barbacoa 2,Alitas de pollo,90,Carne,90,No
-Barbacoa 2,Chistorra,40,Carne,40,No
+Barbacoa 2,Entrecot de vaca,100,Carne,100,No
+Barbacoa 2,Chuleton de buey,70,Carne,70,No
+Barbacoa 2,Chuletas de cordero,60,Carne,60,No
+Barbacoa 2,Chistorra,30,Carne,30,No
 Barbacoa 2,Chorizo parrilla,30,Carne,30,No
 Barbacoa 2,Calabacin,60,,,No
 Barbacoa 2,Cebolleta,40,,,No
@@ -165,3 +169,19 @@ Fritura de pescado,Pimenton,2,,,No
 Fritura de pescado,Comino,1,,,No
 Fritura de pescado,Ajo,3,,,No
 Fritura de pescado,Oregano,1,,,No
+Paella de marisco,Arroz,100,,,No
+Paella de marisco,Gambas/langostinos,80,,,No
+Paella de marisco,Mejillones,80,,,No
+Paella de marisco,Calamar,60,,,No
+Paella de marisco,Almejas,50,,,No
+Paella de marisco,Caldo de pescado,250,,,No
+Paella de marisco,Tomate natural,40,,,No
+Paella de marisco,Cebolla,30,,,No
+Paella de marisco,Pimiento rojo,30,,,No
+Paella de marisco,Ajo,3,,,No
+Paella de marisco,Guisantes,20,,,No
+Paella de marisco,Aceite de oliva,15,,,No
+Paella de marisco,Pimenton,2,,,No
+Paella de marisco,Azafran,1,,,No
+Paella de marisco,Limon,0.25,,,No
+Paella de marisco,Sal,2,,,No
