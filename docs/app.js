@@ -359,7 +359,17 @@ function signout(){ try{ google.accounts.id.disableAutoSelect(); }catch(e){} idT
 
 /* ------------------------------- boot ----------------------------------- */
 async function reload(){
-  try{ DATA=await apiRead(); render(); }
+  try{
+    const res = await apiRead();
+    if(res && res.ok === false){
+      $('#app').innerHTML=`<div class="center"><div class="brand">Compra<em>SanJose</em></div>
+        <p>Tu correo <b>${esc(userEmail||'')}</b> aún no tiene acceso.<br>Pide a alguien del grupo que te añada en Ajustes → Usuarios.</p>
+        <button class="btn" style="max-width:240px" data-act="signout">Cambiar de cuenta</button></div>`;
+      return;
+    }
+    DATA = (res && res.data) ? res.data : res;   // el backend envuelve en {ok,data}
+    render();
+  }
   catch(err){ $('#app').innerHTML=`<div class="center"><div class="brand">Compra<em>SanJose</em></div>
     <p>No se pudieron cargar los datos.<br>Puede que tu sesión haya caducado.</p>
     <button class="btn solid" style="max-width:220px" onclick="bootLogin()">Reintentar / entrar</button></div>`; }
