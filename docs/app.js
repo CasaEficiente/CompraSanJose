@@ -231,6 +231,11 @@ function viewAjustes(){
     ${stepper('AdultosM','Adultos ♂')}${stepper('AdultosF','Adultos ♀')}${stepper('Ninos','Niños')}
     <div class="rlabel">Fechas de compra (tramos)</div>
     <div class="card">${compras().map(c=>`<span class="chip olive">${esc(c.Fecha)}${c.Etiqueta?' · '+esc(c.Etiqueta):''}</span>`).join('')||'<span class="muted small">Sin fechas.</span>'}</div>
+    <div class="rlabel">Usuarios con acceso</div>
+    <div class="card" style="padding:2px 12px">${(DATA.Usuarios||[]).map(u=>`<div class="item"><div class="thumb">👤</div><div class="it-main"><div class="n">${esc(u.Email)}</div>${u.Rol?`<div class="q">${esc(u.Rol)}</div>`:''}</div></div>`).join('')||'<div class="item"><div class="it-main muted small">Sin usuarios.</div></div>'}</div>
+    <div class="controls"><input id="u-email" type="email" inputmode="email" placeholder="correo@gmail.com" style="flex:1">
+      <button class="btn solid" style="width:auto;white-space:nowrap" data-act="adduser">Añadir</button></div>
+    <p class="muted small" style="margin:2px 4px 0">Cualquiera con acceso puede autorizar a más gente (con su Gmail).</p>
     <div class="rlabel">Cuenta</div>
     <div class="card small"><div>Sesión: <b>${esc(userEmail||'—')}</b></div></div>
     <div class="row-btns"><button class="btn" data-act="install">📲 Cómo instalar</button><button class="btn warn" data-act="signout">Cerrar sesión</button></div>
@@ -288,6 +293,7 @@ document.addEventListener('click',(e)=>{
   else if(act==='adddesp'){ openModal({type:'adddesp'}); }
   else if(act==='savedesp'){ saveDesp(); }
   else if(act==='install'){ openModal({type:'install'}); }
+  else if(act==='adduser'){ addUser(); }
   else if(act==='editprep'){ editPrep(b.getAttribute('data-comida')); }
   else if(act==='signout'){ signout(); }
   else if(act==='closemodal'||act==='closebg'){ if(act==='closebg'&&e.target.closest('.sheet'))return; closeModal(); }
@@ -340,6 +346,14 @@ function editPrep(name){
   } else {
     box.dataset.editing='1'; box.innerHTML=`<textarea rows="10" style="width:100%">${esc(cur.Preparacion)}</textarea>`;
   }
+}
+function addUser(){
+  const email=(($('#u-email')||{}).value||'').trim().toLowerCase();
+  if(!email || email.indexOf('@')<1){ toast('Correo no válido'); return; }
+  if((DATA.Usuarios||[]).some(u=>String(u.Email).trim().toLowerCase()===email)){ toast('Ya tiene acceso'); return; }
+  (DATA.Usuarios=DATA.Usuarios||[]).push({Email:email,Proveedor:'Google',Rol:'invitado'});
+  apiWrite({action:'append',sheet:'Usuarios',row:{Email:email,Proveedor:'Google',Rol:'invitado'}});
+  render(); toast('Autorizado: '+email);
 }
 function signout(){ try{ google.accounts.id.disableAutoSelect(); }catch(e){} idToken=null; DATA=null; bootLogin(); }
 
