@@ -2,7 +2,7 @@
    CompraSanJose — PWA (frontend)
    Rellena estas dos constantes tras el setup (ver docs/DESPLIEGUE.md):
    ========================================================================== */
-const CLIENT_ID   = "";  // OAuth Client ID de Google  (xxxxx.apps.googleusercontent.com)
+const CLIENT_ID   = "1023508400728-0slk8sh110iad5hkcsbsij8v8a8hfpkl.apps.googleusercontent.com";  // OAuth Client ID de Google
 const BACKEND_URL = "";  // URL del Apps Script desplegado (termina en /exec)
 /* ========================================================================== */
 

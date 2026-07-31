@@ -14,7 +14,7 @@
  */
 
 var OWNER = 'francisco.m.garcia@gmail.com';   // siempre permitido
-var CLIENT_ID = '';                            // (opcional) tu OAuth Client ID; si lo pones, se comprueba
+var CLIENT_ID = '1023508400728-0slk8sh110iad5hkcsbsij8v8a8hfpkl.apps.googleusercontent.com';  // se verifica el token
 var SHEETS = ['Config','Comidas','Ingredientes','Recetas','Calendario','Compras',
               'Despensa','Basicos','ListasAbiertas','Usuarios','ListaCompra'];
 
