@@ -3,7 +3,7 @@
    Rellena estas dos constantes tras el setup (ver docs/DESPLIEGUE.md):
    ========================================================================== */
 const CLIENT_ID   = "1023508400728-0slk8sh110iad5hkcsbsij8v8a8hfpkl.apps.googleusercontent.com";  // OAuth Client ID de Google
-const BACKEND_URL = "";  // URL del Apps Script desplegado (termina en /exec)
+const BACKEND_URL = "https://script.google.com/macros/s/AKfycbynSERdFdP0l75ubvoKLzZe1P9zq6tiAa1A7x7q6Ym3Vmkcy99dxv7XYA2DquGOj6CXlA/exec";
 /* ========================================================================== */
 
 const CATORDER = ['Fruteria','Carniceria','Charcuteria','Pescaderia','Panaderia','Lacteos','Congelados','Despensa','Bebidas'];
