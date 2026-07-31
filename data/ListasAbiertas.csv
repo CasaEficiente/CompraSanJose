@@ -1,0 +1,26 @@
+Tipo,Item,Envase,TamanoEnvase,Unidad,ConsumoPersonaDia,Paquetes,Comprado
+Desayuno,Leche,Brik,1,L,0.2,28,No
+Desayuno,Cafe molido,Paquete,250,g,15,9,No
+Desayuno,Cereales,Caja,500,g,30,9,No
+Desayuno,Bizcochos,Paquete,400,g,40,14,No
+Desayuno,Pan de molde,Paquete,700,g,50,10,No
+Desayuno,Mantequilla,Tarrina,250,g,8,5,No
+Desayuno,Mermelada,Bote,340,g,10,4,No
+Desayuno,Zumo,Brik,1,L,0.15,21,No
+Desayuno,Galletas,Paquete,500,g,25,7,No
+Desayuno,Cacao soluble,Bote,400,g,10,4,No
+Desayuno,Fruta,Kg,1000,g,120,17,No
+Bebidas,Agua,Garrafa,8,L,1,20,No
+Bebidas,Refresco de cola,Botella,2,L,0.3,23,No
+Bebidas,Refresco naranja/limon,Botella,2,L,0.2,16,No
+Bebidas,Cerveza,Lata,0.33,L,0.5,232,No
+Bebidas,Vino tinto,Botella,0.75,L,0.15,31,No
+Bebidas,Vino blanco,Botella,0.75,L,0.1,21,No
+Bebidas,Tinto de verano,Botella,1,L,0.1,16,No
+Bebidas,Hielo,Bolsa,2000,g,100,8,No
+Picoteo,Patatas fritas,Bolsa,200,g,25,20,No
+Picoteo,Aceitunas,Bote,350,g,15,7,No
+Picoteo,Frutos secos,Bolsa,200,g,15,12,No
+Picoteo,Nachos,Bolsa,200,g,15,12,No
+Picoteo,Altramuces,Bote,400,g,10,4,No
+Picoteo,Encurtidos,Bote,300,g,8,5,No

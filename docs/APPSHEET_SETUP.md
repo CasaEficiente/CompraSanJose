@@ -1,154 +1,113 @@
-# Montar la app en AppSheet
+# Montaje de la app SanJose2026 (AppSheet) — guía definitiva
 
-Guía para crear la aplicación sobre el Google Sheet, con la cuenta de Google/Gmail.
+Backend: **un único Google Sheet** con 11 pestañas (`CompraSanJose.xlsx`).
+App: **SanJose2026** (ya creada en tu cuenta).
 
-Hay **dos niveles**. Empieza por el **básico** (funciona en minutos) y pasa al **avanzado**
-solo si quieres que la app recalcule la lista al vuelo.
-
----
-
-## 0) Preparar el Google Sheet
-
-Ya tienes en tu Drive un libro (o varios) con las pestañas: `Config`, `Comidas`,
-`Ingredientes`, `Recetas` y `ListaCompra`. Si no, importa los CSV de `data/`:
-
-1. Ve a **Google Sheets → Archivo → Importar → Subir** y sube cada CSV.
-2. Al importar, elige **"Insertar hojas nuevas"** para tener cada tabla en su pestaña,
-   o crea un libro por tabla.
-3. Asegúrate de que la **fila 1 es la cabecera** (nombres de columna) en cada pestaña.
-
-> Consejo: mejor **un único libro** con 5 pestañas → AppSheet las detecta como 5 tablas
-> de una sola fuente de datos.
+> No existe API para construir la app por código: estos pasos se hacen una vez en el editor
+> de AppSheet. El Google Sheet y los datos ya están listos y calculados.
 
 ---
 
-## 1) Crear la app
+## PARTE A · Subir el backend y conectarlo (5 min)
 
-1. Entra en **https://www.appsheet.com** con tu cuenta de Google/Gmail.
-2. **Create → App → Start with existing data**.
-3. Elige **Google Sheets** y selecciona el libro `CompraSanJose`.
-4. AppSheet crea la app con la primera pestaña como tabla inicial.
-5. En **Data → Tables → + New Table**, añade el resto de pestañas
-   (`Config`, `Comidas`, `Ingredientes`, `Recetas`, `ListaCompra`).
+1. **Sube el libro a Drive.** El archivo está en tu equipo:
+   `C:\Users\franc\source\repos\CompraSanJose\data\CompraSanJose.xlsx`
+   - Ve a **drive.google.com** → carpeta **CompraSanJose** → **Nuevo → Subir archivo** → elige ese `.xlsx`.
+2. **Conviértelo a Google Sheet.** Doble clic en el archivo subido → **Abrir con Hojas de cálculo de Google** → **Archivo → Guardar como Hojas de cálculo de Google**. Tendrás un libro **CompraSanJose** con 11 pestañas: `Config, Comidas, Ingredientes, Recetas, Calendario, Compras, Despensa, Basicos, ListasAbiertas, Usuarios, ListaCompra`.
+3. **Conéctalo a la app.** Abre **SanJose2026** en AppSheet → **Data (izquierda) → + → Add data → Google Sheets** → elige el libro **CompraSanJose** → añade **todas** las pestañas como tablas.
 
----
-
-## NIVEL BÁSICO — Checklist de compra
-
-Objetivo: llevar la lista de la compra en el móvil, agrupada por sección del súper, y
-marcar lo que ya has comprado. Usa solo la tabla **`ListaCompra`**.
-
-1. **Data → Columns → ListaCompra**:
-   - `Ingrediente` → marca como **Key** (Label también).
-   - `Comprado` → tipo **Enum** con valores `Si`, `No`, o mejor **Yes/No**
-     (cambia el tipo a *Yes/No* para tener casilla de verificación).
-   - `Categoria` → tipo **Enum**.
-   - `CantidadLegible` → tipo **Text** (solo lectura).
-2. **UX → Views → + New View**:
-   - Nombre: `Compra`
-   - For this data: `ListaCompra`
-   - View type: **deck** (o **table**).
-   - **Group by:** `Categoria`  → así ves Frutería, Carnicería, etc. separadas.
-   - **Sort by:** `Ingrediente`.
-   - En *Display*, muestra `Ingrediente`, `CantidadLegible` y el toggle `Comprado`.
-3. (Opcional) **Format Rules**: si `Comprado = Si` (o TRUE), tacha/atenúa la fila.
-4. (Opcional) **Behavior → Actions**: acción "Vaciar carrito" que ponga todos los
-   `Comprado = No`.
-
-✅ Con esto ya tienes una app usable. Cuando cambies el menú, vuelve a ejecutar
-`python scripts/generar_lista.py`, sube el `ListaCompra.csv` a la pestaña y **Sync**.
+Con esto AppSheet autogenera una app navegable. Lo siguiente la afina.
 
 ---
 
-## NIVEL AVANZADO — Recalcular dentro de la app
+## PARTE B · Tipos de columna y claves (Data → Columns)
 
-Objetivo: activar/desactivar comidas o cambiar el acompañamiento **desde la app** y que la
-lista de la compra se recalcule sola, sin tocar Python. Usa las tablas `Config`, `Comidas`,
-`Ingredientes` y `Recetas`.
-
-### 2.1 Tipos y claves
-- **Comidas**: `Comida` = Key. `Tipo` = Enum (`Almuerzo`,`Cena`). `Incluir` = Enum
-  (`Si`,`No`) — o **Yes/No** si prefieres casilla (ajusta las fórmulas de abajo).
-- **Ingredientes**: `Ingrediente` = Key. `Categoria` = Enum. `Unidad` = Enum.
-- **Recetas**: añade una columna **Key** propia. Lo más simple: en el Sheet, columna
-  `RecetaID` con `=Comida & " · " & Ingrediente`. `Comida` = **Ref** a `Comidas`;
-  `Ingrediente` = **Ref** a `Ingredientes`; `CantidadPorRacion` = **Number**.
-- **Config**: `Clave` = Key, `Valor` = Number.
-
-### 2.2 Columna virtual: raciones totales
-En **Recetas**, crea una columna virtual `Raciones` (tipo Number), App formula:
-
-```
-  ANY(SELECT(Config[Valor], [Clave] = "Adultos"))
-+ ANY(SELECT(Config[Valor], [Clave] = "Ninos"))
-* ANY(SELECT(Config[Valor], [Clave] = "FactorNino"))
-```
-
-### 2.3 Columna virtual: subtotal por línea
-En **Recetas**, columna virtual `Subtotal` (Number), App formula:
-
-```
-IF( [Comida].[Incluir] = "Si",
-    [CantidadPorRacion] * [Raciones],
-    0 )
-```
-
-> Si pusiste `Incluir` como **Yes/No**, usa `IF([Comida].[Incluir], ...)`.
-
-### 2.4 Columna virtual: total por ingrediente
-En **Ingredientes**, columna virtual `CantidadTotal` (Number), App formula:
-
-```
-SUM( SELECT(Recetas[Subtotal], [Ingrediente] = [_THISROW].[Ingrediente]) )
-```
-
-Y una columna virtual `CantidadLegible` (Text) para presentación:
-
-```
-IF( [Unidad] = "g",  IF([CantidadTotal] >= 1000, (TEXT([CantidadTotal]/1000) & " kg"), (TEXT([CantidadTotal]) & " g")),
-IF( [Unidad] = "ml", IF([CantidadTotal] >= 1000, (TEXT([CantidadTotal]/1000) & " L"),  (TEXT([CantidadTotal]) & " ml")),
-    TEXT(CEILING([CantidadTotal])) & " ud" ))
-```
-
-### 2.5 Marcar comprado
-En **Ingredientes**, añade en el Sheet una columna real `Comprado` (Yes/No). No puede ser
-virtual porque hay que guardar el estado.
-
-### 2.6 Vista de compra
-**UX → Views → + New View**:
-- For this data: **Ingredientes**
-- View type: **deck**
-- **Filtrar** las filas con total > 0: en la vista, *Filter* = `[CantidadTotal] > 0`.
-- **Group by:** `Categoria`.
-- Muestra `Ingrediente`, `CantidadLegible`, `Comprado`.
-
-### 2.7 Vista de menú (activar/desactivar comidas)
-**UX → Views → + New View**:
-- For this data: **Comidas**, view type **table** o **deck**, agrupada por `Tipo`.
-- Permite editar `Incluir` (toggle) y `Acompanamiento`.
-- Al cambiar `Incluir` y **Sync**, la vista de compra se recalcula automáticamente.
-
-### 2.8 Acompañamiento del salmorejo (elegible)
-- En **Comidas**, la fila `Salmorejo con acompanamiento` tiene la columna `Acompanamiento`.
-- Conviértela en **Enum** con valores:
-  `Filetes de ternera`, `Lomo de cerdo`, `Pechuga de pollo`, `Flamenquines`.
-- Para que el acompañamiento elegido cambie el ingrediente comprado, la vía sencilla es
-  tener en `Recetas` una línea por cada opción y filtrar por la elegida. Alternativa
-  simple: dejar la línea `Filetes de ternera` por defecto y, si cambias de opción, ajustar
-  esa línea en `Recetas`. (Documentado en `docs/RECETAS.md`.)
+| Tabla | Ajustes clave |
+|---|---|
+| **Config** | `Clave` = Key/Label · `Valor` = Number |
+| **Comidas** | `Comida` = Key/Label · `Preparacion` = **LongText** · `MomentoSugerido`,`Cocinero` = Enum · añade `Foto` = **Image** |
+| **Ingredientes** | `Ingrediente` = Key/Label · `Categoria` = Enum · `Unidad` = Enum · `EsBasico` = Enum(Si/No) · añade `Foto` = Image |
+| **Recetas** | añade columna clave `RecetaID` (en el Sheet: `=Comida&" · "&Ingrediente`) · `Comida` = **Ref→Comidas** · `Ingrediente` = **Ref→Ingredientes** · `CantidadPorComensal`,`PesoEnGrupo` = Number · `Grupo` = Enum · `Opcional` = Enum(Si/No) |
+| **Calendario** | `Fecha` = Date · `Momento` = Enum(Almuerzo,Cena) · `Comida` = **Ref→Comidas** · `Cocinero` = Enum · `NivelCarne` = Enum(Estandar,Reducido) |
+| **Compras** | `Fecha` = **Date/Key** |
+| **Despensa** | `Ingrediente` = Ref→Ingredientes · `Cantidad` = Number |
+| **Basicos** | `Item` = Key · `Lista` = Enum(Cocina,Bebidas,Picoteo) · `Comprado` = **Yes/No** |
+| **ListasAbiertas** | añade clave `ItemID` (`=Tipo&" · "&Item`) · `Tipo` = Enum(Desayuno,Bebidas,Picoteo) · `Paquetes` = Number · `Comprado` = **Yes/No** |
+| **Usuarios** | `Email` = Key |
+| **ListaCompra** | `Ingrediente` = Key · `Categoria` = Enum · `Comprado` = **Yes/No** |
 
 ---
 
-## 3) Publicar y compartir
-1. **Manage → Deploy → Deployment check** y corrige avisos.
-2. **Not deployed → Move app to deployed**.
-3. Comparte con los comensales por email o enlace (Users). La app es privada de tu cuenta
-   hasta que la compartas.
+## PARTE C · Vistas principales (UX → Views)
+
+1. **Comprar** (inicio) — datos `ListaCompra`, tipo **deck**, **Group by** `Categoria`, muestra
+   `Ingrediente`, `CantidadLegible`, toggle `Comprado`. Format rule: si `Comprado` → atenuar/tachar.
+2. **Calendario** — datos `Calendario`, tipo **table** o **calendar**, agrupado por `Fecha`; columnas
+   `Momento`,`Comida`,`Cocinero`. Editable por todos.
+3. **Recetas** — datos `Comidas`, tipo **deck** con `Foto`; al abrir, un *inline* de `Recetas`
+   (ingredientes con cantidades) + `Preparacion`.
+4. **Despensa** — datos `Despensa`.
+5. **Básicos / Desayuno / Bebidas / Picoteo** — datos `Basicos` y `ListasAbiertas`, agrupados por
+   `Lista`/`Tipo`, con toggle `Comprado` y `Paquetes`.
+6. **Ajustes** — datos `Config` (comensales, días) + `Usuarios` + `Compras`.
 
 ---
 
-## Notas
-- **AppSheet no tiene API pública para crear la app automáticamente**: los pasos anteriores
-  se hacen una vez en el editor de AppSheet. El Google Sheet y los datos sí están listos.
-- Si prefieres no usar el nivel avanzado, el flujo local con `generar_lista.py` + nivel
-  básico cubre el 100% de la necesidad.
+## PARTE D · Lógica (columnas virtuales)
+
+**Raciones** (Recetas, Number):
+```
+( ANY(SELECT(Config[Valor],[Clave]="AdultosM")) + ANY(SELECT(Config[Valor],[Clave]="AdultosF")) )
++ ANY(SELECT(Config[Valor],[Clave]="Ninos")) * ANY(SELECT(Config[Valor],[Clave]="FactorNino"))
+```
+
+**Cantidad escalada** (Recetas VC `Cantidad`, Number): `[CantidadPorComensal] * [Raciones]`
+(los ingredientes con `EsBasico=Si` no se piden aquí: van en la hoja **Basicos**).
+
+**Barbacoa — objetivo y pendiente por asignar** (RF-26).
+En **Comidas** (o por instancia del calendario), VC `ObjetivoCarne` (Number):
+```
+IF([NivelCarne]="Reducido",
+   nMasc*g_M_red + nFem*g_F_red + nNino*g_Nino,
+   nMasc*g_M     + nFem*g_F     + nNino*g_Nino)
+```
+(sustituye `nMasc,...` por los `ANY(SELECT(Config...))` y `g_M` por `BBQ_g_M`, etc.)
+VC `CarneAsignada` = `SUM(SELECT(Recetas[Cantidad],AND([Comida]=[_THISROW].[Comida],[Grupo]="Carne")))`
+VC **`PendientePorAsignar`** = `[ObjetivoCarne] - [CarneAsignada]`  → debe tender a **0**.
+Format rule: verde si `=0`, ámbar si `>0`, rojo si `<0` (te has pasado).
+
+**Lista de la compra unificada** (regla de negocio, RF-08/14/15):
+- Se **compra** lo que está **sin marcar**; lo **marcado** cuenta como **despensa/ya lo tenemos**.
+- La compra = `ListaCompra`(Comprado=No) + `Basicos`(Comprado=No) + `ListasAbiertas`(Comprado=No),
+  **menos** lo de `Despensa`. Muéstralas juntas (una vista con las tres) y por separado (una por lista).
+
+---
+
+## PARTE E · Acceso por enlace abierto + alta automática (RF-18)
+
+1. **Manage → Users → Require sign-in = ON**; proveedores **Google y Microsoft**.
+2. **Are users allowed = "anyone who can access the app link"** (enlace abierto).
+3. **Automation → Bot**: evento *Data change / App open* → acción **Add row a `Usuarios`** con
+   `Email = USEREMAIL()` si `NOT IN(USEREMAIL(), Usuarios[Email])`. Así, quien entra por el enlace
+   queda **añadido solo** a la lista de usuarios.
+4. **Manage → Deploy → Move app to deployed** y comparte el **enlace**.
+
+> Nota de coste: AppSheet desplegado con varios usuarios suele requerir plan de pago
+> (por usuario activo). Revísalo antes de compartir con las 17 personas.
+
+---
+
+## PARTE F · Fotos de producto/plato (RF-13)
+
+- Columna `Foto` (Image) en `Comidas` e `Ingredientes`.
+- Se pueden **subir desde el móvil** o cargar el repositorio `imagenes/` (normalizado con Pillow).
+- Alternativa rápida: pegar una URL pública de imagen en la celda `Foto`.
+
+---
+
+### Resumen operativo
+1. Sube el `.xlsx` → Google Sheet (Parte A).
+2. Conéctalo a SanJose2026 y añade las 11 tablas.
+3. Ajusta tipos/claves (Parte B) y crea vistas (Parte C).
+4. Añade las columnas virtuales (Parte D) para el cálculo y la barbacoa.
+5. Configura el acceso por enlace (Parte E) y despliega.

@@ -1,159 +1,167 @@
-Comida,Ingrediente,CantidadPorRacion
-Arroz campero,Arroz,100
-Arroz campero,Pollo troceado,150
-Arroz campero,Chorizo,30
-Arroz campero,Pimiento rojo,40
-Arroz campero,Pimiento verde,40
-Arroz campero,Cebolla,40
-Arroz campero,Tomate triturado,50
-Arroz campero,Guisantes,30
-Arroz campero,Ajo,3
-Arroz campero,Caldo de pollo,250
-Arroz campero,Aceite de oliva,15
-Arroz campero,Pimenton,2
-Arroz campero,Sal,2
-Mousaka griega,Berenjena,200
-Mousaka griega,Patata,100
-Mousaka griega,Carne picada mixta,150
-Mousaka griega,Cebolla,50
-Mousaka griega,Tomate triturado,100
-Mousaka griega,Ajo,3
-Mousaka griega,Vino tinto,20
-Mousaka griega,Leche,150
-Mousaka griega,Mantequilla,15
-Mousaka griega,Harina,15
-Mousaka griega,Queso rallado,25
-Mousaka griega,Huevo,0.25
-Mousaka griega,Aceite de oliva,20
-Mousaka griega,Canela,0.5
-Mousaka griega,Nuez moscada,0.2
-Mousaka griega,Sal,2
-Couscous,Semola couscous,90
-Couscous,Pollo troceado,150
-Couscous,Cebolla,60
-Couscous,Zanahoria,60
-Couscous,Calabacin,60
-Couscous,Garbanzos cocidos,50
-Couscous,Tomate triturado,50
-Couscous,Pimiento rojo,40
-Couscous,Pasas,15
-Couscous,Caldo de pollo,150
-Couscous,Aceite de oliva,15
-Couscous,Ras el hanout,3
-Couscous,Sal,2
-Plato alpujarreno con huevos,Patata,200
-Plato alpujarreno con huevos,Morcilla,50
-Plato alpujarreno con huevos,Chorizo,50
-Plato alpujarreno con huevos,Longaniza,50
-Plato alpujarreno con huevos,Lomo de cerdo,80
-Plato alpujarreno con huevos,Jamon serrano,20
-Plato alpujarreno con huevos,Huevo,1.5
-Plato alpujarreno con huevos,Pimiento verde,40
-Plato alpujarreno con huevos,Aceite de oliva,30
-Plato alpujarreno con huevos,Sal,2
-Salmorejo con acompanamiento,Tomate maduro,250
-Salmorejo con acompanamiento,Pan,60
-Salmorejo con acompanamiento,Ajo,3
-Salmorejo con acompanamiento,Aceite de oliva virgen extra,40
-Salmorejo con acompanamiento,Vinagre,5
-Salmorejo con acompanamiento,Sal,3
-Salmorejo con acompanamiento,Huevo,0.5
-Salmorejo con acompanamiento,Jamon serrano,15
-Salmorejo con acompanamiento,Filetes de ternera,180
-Migas,Pan del dia anterior,120
-Migas,Chorizo,40
-Migas,Panceta,40
-Migas,Ajo,5
-Migas,Pimiento verde,30
-Migas,Aceite de oliva,25
-Migas,Pimenton,2
-Migas,Sal,2
-Chili con carne,Carne picada de ternera,150
-Chili con carne,Alubias rojas cocidas,80
-Chili con carne,Cebolla,60
-Chili con carne,Pimiento rojo,50
-Chili con carne,Tomate triturado,120
-Chili con carne,Ajo,3
-Chili con carne,Maiz dulce,30
-Chili con carne,Comino,2
-Chili con carne,Pimenton picante,1
-Chili con carne,Caldo de carne,50
-Chili con carne,Aceite de oliva,15
-Chili con carne,Arroz,60
-Chili con carne,Sal,2
-Asado de pollo y patatas,Pollo troceado,350
-Asado de pollo y patatas,Patata,250
-Asado de pollo y patatas,Cebolla,80
-Asado de pollo y patatas,Ajo,5
-Asado de pollo y patatas,Limon,0.25
-Asado de pollo y patatas,Vino blanco,30
-Asado de pollo y patatas,Aceite de oliva,20
-Asado de pollo y patatas,Romero,0.5
-Asado de pollo y patatas,Sal,3
-Pisto de verduras con huevos,Cebolla,100
-Pisto de verduras con huevos,Pimiento verde,100
-Pisto de verduras con huevos,Tomate frito,120
-Pisto de verduras con huevos,Huevo,1.5
-Pisto de verduras con huevos,Aceite de oliva,25
-Pisto de verduras con huevos,Sal,2
-Barbacoa 1,Costillas de cerdo,150
-Barbacoa 1,Chorizo parrilla,60
-Barbacoa 1,Morcilla,40
-Barbacoa 1,Panceta,60
-Barbacoa 1,Salchichas,80
-Barbacoa 1,Pinchos morunos,100
-Barbacoa 1,Pan,80
-Barbacoa 1,Pimiento verde,50
-Barbacoa 1,Sal gorda,3
-Barbacoa 1,Alioli,20
-Barbacoa 2,Entrecot de vaca,180
-Barbacoa 2,Alitas de pollo,120
-Barbacoa 2,Chorizo parrilla,50
-Barbacoa 2,Chistorra,40
-Barbacoa 2,Calabacin,60
-Barbacoa 2,Cebolleta,40
-Barbacoa 2,Pimiento rojo,40
-Barbacoa 2,Maiz mazorca,0.5
-Barbacoa 2,Pan,80
-Barbacoa 2,Sal gorda,3
-Barbacoa 2,Chimichurri,20
-Fajitas,Pollo en tiras,150
-Fajitas,Tortillas de trigo,2
-Fajitas,Pimiento rojo,50
-Fajitas,Pimiento verde,50
-Fajitas,Cebolla,60
-Fajitas,Queso rallado,30
-Fajitas,Nata agria,30
-Fajitas,Tomate,40
-Fajitas,Lechuga,30
-Fajitas,Especias fajita,3
-Fajitas,Aceite de oliva,10
-Fajitas,Guacamole,30
-Hamburguesas,Carne picada de ternera,180
-Hamburguesas,Pan de hamburguesa,1.5
-Hamburguesas,Queso en lonchas,20
-Hamburguesas,Lechuga,20
-Hamburguesas,Tomate,40
-Hamburguesas,Cebolla,30
-Hamburguesas,Bacon,30
-Hamburguesas,Pepinillos,15
-Hamburguesas,Ketchup,10
-Hamburguesas,Mostaza,5
-Hamburguesas,Mayonesa,10
-Hamburguesas,Patatas congeladas,150
-Pizzas,Masa de pizza,150
-Pizzas,Tomate triturado,60
-Pizzas,Mozzarella,80
-Pizzas,Jamon cocido,30
-Pizzas,Salami/pepperoni,25
-Pizzas,Champinones,30
-Pizzas,Pimiento rojo,20
-Pizzas,Aceitunas negras,15
-Pizzas,Oregano,1
-Pizzas,Aceite de oliva,5
-Fritura de pescado,Pescado variado para freir,300
-Fritura de pescado,Harina de freir,60
-Fritura de pescado,Aceite de girasol,80
-Fritura de pescado,Limon,0.5
-Fritura de pescado,Sal,2
-Fritura de pescado,Perejil,1
+Comida,Ingrediente,CantidadPorComensal,Grupo,PesoEnGrupo,Opcional
+Arroz campero,Arroz,100,,,No
+Arroz campero,Pollo troceado,150,,,No
+Arroz campero,Chorizo,30,,,No
+Arroz campero,Pimiento rojo,40,,,No
+Arroz campero,Pimiento verde,40,,,No
+Arroz campero,Cebolla,40,,,No
+Arroz campero,Tomate natural,50,,,No
+Arroz campero,Guisantes,30,,,No
+Arroz campero,Ajo,3,,,No
+Arroz campero,Caldo de pollo,250,,,No
+Arroz campero,Aceite de oliva,15,,,No
+Arroz campero,Pimenton,2,,,No
+Arroz campero,Sal,2,,,No
+Mousaka griega,Berenjena,200,,,No
+Mousaka griega,Patata,100,,,No
+Mousaka griega,Carne picada de ternera,150,,,No
+Mousaka griega,Cebolla,50,,,No
+Mousaka griega,Tomate tamizado,100,,,No
+Mousaka griega,Ajo,3,,,No
+Mousaka griega,Vino tinto,20,,,No
+Mousaka griega,Leche,150,,,No
+Mousaka griega,Mantequilla,15,,,No
+Mousaka griega,Harina,15,,,No
+Mousaka griega,Queso rallado,25,,,No
+Mousaka griega,Huevo,0.25,,,No
+Mousaka griega,Aceite de oliva,20,,,No
+Mousaka griega,Canela,0.5,,,No
+Mousaka griega,Nuez moscada,0.2,,,No
+Mousaka griega,Sal,2,,,No
+Couscous,Semola couscous,90,,,No
+Couscous,Pollo troceado,150,,,No
+Couscous,Cebolla,60,,,No
+Couscous,Zanahoria,60,,,Si
+Couscous,Calabacin,60,,,No
+Couscous,Garbanzos cocidos,50,,,No
+Couscous,Tomate tamizado,30,,,No
+Couscous,Pimiento rojo,40,,,No
+Couscous,Pasas,15,,,No
+Couscous,Caldo de pollo,150,,,No
+Couscous,Aceite de oliva,15,,,No
+Couscous,Ras el hanout,3,,,No
+Couscous,Sal,2,,,No
+Plato alpujarreno con huevos,Patata,200,,,No
+Plato alpujarreno con huevos,Morcilla,50,,,No
+Plato alpujarreno con huevos,Chorizo,50,,,No
+Plato alpujarreno con huevos,Longaniza,50,,,No
+Plato alpujarreno con huevos,Lomo de cerdo,80,,,No
+Plato alpujarreno con huevos,Jamon serrano,20,,,No
+Plato alpujarreno con huevos,Huevo,1.5,,,No
+Plato alpujarreno con huevos,Pimiento verde,40,,,No
+Plato alpujarreno con huevos,Aceite de oliva,30,,,No
+Plato alpujarreno con huevos,Sal,2,,,No
+Salmorejo con acompanamiento,Tomate maduro,250,,,No
+Salmorejo con acompanamiento,Pan,60,,,No
+Salmorejo con acompanamiento,Ajo,3,,,No
+Salmorejo con acompanamiento,AOVE,40,,,No
+Salmorejo con acompanamiento,Vinagre,5,,,No
+Salmorejo con acompanamiento,Sal,3,,,No
+Salmorejo con acompanamiento,Huevo,0.5,,,No
+Salmorejo con acompanamiento,Jamon serrano,15,,,No
+Salmorejo con acompanamiento,Filetes de ternera,180,Acompanamiento,1,No
+Migas,Pan del dia anterior,120,,,No
+Migas,Chorizo,40,,,No
+Migas,Panceta,40,,,No
+Migas,Ajo,5,,,No
+Migas,Pimiento verde,30,,,No
+Migas,Aceite de oliva,25,,,No
+Migas,Pimenton,2,,,No
+Migas,Sal,2,,,No
+Chili con carne,Carne picada de ternera,150,,,No
+Chili con carne,Alubias rojas cocidas,80,,,No
+Chili con carne,Cebolla,60,,,No
+Chili con carne,Pimiento rojo,50,,,No
+Chili con carne,Tomate natural,120,,,No
+Chili con carne,Ajo,3,,,No
+Chili con carne,Lata de maiz,30,,,No
+Chili con carne,Comino,2,,,No
+Chili con carne,Pimenton picante,1,,,No
+Chili con carne,Caldo de carne,50,,,No
+Chili con carne,Aceite de oliva,15,,,No
+Chili con carne,Arroz,60,,,No
+Chili con carne,Sal,2,,,No
+Asado de pollo y patatas,Pollo troceado,350,,,No
+Asado de pollo y patatas,Patata,250,,,No
+Asado de pollo y patatas,Cebolla,80,,,No
+Asado de pollo y patatas,Ajo,5,,,No
+Asado de pollo y patatas,Limon,0.25,,,No
+Asado de pollo y patatas,Vino blanco,30,,,No
+Asado de pollo y patatas,Aceite de oliva,20,,,No
+Asado de pollo y patatas,Romero,0.5,,,No
+Asado de pollo y patatas,Sal,3,,,No
+Pisto de verduras con huevos,Cebolla,100,,,No
+Pisto de verduras con huevos,Pimiento verde,100,,,No
+Pisto de verduras con huevos,Tomate frito,120,,,No
+Pisto de verduras con huevos,Huevo,1.5,,,No
+Pisto de verduras con huevos,Aceite de oliva,25,,,No
+Pisto de verduras con huevos,Sal,2,,,No
+Barbacoa 1,Costillas de cerdo,110,Carne,110,No
+Barbacoa 1,Pinchitos,70,Carne,70,No
+Barbacoa 1,Chorizo parrilla,40,Carne,40,No
+Barbacoa 1,Panceta,40,Carne,40,No
+Barbacoa 1,Morcilla,30,Carne,30,No
+Barbacoa 1,Mazorcas,0.5,,,No
+Barbacoa 1,Pan,80,,,No
+Barbacoa 1,Pimiento verde,40,,,No
+Barbacoa 1,Sal gorda,3,,,No
+Barbacoa 1,Alioli,20,,,No
+Barbacoa 2,Entrecot de vaca,130,Carne,130,No
+Barbacoa 2,Alitas de pollo,90,Carne,90,No
+Barbacoa 2,Chistorra,40,Carne,40,No
+Barbacoa 2,Chorizo parrilla,30,Carne,30,No
+Barbacoa 2,Calabacin,60,,,No
+Barbacoa 2,Cebolleta,40,,,No
+Barbacoa 2,Pimiento rojo,40,,,No
+Barbacoa 2,Mazorcas,0.5,,,No
+Barbacoa 2,Pan,80,,,No
+Barbacoa 2,Sal gorda,3,,,No
+Barbacoa 2,Chimichurri,20,,,No
+Fajitas,Pollo en tiras,150,,,No
+Fajitas,Tortillas de trigo,2,,,No
+Fajitas,Pimiento rojo,50,,,No
+Fajitas,Pimiento verde,50,,,No
+Fajitas,Cebolla,60,,,No
+Fajitas,Queso rallado,30,,,No
+Fajitas,Nata agria,30,,,No
+Fajitas,Tomate,40,,,No
+Fajitas,Lechuga,30,,,No
+Fajitas,Especias fajita,3,,,No
+Fajitas,Aceite de oliva,10,,,No
+Fajitas,Guacamole,30,,,No
+Hamburguesas,Carne picada de ternera,180,,,No
+Hamburguesas,Pan de hamburguesa,1.5,,,No
+Hamburguesas,Queso en lonchas,20,,,No
+Hamburguesas,Lechuga,20,,,No
+Hamburguesas,Tomate,40,,,No
+Hamburguesas,Cebolla,30,,,No
+Hamburguesas,Bacon,30,,,No
+Hamburguesas,Pepinillos,15,,,No
+Hamburguesas,Ketchup,10,,,No
+Hamburguesas,Mostaza,5,,,No
+Hamburguesas,Mayonesa,10,,,No
+Hamburguesas,Patatas congeladas,150,,,No
+Pizzas,Masa de pizza,150,,,No
+Pizzas,Tomate natural,60,,,No
+Pizzas,Mozzarella,80,,,No
+Pizzas,Jamon cocido,30,,,No
+Pizzas,Salami/pepperoni,25,,,No
+Pizzas,Champinones,30,,,No
+Pizzas,Pimiento rojo,20,,,No
+Pizzas,Aceitunas negras,15,,,No
+Pizzas,Oregano,1,,,No
+Pizzas,Aceite de oliva,5,,,No
+Fritura de pescado,Boquerones,80,Pescado,80,No
+Fritura de pescado,Calamar,80,Pescado,80,No
+Fritura de pescado,Rosada,70,Pescado,70,No
+Fritura de pescado,Cazon,70,Pescado,70,No
+Fritura de pescado,Harina de freir,60,,,No
+Fritura de pescado,Aceite de girasol,80,,,No
+Fritura de pescado,Limon,0.5,,,No
+Fritura de pescado,Sal,2,,,No
+Fritura de pescado,Perejil,1,,,No
+Fritura de pescado,Vinagre,10,,,No
+Fritura de pescado,Pimenton,2,,,No
+Fritura de pescado,Comino,1,,,No
+Fritura de pescado,Ajo,3,,,No
+Fritura de pescado,Oregano,1,,,No

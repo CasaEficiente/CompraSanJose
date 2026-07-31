@@ -1,16 +1,73 @@
-Comida,Tipo,Incluir,Acompanamiento,Notas
-Arroz campero,Almuerzo,Si,,
-Mousaka griega,Almuerzo,Si,,
-Couscous,Almuerzo,Si,,
-Plato alpujarreno con huevos,Almuerzo,Si,,Con huevos fritos
-Salmorejo con acompanamiento,Almuerzo,Si,Filetes de ternera,Acompanamiento elegible: Filetes de ternera / Lomo de cerdo / Pechuga de pollo / Flamenquines
-Migas,Almuerzo,Si,,
-Chili con carne,Almuerzo,Si,,Con guarnicion de arroz
-Asado de pollo y patatas,Almuerzo,Si,,
-Pisto de verduras con huevos,Almuerzo,Si,,"OPCION DE RESPALDO (cebolla, tomate frito y pimiento verde + huevos fritos)"
-Barbacoa 1,Cena,Si,,Cerdo y embutido
-Barbacoa 2,Cena,Si,,"Vacuno, pollo y verdura a la brasa"
-Fajitas,Cena,Si,,
-Hamburguesas,Cena,Si,,
-Pizzas,Cena,Si,,
-Fritura de pescado,Cena,Si,,
+Comida,MomentoSugerido,Cocinero,Preparacion,Notas
+Arroz campero,Almuerzo,Paco,"1. Sofrie cebolla, pimientos y ajo en aceite.
+2. Dora el pollo troceado y el chorizo.
+3. Anade tomate natural y pimenton; rehoga.
+4. Incorpora el arroz y el caldo caliente (doble volumen).
+5. Anade guisantes; cuece 18 min y reposa 5 min.",
+Mousaka griega,Almuerzo,Paco,"1. Lamina berenjena y patata; frie o asa.
+2. Sofrie cebolla y ajo; anade la ternera picada.
+3. Agrega tomate tamizado, vino y canela; reduce.
+4. Monta capas: patata, berenjena, carne.
+5. Cubre con bechamel (mantequilla, harina, leche, huevo, queso) y hornea 35 min a 190C.",Con ternera (no cordero); tomate tamizado.
+Couscous,Almuerzo,Paco,"1. Sofrie cebolla, zanahoria (opcional), calabacin y pimiento.
+2. Anade el pollo y el ras el hanout.
+3. Incorpora tomate tamizado, garbanzos, pasas y caldo; guisa.
+4. Hidrata la semola con caldo caliente y aceite; desgrana.
+5. Sirve el guiso sobre el couscous.",Zanahoria opcional; tomate tamizado (poco).
+Plato alpujarreno con huevos,Almuerzo,Paco,"1. Frie las patatas en laminas a fuego medio hasta tiernas.
+2. Frie morcilla, chorizo, longaniza y lomo.
+3. Anade el jamon al final.
+4. Frie los huevos.
+5. Sirve todo junto con pimiento frito.",Patatas a lo pobre + embutido + huevos.
+Salmorejo con acompanamiento,Almuerzo,Paco,"1. Tritura tomate, pan remojado, ajo y sal.
+2. Emulsiona anadiendo el AOVE en hilo.
+3. Ajusta con un poco de vinagre; enfria.
+4. Sirve con huevo duro y jamon picados.
+5. Acompana con los filetes a la plancha (o la opcion elegida).",Acompanamiento elegible; por defecto filetes de ternera.
+Migas,Almuerzo,Manolo,"1. Humedece el pan troceado la noche antes.
+2. Frie ajos, chorizo y panceta; reserva.
+3. En esa grasa anade el pan y el pimenton.
+4. Remueve a fuego medio hasta que quede suelto y dorado.
+5. Sirve con los tropezones.",
+Chili con carne,Almuerzo,Dan,"1. Sofrie cebolla, pimiento y ajo.
+2. Dora la carne picada.
+3. Anade comino, pimenton picante, tomate y caldo; guisa 30 min.
+4. Incorpora alubias y la lata de maiz; cuece 10 min.
+5. Sirve con arroz blanco.",Con guarnicion de arroz.
+Asado de pollo y patatas,Almuerzo,Paco,"1. Trocea el pollo y salpimienta.
+2. Coloca con patata y cebolla en bandeja.
+3. Riega con vino, aceite, limon y romero.
+4. Hornea 60-75 min a 200C regando de vez en cuando.",El 'asado de carne/pescado'.
+Pisto de verduras con huevos,Almuerzo,Paco,"1. Pocha la cebolla y el pimiento verde en aceite.
+2. Anade el tomate frito; cuece 20 min a fuego lento.
+3. Sazona.
+4. Frie los huevos y sirvelos encima.","RESPALDO: solo cebolla, tomate frito y pimiento verde + huevos."
+Barbacoa 1,Cena,Manolo,"1. Enciende las brasas con antelacion.
+2. Sala las carnes justo antes de asar.
+3. Asa primero lo que mas tarda (costillas).
+4. Anade embutidos y mazorcas.
+5. Sirve con pan y salsas.",Cerdo y embutido. Tope de carne por comensal (RF-26).
+Barbacoa 2,Cena,Manolo,"1. Enciende las brasas con antelacion.
+2. Sala las carnes justo antes de asar.
+3. Asa primero el entrecot y las alitas.
+4. Anade la verdura y las mazorcas.
+5. Sirve con pan y chimichurri.","Vacuno, pollo y verdura. Tope de carne por comensal (RF-26)."
+Fajitas,Cena,Manolo,"1. Marca el pollo en tiras con las especias.
+2. Saltea con pimientos y cebolla.
+3. Calienta las tortillas.
+4. Monta con queso, guacamole, nata agria, tomate y lechuga.",
+Hamburguesas,Cena,,"1. Forma las hamburguesas y salpimienta.
+2. Marca a la plancha al punto deseado.
+3. Tuesta el pan; funde el queso sobre la carne.
+4. Frie el bacon.
+5. Monta con lechuga, tomate, cebolla, pepinillos y salsas. Acompana con patatas.",
+Pizzas,Cena,,"1. Estira la masa.
+2. Extiende el tomate.
+3. Reparte mozzarella y los ingredientes.
+4. Hornea a maxima temperatura 8-12 min.
+5. Oregano y aceite al salir.",
+Fritura de pescado,Cena,Paco,"1. Adoba el cazon (vinagre, pimenton, comino, ajo, oregano) unas horas.
+2. Limpia y trocea los pescados.
+3. Enharina con harina de freir/tempura.
+4. Frie en abundante aceite caliente por tandas.
+5. Sirve con limon.",Surtido elegible; incluye adobo y tempura.

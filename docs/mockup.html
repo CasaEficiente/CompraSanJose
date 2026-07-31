@@ -1,0 +1,478 @@
+<style>
+  :root{
+    --paper:#F933; /* placeholder overwritten below */
+  }
+  :root{
+    --paper:#F2F5EC;      /* sage-tinted paper, chosen neutral */
+    --card:#FFFFFF;
+    --ink:#1B2620;        /* deep green-black */
+    --muted:#6F7E71;      /* sage grey text */
+    --line:#E2E7DA;
+    --olive:#3E6B45;      /* primary: huerto green */
+    --olive-deep:#2B4E33;
+    --saffron:#E0A126;    /* warm accent: aceite/couscous */
+    --tomato:#C7452C;     /* semantic: pendiente/salmorejo */
+    --sky:#3B7DA6;        /* pescadería */
+    --plum:#7A5A86;       /* picoteo */
+    --tan:#C99A5B;        /* panadería */
+    --shadow:0 18px 40px -20px rgba(27,38,32,.55);
+    --serif:Georgia,'Iberian','Times New Roman',serif;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0}
+  .wrap{
+    font-family:var(--sans);
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 12% -10%, #E8F0DE 0%, transparent 60%),
+      radial-gradient(900px 500px at 110% 0%, #FBF1D8 0%, transparent 55%),
+      var(--paper);
+    min-height:100vh;
+    padding:clamp(20px,4vw,56px) clamp(16px,4vw,48px) 64px;
+  }
+  .inner{max-width:1180px;margin:0 auto}
+
+  /* ---- masthead ---- */
+  .eyebrow{
+    font-size:12px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--olive);font-weight:700;margin:0 0 14px;
+  }
+  .title{
+    font-family:var(--serif);font-weight:700;
+    font-size:clamp(30px,5.5vw,52px);line-height:1.02;margin:0;
+    letter-spacing:-.01em;text-wrap:balance;
+  }
+  .title em{font-style:italic;color:var(--olive)}
+  .lede{
+    font-size:clamp(15px,1.6vw,18px);color:var(--muted);
+    max-width:60ch;margin:16px 0 0;line-height:1.55;
+  }
+  .meta{
+    display:flex;flex-wrap:wrap;gap:8px;margin-top:22px;
+  }
+  .tag{
+    font-size:12.5px;font-weight:600;color:var(--olive-deep);
+    background:#E7F0DD;border:1px solid #D3E3C6;border-radius:999px;
+    padding:6px 12px;
+  }
+  .tag.warm{color:#8a5a12;background:#FBEFD5;border-color:#F1DCA9}
+
+  /* ---- palette strip ---- */
+  .legend{
+    display:flex;flex-wrap:wrap;gap:22px;align-items:center;
+    margin:34px 0 6px;padding:16px 18px;border:1px solid var(--line);
+    background:rgba(255,255,255,.6);border-radius:16px;
+  }
+  .swatches{display:flex;gap:0}
+  .sw{width:30px;height:30px;border-radius:8px;margin-left:-6px;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+  .sw:first-child{margin-left:0}
+  .legend .lbl{font-size:12px;color:var(--muted);letter-spacing:.04em}
+  .legend .lbl b{color:var(--ink);font-weight:700}
+
+  /* ---- gallery ---- */
+  .gallery{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:clamp(24px,3vw,40px);margin-top:34px;align-items:start;
+  }
+  .figure{display:flex;flex-direction:column;gap:16px}
+  .cap{padding:0 6px}
+  .cap h3{font-family:var(--serif);font-size:20px;margin:0 0 6px;font-weight:700}
+  .cap p{margin:0;color:var(--muted);font-size:14px;line-height:1.5}
+  .rf{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+  .rf span{font-size:10.5px;font-weight:700;letter-spacing:.03em;color:var(--olive);
+    background:#EAF2E2;border-radius:5px;padding:3px 6px}
+
+  /* ---- phone ---- */
+  .phone{
+    width:100%;max-width:330px;margin:0 auto;
+    background:#111a14;border-radius:42px;padding:11px;
+    box-shadow:var(--shadow);
+  }
+  .screen{
+    position:relative;background:var(--paper);border-radius:32px;overflow:hidden;
+    height:640px;display:flex;flex-direction:column;
+  }
+  .statusbar{
+    height:38px;display:flex;align-items:center;justify-content:space-between;
+    padding:0 20px;font-size:13px;font-weight:600;color:var(--ink);flex:0 0 auto;
+  }
+  .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);
+    width:88px;height:24px;background:#111a14;border-radius:14px}
+  .appbar{
+    flex:0 0 auto;padding:6px 18px 12px;background:var(--paper);
+  }
+  .appbar .kicker{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--olive);font-weight:700}
+  .appbar h1{font-family:var(--serif);font-size:22px;margin:2px 0 0;font-weight:700}
+  .body{flex:1 1 auto;overflow:hidden;padding:4px 14px 12px}
+  .tabbar{
+    flex:0 0 auto;height:60px;background:var(--card);border-top:1px solid var(--line);
+    display:flex;justify-content:space-around;align-items:center;padding-bottom:6px;
+  }
+  .tabbar a{display:flex;flex-direction:column;align-items:center;gap:3px;
+    font-size:10px;color:var(--muted);text-decoration:none;font-weight:600}
+  .tabbar a.on{color:var(--olive)}
+  .tabbar svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8}
+  .tabbar a.on svg{stroke:var(--olive)}
+
+  /* ---- generic ui bits ---- */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+  .hero-buy{background:linear-gradient(135deg,var(--olive) 0%,var(--olive-deep) 100%);
+    color:#fff;border:none}
+  .hero-buy .row1{display:flex;justify-content:space-between;align-items:baseline}
+  .hero-buy .lab{font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.85;font-weight:700}
+  .hero-buy .big{font-size:26px;font-weight:800;margin-top:2px;font-variant-numeric:tabular-nums}
+  .hero-buy .sub{font-size:12.5px;opacity:.9;margin-top:2px}
+  .bar{height:7px;border-radius:99px;background:rgba(255,255,255,.28);margin-top:12px;overflow:hidden}
+  .bar i{display:block;height:100%;width:75%;background:var(--saffron);border-radius:99px}
+
+  .sect{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--muted);margin:14px 4px 8px;display:flex;align-items:center;gap:8px}
+  .sect .dot{width:9px;height:9px;border-radius:3px}
+
+  .item{display:flex;align-items:center;gap:11px;padding:9px 4px;border-bottom:1px solid var(--line)}
+  .item:last-child{border-bottom:none}
+  .thumb{width:38px;height:38px;border-radius:10px;flex:0 0 auto;
+    background:linear-gradient(135deg,#eef3e7,#e3ecd8);border:1px solid var(--line)}
+  .thumb.meat{background:linear-gradient(135deg,#f6e5e0,#f0d3ca)}
+  .thumb.veg{background:linear-gradient(135deg,#e7f1dc,#d6e8c4)}
+  .thumb.fish{background:linear-gradient(135deg,#e0edf4,#cfe1ee)}
+  .it-main{flex:1 1 auto;min-width:0}
+  .it-main .n{font-size:14px;font-weight:600;line-height:1.2}
+  .it-main .q{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums;margin-top:1px}
+  .check{width:24px;height:24px;border-radius:8px;border:2px solid var(--line);flex:0 0 auto}
+  .check.done{background:var(--olive);border-color:var(--olive);position:relative}
+  .check.done::after{content:"";position:absolute;left:7px;top:3px;width:6px;height:11px;
+    border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
+  .item.done .n{text-decoration:line-through;color:var(--muted)}
+
+  .foot-actions{display:flex;gap:8px;margin-top:14px}
+  .btn{flex:1;text-align:center;font-size:13px;font-weight:700;padding:11px;border-radius:12px;
+    border:1px solid var(--olive);color:var(--olive);background:#fff}
+  .btn.solid{background:var(--olive);color:#fff;border-color:var(--olive)}
+
+  /* calendar */
+  .day{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+  .day:last-child{border-bottom:none}
+  .date{flex:0 0 44px;text-align:center}
+  .date .d{font-size:20px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+  .date .m{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+  .slots{flex:1 1 auto;display:flex;flex-direction:column;gap:6px}
+  .slot{display:flex;align-items:center;gap:7px;font-size:12.5px}
+  .slot .mo{font-size:9.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+    color:#fff;border-radius:5px;padding:2px 5px;flex:0 0 auto}
+  .mo.alm{background:var(--saffron)}
+  .mo.cen{background:var(--olive)}
+  .slot .pl{font-weight:600;flex:1 1 auto}
+  .cook{font-size:11px;color:var(--muted)}
+  .slot.empty .pl{color:#b7c1b2;font-weight:500;font-style:italic}
+
+  /* recipe */
+  .rphoto{height:120px;border-radius:14px;background:
+    linear-gradient(135deg,#f3ddd4,#e7c0b2);position:relative;overflow:hidden;
+    display:flex;align-items:flex-end;padding:12px}
+  .rphoto .cchip{background:rgba(27,38,32,.72);color:#fff;font-size:11px;font-weight:700;
+    border-radius:8px;padding:4px 9px}
+  .seg{display:flex;background:#EAEFE2;border-radius:11px;padding:3px;margin:12px 0 4px}
+  .seg span{flex:1;text-align:center;font-size:12px;font-weight:700;padding:7px;border-radius:8px;color:var(--muted)}
+  .seg span.on{background:#fff;color:var(--olive-deep);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+  .note{font-size:11.5px;color:var(--muted);margin:2px 4px 0;line-height:1.4}
+  .prep{background:#fbfcf9;border:1px dashed var(--line);border-radius:12px;padding:11px;
+    font-size:12.5px;color:#43514a;line-height:1.5;margin-top:10px}
+  .prep .ed{float:right;font-size:11px;color:var(--olive);font-weight:700}
+
+  /* settings */
+  .grp{margin-bottom:8px}
+  .grp .gt{font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:12px 4px 6px}
+  .stepper{display:flex;align-items:center;justify-content:space-between;padding:11px 12px;
+    background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:7px}
+  .stepper .ln{font-size:14px;font-weight:600}
+  .stepper .ct{display:flex;align-items:center;gap:12px}
+  .stepper .ct b{font-size:16px;font-variant-numeric:tabular-nums;min-width:18px;text-align:center}
+  .rnd{width:26px;height:26px;border-radius:8px;border:1px solid var(--line);background:#fff;
+    color:var(--olive);font-weight:800;display:flex;align-items:center;justify-content:center}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;padding:2px 2px 4px}
+  .chip{font-size:12px;font-weight:600;padding:6px 11px;border-radius:999px;border:1px solid var(--line);background:#fff}
+  .chip.on{background:#E7F0DD;border-color:#CFE1C1;color:var(--olive-deep)}
+  .chip.warm{background:#FBEFD5;border-color:#F0DBA6;color:#8a5a12}
+  .link-row{display:flex;align-items:center;gap:9px;background:#F0F5EA;border:1px solid #DCE7CF;
+    border-radius:12px;padding:10px 12px;font-size:12px;color:var(--olive-deep)}
+  .link-row .u{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  .foot{margin-top:44px;padding-top:22px;border-top:1px solid var(--line);
+    color:var(--muted);font-size:13px;line-height:1.6;max-width:70ch}
+  .foot b{color:var(--ink)}
+
+  @media (prefers-reduced-motion:no-preference){
+    .phone{transition:transform .25s ease}
+    .figure:hover .phone{transform:translateY(-4px)}
+  }
+  a:focus-visible,.check:focus-visible{outline:3px solid var(--saffron);outline-offset:2px}
+</style>
+
+<div class="wrap">
+  <div class="inner">
+
+    <p class="eyebrow">Vista previa de diseño · App AppSheet</p>
+    <h1 class="title">Compra<em>SanJose</em> — la comida del grupo,<br>planificada y comprada sin líos</h1>
+    <p class="lede">Maqueta de las cinco pantallas de la aplicación para el encuentro del
+      <b>1 al 9 de agosto</b>: 14 adultos y 3 niños, menús por día, compra por tramos y
+      despensa que descuenta lo que ya tenéis. Diseño pensado para el móvil, en el súper y con una mano.</p>
+
+    <div class="meta">
+      <span class="tag">Menú por días</span>
+      <span class="tag">Compra por tramos</span>
+      <span class="tag warm">Grupos con tope (barbacoa)</span>
+      <span class="tag">Despensa que descuenta</span>
+      <span class="tag warm">Fotos de producto</span>
+      <span class="tag">Enlace abierto multiusuario</span>
+    </div>
+
+    <div class="legend">
+      <div class="swatches" aria-hidden="true">
+        <span class="sw" style="background:#3E6B45"></span>
+        <span class="sw" style="background:#2B4E33"></span>
+        <span class="sw" style="background:#E0A126"></span>
+        <span class="sw" style="background:#C7452C"></span>
+        <span class="sw" style="background:#F2F5EC"></span>
+      </div>
+      <span class="lbl"><b>Paleta</b> · huerta mediterránea — verde olivo, azafrán y tomate sobre papel de sombra</span>
+      <span class="lbl"><b>Tipografía</b> · serif editorial para títulos · sans de sistema para la interfaz</span>
+    </div>
+
+    <div class="gallery">
+
+      <!-- 1 · COMPRAR -->
+      <figure class="figure">
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>9:41</span><span>■ ■ ▮</span></div>
+          <div class="appbar"><span class="kicker">Comprar</span><h1>Compra vigente</h1></div>
+          <div class="body">
+            <div class="card hero-buy">
+              <div class="row1"><span class="lab">Hoy 31 jul → 3 ago</span><span class="lab">3 tramos</span></div>
+              <div class="big">18 / 24 comprado</div>
+              <div class="sub">≈ 34 kg · descontada la despensa</div>
+              <div class="bar"><i></i></div>
+            </div>
+            <div class="sect"><span class="dot" style="background:var(--olive)"></span>Frutería</div>
+            <div class="item done">
+              <div class="thumb veg"></div>
+              <div class="it-main"><div class="n">Cebolla</div><div class="q">7,4 kg · red</div></div>
+              <div class="check done"></div>
+            </div>
+            <div class="item">
+              <div class="thumb veg"></div>
+              <div class="it-main"><div class="n">Pimiento verde</div><div class="q">4,8 kg</div></div>
+              <div class="check"></div>
+            </div>
+            <div class="sect"><span class="dot" style="background:var(--tomato)"></span>Carnicería</div>
+            <div class="item">
+              <div class="thumb meat"></div>
+              <div class="it-main"><div class="n">Pollo troceado</div><div class="q">10,1 kg</div></div>
+              <div class="check"></div>
+            </div>
+            <div class="foot-actions">
+              <span class="btn">Añadir suelto</span>
+              <span class="btn solid">Exportar checklist</span>
+            </div>
+          </div>
+          <nav class="tabbar">
+            <a class="on" href="#"><svg viewBox="0 0 24 24"><path d="M3 4h2l2.5 12h11l2-8H6"/><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/></svg>Comprar</a>
+            <a href="#"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>Calendario</a>
+            <a href="#"><svg viewBox="0 0 24 24"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M9 8h7M9 12h7"/></svg>Recetas</a>
+            <a href="#"><svg viewBox="0 0 24 24"><path d="M4 8l8-4 8 4-8 4z"/><path d="M4 8v8l8 4 8-4V8"/></svg>Despensa</a>
+            <a href="#"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.5 5.5l2 2M16.5 16.5l2 2M18.5 5.5l-2 2M7.5 16.5l-2 2"/></svg>Ajustes</a>
+          </nav>
+        </div></div>
+        <figcaption class="cap">
+          <h3>1 · Comprar</h3>
+          <p>Lo primero que ves: qué toca comprar <b>desde hoy hasta la próxima compra marcada</b>, agrupado por sección del súper, con foto, cantidad y casilla para marcar.</p>
+          <div class="rf"><span>RF-06 tramos</span><span>RF-05 marcar</span><span>RF-10 total</span><span>RF-14 checklist</span><span>RF-15 despensa</span></div>
+        </figcaption>
+      </figure>
+
+      <!-- 2 · CALENDARIO -->
+      <figure class="figure">
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>9:41</span><span>■ ■ ▮</span></div>
+          <div class="appbar"><span class="kicker">Calendario</span><h1>1 – 9 agosto</h1></div>
+          <div class="body">
+            <div class="day">
+              <div class="date"><div class="d">1</div><div class="m">Sáb</div></div>
+              <div class="slots">
+                <div class="slot"><span class="mo cen">Cena</span><span class="pl">Barbacoa 1</span><span class="cook">· Manolo</span></div>
+              </div>
+            </div>
+            <div class="day">
+              <div class="date"><div class="d">2</div><div class="m">Dom</div></div>
+              <div class="slots">
+                <div class="slot"><span class="mo alm">Alm.</span><span class="pl">Arroz campero</span><span class="cook">· Paco</span></div>
+                <div class="slot"><span class="mo cen">Cena</span><span class="pl">Fajitas</span><span class="cook">· Manolo</span></div>
+              </div>
+            </div>
+            <div class="day">
+              <div class="date"><div class="d">3</div><div class="m">Lun</div></div>
+              <div class="slots">
+                <div class="slot"><span class="mo alm">Alm.</span><span class="pl">Chili con carne</span><span class="cook">· Dan</span></div>
+                <div class="slot"><span class="mo cen">Cena</span><span class="pl">Pizzas</span><span class="cook">· —</span></div>
+              </div>
+            </div>
+            <div class="day">
+              <div class="date"><div class="d">4</div><div class="m">Mar</div></div>
+              <div class="slots">
+                <div class="slot"><span class="mo alm">Alm.</span><span class="pl">Musaka griega</span><span class="cook">· Paco</span></div>
+                <div class="slot empty"><span class="mo cen">Cena</span><span class="pl">Toca para asignar…</span></div>
+              </div>
+            </div>
+          </div>
+          <nav class="tabbar">
+            <a href="#"><svg viewBox="0 0 24 24"><path d="M3 4h2l2.5 12h11l2-8H6"/><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/></svg>Comprar</a>
+            <a class="on" href="#"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>Calendario</a>
+            <a href="#"><svg viewBox="0 0 24 24"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M9 8h7M9 12h7"/></svg>Recetas</a>
+            <a href="#"><svg viewBox="0 0 24 24"><path d="M4 8l8-4 8 4-8 4z"/><path d="M4 8v8l8 4 8-4V8"/></svg>Despensa</a>
+            <a href="#"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.5 5.5l2 2M16.5 16.5l2 2M18.5 5.5l-2 2M7.5 16.5l-2 2"/></svg>Ajustes</a>
+          </nav>
+        </div></div>
+        <figcaption class="cap">
+          <h3>2 · Calendario</h3>
+          <p>Esquema <b>día · almuerzo/cena · plato · cocinero</b>. El sábado 1 solo cena. Cualquiera asigna o mueve platos y todos ven lo mismo.</p>
+          <div class="rf"><span>RF-03 fechas</span><span>RF-04 compartido</span><span>RF-22 momento libre</span><span>RF-31 cocinero</span><span>RF-32 esquema</span></div>
+        </figcaption>
+      </figure>
+
+      <!-- 3 · RECETA -->
+      <figure class="figure">
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>9:41</span><span>■ ■ ▮</span></div>
+          <div class="appbar"><span class="kicker">Receta · Cena</span><h1>Barbacoa 1</h1></div>
+          <div class="body">
+            <div class="rphoto"><span class="cchip">Cocinero · Manolo</span></div>
+            <div class="seg">
+              <span class="on">Carne estándar</span><span>Reducido + mazorcas</span>
+            </div>
+            <div class="note">Tope por comensal: <b>300 g ♂ · 200 g ♀ · 100 g niño</b>. Las carnes se reparten ese total; si añades una, el resto baja.</div>
+            <div class="item">
+              <div class="thumb meat"></div>
+              <div class="it-main"><div class="n">Costillas de cerdo</div><div class="q">2,3 kg</div></div>
+            </div>
+            <div class="item">
+              <div class="thumb meat"></div>
+              <div class="it-main"><div class="n">Pinchitos</div><div class="q">1,5 kg</div></div>
+            </div>
+            <div class="item">
+              <div class="thumb veg"></div>
+              <div class="it-main"><div class="n">Mazorcas</div><div class="q">8 ud</div></div>
+            </div>
+            <div class="prep"><span class="ed">Editar ✎</span>Encender las brasas con antelación. Salar la carne justo antes. Asar primero lo que más tarda (costillas)…</div>
+          </div>
+          <nav class="tabbar">
+            <a href="#"><svg viewBox="0 0 24 24"><path d="M3 4h2l2.5 12h11l2-8H6"/><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/></svg>Comprar</a>
+            <a href="#"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>Calendario</a>
+            <a class="on" href="#"><svg viewBox="0 0 24 24"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M9 8h7M9 12h7"/></svg>Recetas</a>
+            <a href="#"><svg viewBox="0 0 24 24"><path d="M4 8l8-4 8 4-8 4z"/><path d="M4 8v8l8 4 8-4V8"/></svg>Despensa</a>
+            <a href="#"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.5 5.5l2 2M16.5 16.5l2 2M18.5 5.5l-2 2M7.5 16.5l-2 2"/></svg>Ajustes</a>
+          </nav>
+        </div></div>
+        <figcaption class="cap">
+          <h3>3 · Receta</h3>
+          <p>Ingredientes <b>con cantidades ya escaladas</b> a los comensales y preparación editable. El selector cambia el <b>tope de carne</b> y reparte entre los tipos elegidos.</p>
+          <div class="rf"><span>RF-09 cantidades</span><span>RF-12 editable</span><span>RF-19 add/quitar</span><span>RF-20 tope</span><span>RF-26 nivel carne</span></div>
+        </figcaption>
+      </figure>
+
+      <!-- 4 · DESPENSA -->
+      <figure class="figure">
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>9:41</span><span>■ ■ ▮</span></div>
+          <div class="appbar"><span class="kicker">Despensa</span><h1>Ya en existencias</h1></div>
+          <div class="body">
+            <div class="note" style="margin:2px 4px 10px">Todo lo que apuntéis aquí <b>se descuenta</b> de la compra vigente.</div>
+            <div class="item">
+              <div class="thumb"></div>
+              <div class="it-main"><div class="n">Aceite de oliva</div><div class="q">5 L · 2 garrafas</div></div>
+              <div class="check done"></div>
+            </div>
+            <div class="item">
+              <div class="thumb"></div>
+              <div class="it-main"><div class="n">Sal / especias</div><div class="q">surtido</div></div>
+              <div class="check done"></div>
+            </div>
+            <div class="item">
+              <div class="thumb veg"></div>
+              <div class="it-main"><div class="n">Red de ajos</div><div class="q">1 ristra</div></div>
+              <div class="check done"></div>
+            </div>
+            <div class="item">
+              <div class="thumb"></div>
+              <div class="it-main"><div class="n">Arroz</div><div class="q">2 kg</div></div>
+              <div class="check done"></div>
+            </div>
+            <div class="foot-actions">
+              <span class="btn solid">Pasar lo comprado a despensa</span>
+            </div>
+          </div>
+          <nav class="tabbar">
+            <a href="#"><svg viewBox="0 0 24 24"><path d="M3 4h2l2.5 12h11l2-8H6"/><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/></svg>Comprar</a>
+            <a href="#"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>Calendario</a>
+            <a href="#"><svg viewBox="0 0 24 24"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M9 8h7M9 12h7"/></svg>Recetas</a>
+            <a class="on" href="#"><svg viewBox="0 0 24 24"><path d="M4 8l8-4 8 4-8 4z"/><path d="M4 8v8l8 4 8-4V8"/></svg>Despensa</a>
+            <a href="#"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.5 5.5l2 2M16.5 16.5l2 2M18.5 5.5l-2 2M7.5 16.5l-2 2"/></svg>Ajustes</a>
+          </nav>
+        </div></div>
+        <figcaption class="cap">
+          <h3>4 · Despensa</h3>
+          <p>La salvaguarda: lo que ya tenéis (aceite, especias, la ristra de ajos…) se resta de lo que hay que comprar. Al cerrar una compra, lo comprado pasa aquí de un toque.</p>
+          <div class="rf"><span>RF-08 descartar</span><span>RF-15 descuenta</span><span>RF-29 staples</span></div>
+        </figcaption>
+      </figure>
+
+      <!-- 5 · AJUSTES -->
+      <figure class="figure">
+        <div class="phone"><div class="screen">
+          <div class="island"></div>
+          <div class="statusbar"><span>9:41</span><span>■ ■ ▮</span></div>
+          <div class="appbar"><span class="kicker">Ajustes</span><h1>Configuración</h1></div>
+          <div class="body">
+            <div class="grp"><div class="gt">Comensales</div>
+              <div class="stepper"><span class="ln">Adultos ♂</span><span class="ct"><span class="rnd">−</span><b>7</b><span class="rnd">+</span></span></div>
+              <div class="stepper"><span class="ln">Adultos ♀</span><span class="ct"><span class="rnd">−</span><b>7</b><span class="rnd">+</span></span></div>
+              <div class="stepper"><span class="ln">Niños</span><span class="ct"><span class="rnd">−</span><b>3</b><span class="rnd">+</span></span></div>
+            </div>
+            <div class="grp"><div class="gt">Fechas de compra</div>
+              <div class="chips"><span class="chip on">31 jul</span><span class="chip on">3 ago</span><span class="chip on">6 ago</span><span class="chip">+ añadir</span></div>
+            </div>
+            <div class="grp"><div class="gt">Listas de compra única</div>
+              <div class="chips"><span class="chip">Cocina</span><span class="chip warm">Bebidas</span><span class="chip warm">Picoteo</span><span class="chip">Desayunos</span></div>
+            </div>
+            <div class="grp"><div class="gt">Acceso · enlace abierto</div>
+              <div class="link-row"><span class="u">comprasanjose.app/inv</span><span>· copiar</span></div>
+            </div>
+          </div>
+          <nav class="tabbar">
+            <a href="#"><svg viewBox="0 0 24 24"><path d="M3 4h2l2.5 12h11l2-8H6"/><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/></svg>Comprar</a>
+            <a href="#"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>Calendario</a>
+            <a href="#"><svg viewBox="0 0 24 24"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M9 8h7M9 12h7"/></svg>Recetas</a>
+            <a href="#"><svg viewBox="0 0 24 24"><path d="M4 8l8-4 8 4-8 4z"/><path d="M4 8v8l8 4 8-4V8"/></svg>Despensa</a>
+            <a class="on" href="#"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.5 5.5l2 2M16.5 16.5l2 2M18.5 5.5l-2 2M7.5 16.5l-2 2"/></svg>Ajustes</a>
+          </nav>
+        </div></div>
+        <figcaption class="cap">
+          <h3>5 · Ajustes</h3>
+          <p>Comensales por categoría (afectan al cálculo), fechas de compra que marcan los tramos, las tres listas de compra única y el <b>enlace abierto</b> para invitar con Gmail o Microsoft.</p>
+          <div class="rf"><span>RF-16 comensales</span><span>RF-25 ♂/♀/niños</span><span>RF-29 3 listas</span><span>RF-30 por envase</span><span>RF-18 enlace</span></div>
+        </figcaption>
+      </figure>
+
+    </div>
+
+    <p class="foot">Esto es una <b>maqueta de diseño</b>, no la app final: sirve para acordar
+      aspecto y flujos antes de construir. La aplicación real se montará en <b>AppSheet</b> sobre
+      Google Sheets siguiendo la especificación (<b>docs/ESPECIFICACION.md</b>). Los colores de
+      sección, las fotos de producto y los textos de receta serán editables desde el móvil.</p>
+
+  </div>
+</div>

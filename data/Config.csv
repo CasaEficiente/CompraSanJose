@@ -1,4 +1,12 @@
 Clave,Valor,Descripcion
-Adultos,14,Numero de comensales adultos
-Ninos,3,Numero de comensales ninos
-FactorNino,0.5,Racion equivalente de un nino respecto a un adulto
+AdultosM,7,Adultos hombres
+AdultosF,7,Adultos mujeres
+Ninos,3,Ninos
+FactorNino,0.5,Racion equivalente de un nino (platos generales)
+BBQ_g_M,300,Gramos de carne de barbacoa por adulto masculino (estandar)
+BBQ_g_F,200,Gramos de carne de barbacoa por adulta femenina (estandar)
+BBQ_g_Nino,100,Gramos de carne de barbacoa por nino
+BBQ_g_M_red,200,Carne BBQ por hombre en modo reducido (con mazorcas)
+BBQ_g_F_red,150,Carne BBQ por mujer en modo reducido (con mazorcas)
+DiasDesayuno,8,Numero de desayunos del evento
+DiasEvento,9,Dias del evento (1-9 agosto)

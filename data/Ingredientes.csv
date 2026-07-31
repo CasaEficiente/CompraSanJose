@@ -1,90 +1,98 @@
-Ingrediente,Categoria,Unidad
-Pollo troceado,Carniceria,g
-Pollo en tiras,Carniceria,g
-Alitas de pollo,Carniceria,g
-Carne picada mixta,Carniceria,g
-Carne picada de ternera,Carniceria,g
-Filetes de ternera,Carniceria,g
-Entrecot de vaca,Carniceria,g
-Costillas de cerdo,Carniceria,g
-Lomo de cerdo,Carniceria,g
-Pinchos morunos,Carniceria,g
-Chorizo,Charcuteria,g
-Chorizo parrilla,Charcuteria,g
-Morcilla,Charcuteria,g
-Longaniza,Charcuteria,g
-Panceta,Charcuteria,g
-Bacon,Charcuteria,g
-Salchichas,Charcuteria,g
-Chistorra,Charcuteria,g
-Jamon serrano,Charcuteria,g
-Jamon cocido,Charcuteria,g
-Salami/pepperoni,Charcuteria,g
-Pescado variado para freir,Pescaderia,g
-Berenjena,Fruteria,g
-Patata,Fruteria,g
-Cebolla,Fruteria,g
-Cebolleta,Fruteria,g
-Pimiento rojo,Fruteria,g
-Pimiento verde,Fruteria,g
-Zanahoria,Fruteria,g
-Calabacin,Fruteria,g
-Tomate,Fruteria,g
-Tomate maduro,Fruteria,g
-Ajo,Fruteria,g
-Champinones,Fruteria,g
-Lechuga,Fruteria,g
-Limon,Fruteria,ud
-Maiz mazorca,Fruteria,ud
-Perejil,Fruteria,g
-Pan,Panaderia,g
-Pan del dia anterior,Panaderia,g
-Pan de hamburguesa,Panaderia,ud
-Masa de pizza,Panaderia,g
-Tortillas de trigo,Panaderia,ud
-Leche,Lacteos,ml
-Mantequilla,Lacteos,g
-Queso rallado,Lacteos,g
-Mozzarella,Lacteos,g
-Queso en lonchas,Lacteos,g
-Nata agria,Lacteos,g
-Huevo,Lacteos,ud
-Arroz,Despensa,g
-Semola couscous,Despensa,g
-Garbanzos cocidos,Despensa,g
-Alubias rojas cocidas,Despensa,g
-Maiz dulce,Despensa,g
-Pasas,Despensa,g
-Harina,Despensa,g
-Harina de freir,Despensa,g
-Caldo de pollo,Despensa,ml
-Caldo de carne,Despensa,ml
-Tomate triturado,Despensa,g
-Tomate frito,Despensa,g
-Aceite de oliva,Despensa,ml
-Aceite de oliva virgen extra,Despensa,ml
-Aceite de girasol,Despensa,ml
-Vinagre,Despensa,ml
-Pimenton,Despensa,g
-Pimenton picante,Despensa,g
-Comino,Despensa,g
-Canela,Despensa,g
-Nuez moscada,Despensa,g
-Ras el hanout,Despensa,g
-Especias fajita,Despensa,g
-Oregano,Despensa,g
-Romero,Despensa,g
-Sal,Despensa,g
-Sal gorda,Despensa,g
-Aceitunas negras,Despensa,g
-Pepinillos,Despensa,g
-Ketchup,Despensa,g
-Mostaza,Despensa,g
-Mayonesa,Despensa,g
-Alioli,Despensa,g
-Chimichurri,Despensa,g
-Guacamole,Despensa,g
-Vino tinto,Bebidas,ml
-Vino blanco,Bebidas,ml
-Guisantes,Congelados,g
-Patatas congeladas,Congelados,g
+Ingrediente,Categoria,Unidad,EsBasico,ListaBasico
+Pollo troceado,Carniceria,g,No,
+Pollo en tiras,Carniceria,g,No,
+Alitas de pollo,Carniceria,g,No,
+Carne picada de ternera,Carniceria,g,No,
+Filetes de ternera,Carniceria,g,No,
+Entrecot de vaca,Carniceria,g,No,
+Costillas de cerdo,Carniceria,g,No,
+Lomo de cerdo,Carniceria,g,No,
+Pinchitos,Carniceria,g,No,
+Chuletas de cerdo,Carniceria,g,No,
+Chorizo,Charcuteria,g,No,
+Chorizo parrilla,Charcuteria,g,No,
+Morcilla,Charcuteria,g,No,
+Longaniza,Charcuteria,g,No,
+Panceta,Charcuteria,g,No,
+Bacon,Charcuteria,g,No,
+Salchichas,Charcuteria,g,No,
+Chistorra,Charcuteria,g,No,
+Jamon serrano,Charcuteria,g,No,
+Jamon cocido,Charcuteria,g,No,
+Salami/pepperoni,Charcuteria,g,No,
+Boquerones,Pescaderia,g,No,
+Calamar,Pescaderia,g,No,
+Rosada,Pescaderia,g,No,
+Cazon,Pescaderia,g,No,
+Berenjena,Fruteria,g,No,
+Patata,Fruteria,g,No,
+Cebolla,Fruteria,g,No,
+Cebolleta,Fruteria,g,No,
+Pimiento rojo,Fruteria,g,No,
+Pimiento verde,Fruteria,g,No,
+Zanahoria,Fruteria,g,No,
+Calabacin,Fruteria,g,No,
+Tomate,Fruteria,g,No,
+Tomate maduro,Fruteria,g,No,
+Ajo,Fruteria,g,Si,Cocina
+Champinones,Fruteria,g,No,
+Lechuga,Fruteria,g,No,
+Limon,Fruteria,ud,No,
+Mazorcas,Fruteria,ud,No,
+Perejil,Fruteria,g,No,
+Pan,Panaderia,g,No,
+Pan del dia anterior,Panaderia,g,No,
+Pan de hamburguesa,Panaderia,ud,No,
+Masa de pizza,Panaderia,g,No,
+Tortillas de trigo,Panaderia,ud,No,
+Leche,Lacteos,ml,No,
+Mantequilla,Lacteos,g,No,
+Queso rallado,Lacteos,g,No,
+Mozzarella,Lacteos,g,No,
+Queso en lonchas,Lacteos,g,No,
+Nata agria,Lacteos,g,No,
+Huevo,Lacteos,ud,No,
+Arroz,Despensa,g,No,
+Semola couscous,Despensa,g,No,
+Garbanzos cocidos,Despensa,g,No,
+Alubias rojas cocidas,Despensa,g,No,
+Lata de maiz,Despensa,g,No,
+Pasas,Despensa,g,No,
+Caldo de pollo,Despensa,ml,No,
+Caldo de carne,Despensa,ml,No,
+Tomate natural,Despensa,g,No,
+Tomate tamizado,Despensa,g,No,
+Tomate frito,Despensa,g,No,
+Guacamole,Despensa,g,No,
+Aceitunas negras,Despensa,g,No,
+Pepinillos,Despensa,g,No,
+Harina,Despensa,g,Si,Cocina
+Harina de freir,Despensa,g,Si,Cocina
+Aceite de oliva,Despensa,ml,Si,Cocina
+AOVE,Despensa,ml,Si,Cocina
+Aceite de girasol,Despensa,ml,Si,Cocina
+Vinagre,Despensa,ml,Si,Cocina
+Pimenton,Despensa,g,Si,Cocina
+Pimenton picante,Despensa,g,Si,Cocina
+Comino,Despensa,g,Si,Cocina
+Canela,Despensa,g,Si,Cocina
+Nuez moscada,Despensa,g,Si,Cocina
+Ras el hanout,Despensa,g,Si,Cocina
+Especias fajita,Despensa,g,Si,Cocina
+Oregano,Despensa,g,Si,Cocina
+Jengibre,Despensa,g,Si,Cocina
+Curcuma,Despensa,g,Si,Cocina
+Romero,Despensa,g,Si,Cocina
+Sal,Despensa,g,Si,Cocina
+Sal gorda,Despensa,g,Si,Cocina
+Sal de escamas,Despensa,g,Si,Cocina
+Pimienta,Despensa,g,Si,Cocina
+Ketchup,Despensa,g,Si,Cocina
+Mostaza,Despensa,g,Si,Cocina
+Mayonesa,Despensa,g,Si,Cocina
+Alioli,Despensa,g,Si,Cocina
+Chimichurri,Despensa,g,Si,Cocina
+Vino tinto,Bebidas,ml,Si,Cocina
+Vino blanco,Bebidas,ml,Si,Cocina
+Guisantes,Congelados,g,No,
+Patatas congeladas,Congelados,g,No,
