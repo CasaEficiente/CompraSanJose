@@ -98,7 +98,6 @@ const TABS=[['comprar','Comprar'],['calendario','Calendario'],['recetas','Receta
 /* ------------------------------- render --------------------------------- */
 function render(){
   const app=$('#app');
-  if(state.modal){ renderModal(); }
   const head = `<div class="appbar"><div><div class="kicker">${esc(TABS.find(t=>t[0]===state.tab)[1])}</div>
       <h1>${state.detail?esc(state.detail):headTitle()}</h1></div><div class="spacer"></div>
       ${state.detail?`<button class="iconbtn" data-act="back">←</button>`:`<button class="iconbtn" data-act="refresh">⟳</button>`}</div>`;
