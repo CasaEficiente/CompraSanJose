@@ -63,6 +63,10 @@ select,input,textarea{font-family:inherit;font-size:14px;color:var(--ink);backgr
   margin:16px 4px 8px;display:flex;align-items:center;gap:8px}
 .sect .dot{width:9px;height:9px;border-radius:3px;flex:0 0 auto}
 .sect .n{margin-left:auto;color:var(--muted);font-weight:700}
+.sec-btn{width:100%;text-align:left;background:none;border:none;cursor:pointer}
+.caret{margin-left:10px;color:var(--muted);display:inline-block;transition:transform .15s}
+.caret.open{transform:rotate(180deg)}
+@media (prefers-reduced-motion:reduce){.caret{transition:none}}
 
 /* list items / cards */
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}

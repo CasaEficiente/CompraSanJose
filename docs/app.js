@@ -11,7 +11,7 @@ const CATCOLOR = {Fruteria:'#3E6B45',Carniceria:'#C7452C',Charcuteria:'#8a3b2e',
 const CATEMOJI = {Fruteria:'🥬',Carniceria:'🥩',Charcuteria:'🌭',Pescaderia:'🐟',Panaderia:'🍞',Lacteos:'🧀',Congelados:'❄️',Despensa:'🥫',Bebidas:'🥤'};
 
 let idToken=null, userEmail=null, DATA=null;
-let state = { tab:'comprar', detail:null, modal:null, mode:'catalogo', tramo:'todo' };
+let state = { tab:'comprar', detail:null, modal:null, mode:'catalogo', tramo:'todo', open:{} };
 let _cb = 0;
 
 /* ------------------------------- utils ---------------------------------- */
@@ -147,23 +147,25 @@ function viewComprar(){
     </div></div>${tramoSel?`<div class="controls">${tramoSel}</div>`:''}`;
 
   if(!sh.total){ html+=`<div class="banner">No hay ingredientes que comprar con esta selección. ${state.mode==='calendario'?'Asigna comidas en el Calendario o cambia a "Todas las comidas".':''}</div>`; }
+  const sec=(key,color,label,count,inner)=>{
+    const open=!!state.open[key];
+    return `<button class="sect sec-btn" data-act="togglecat" data-key="${esc(key)}">
+        <span class="dot" style="background:${color}"></span>${esc(label)}<span class="n">${count}</span><span class="caret ${open?'open':''}">▾</span></button>
+      ${open?`<div class="card" style="padding:2px 12px">${inner}</div>`:''}`;
+  };
   sh.groups.forEach(g=>{
-    html+=`<div class="sect"><span class="dot" style="background:${CATCOLOR[g.cat]||'#888'}"></span>${esc(g.cat)}<span class="n">${g.items.length}</span></div><div class="card" style="padding:2px 12px">`;
-    g.items.forEach(it=> html+=itemRow('ingr',it.name,CATEMOJI[it.cat],it.name,it.legible,it.comprado));
-    html+=`</div>`;
+    const inner=g.items.map(it=>itemRow('ingr',it.name,CATEMOJI[it.cat],it.name,it.legible,it.comprado)).join('');
+    html+=sec('cat:'+g.cat, CATCOLOR[g.cat]||'#888', g.cat, g.items.length, inner);
   });
-  // Basicos
   const bas=(DATA.Basicos||[]);
-  if(bas.length){ html+=`<div class="sect"><span class="dot" style="background:#6b7a5e"></span>Básicos de cocina (compra única)<span class="n">${bas.length}</span></div><div class="card" style="padding:2px 12px">`;
-    bas.forEach(b=> html+=itemRow('basico',b.Item,'🧂',b.Item, b.Formato||'', truthy(b.Comprado)) ); html+=`</div>`; }
-  // Listas abiertas por tipo
+  if(bas.length){ html+=sec('basicos','#6b7a5e','Básicos de cocina (compra única)', bas.length,
+    bas.map(b=>itemRow('basico',b.Item,'🧂',b.Item, b.Formato||'', truthy(b.Comprado))).join('')); }
   ['Desayuno','Bebidas','Picoteo'].forEach(tipo=>{
     const rows=(DATA.ListasAbiertas||[]).filter(r=>r.Tipo===tipo);
     if(!rows.length)return;
     const em=tipo==='Desayuno'?'🥐':tipo==='Bebidas'?'🥤':'🥜';
-    html+=`<div class="sect"><span class="dot" style="background:#7A5A86"></span>${tipo}<span class="n">${rows.length}</span></div><div class="card" style="padding:2px 12px">`;
-    rows.forEach(r=> html+=itemRow('lista',r.Item,em,r.Item, r.Paquetes?`${r.Paquetes} ${r.Envase||''}`:'', truthy(r.Comprado)) );
-    html+=`</div>`;
+    html+=sec('tipo:'+tipo,'#7A5A86',tipo,rows.length,
+      rows.map(r=>itemRow('lista',r.Item,em,r.Item, r.Paquetes?`${r.Paquetes} ${r.Envase||''}`:'', truthy(r.Comprado))).join(''));
   });
   return html;
 }
@@ -293,6 +295,7 @@ document.addEventListener('click',(e)=>{
   else if(act==='savedesp'){ saveDesp(); }
   else if(act==='install'){ openModal({type:'install'}); }
   else if(act==='adduser'){ addUser(); }
+  else if(act==='togglecat'){ const k=b.getAttribute('data-key'); state.open[k]=!state.open[k]; render(); }
   else if(act==='editprep'){ editPrep(b.getAttribute('data-comida')); }
   else if(act==='signout'){ signout(); }
   else if(act==='closemodal'||act==='closebg'){ if(act==='closebg'&&e.target.closest('.sheet'))return; closeModal(); }
