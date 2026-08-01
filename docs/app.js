@@ -230,7 +230,7 @@ function viewReceta(name){
     ${c.Fuente?`<div style="margin:2px 4px 8px"><a href="${esc(c.Fuente)}" target="_blank" rel="noopener">🔗 Abrir receta original</a></div>`:''}
     <div class="controls"><input id="rc-fuente" type="url" inputmode="url" value="${esc(c.Fuente||'')}" placeholder="https://..." style="flex:1">
       <button class="btn solid" style="width:auto;white-space:nowrap" data-act="setfuente" data-comida="${esc(name)}">Guardar</button></div>
-    <div class="rlabel">🦗 "De lo que come el grillo, poquillo"</div>
+    <div class="rlabel">${/ensalada/i.test(name)?'🦗 "De lo que come el grillo, poquillo"':'Personas que no comen de esto'}</div>
     <div class="controls"><input id="rc-grillo" type="number" inputmode="numeric" value="${excl||''}" placeholder="0 (comen todos)" style="flex:1">
       <button class="btn solid" style="width:auto;white-space:nowrap" data-act="setgrillo" data-comida="${esc(name)}">Guardar</button></div>
     <p class="muted small" style="margin:2px 4px 6px">Comensales que apenas/no comen este plato (se restan del total). Ahora lo comen <b>${effR}</b> de ${rac}.</p>
@@ -482,7 +482,8 @@ async function seedSalads(){
   const SEED=[
     ['Ensalada mixta','Almuerzo',[['Lechuga',40],['Tomate',60],['Cebolla',15],['Pepino',30],['Zanahoria',15],['Aceitunas negras',10],['Atun',25],['Lata de maiz',15]]],
     ['Ensalada de pasta','Almuerzo',[['Pasta',60],['Tomate',30],['Lata de maiz',20],['Atun',30],['Aceitunas negras',10],['Huevo',0.5],['Cebolla',10]]],
-    ['Ensalada campera','Almuerzo',[['Patata',120],['Tomate',60],['Cebolla',20],['Pimiento verde',20],['Atun',30],['Huevo',0.5],['Aceitunas negras',15]]]
+    ['Ensalada campera','Almuerzo',[['Patata',120],['Tomate',60],['Cebolla',20],['Pimiento verde',20],['Atun',30],['Huevo',0.5],['Aceitunas negras',15]]],
+    ['Ensalada de verano','Almuerzo',[['Patata',120],['Tomate',60],['Pimiento verde',30],['Cebolla',15],['Atun',30]]]
   ];
   toast('Creando ensaladas…');
   for(const [nom,cat,uni] of SEED_ING){
@@ -544,10 +545,26 @@ async function seedMigas(){
     else { const rr={Comida:'Migas',Ingrediente:ing,CantidadPorComensal:String(g),Grupo:'',PesoEnGrupo:'',Opcional:opc}; (DATA.Recetas=DATA.Recetas||[]).push(rr); await apiWrite({action:'append',sheet:'Recetas',row:rr}); }
   }
 }
+async function seedMousaka(){
+  if(!(DATA.Ingredientes||[]).some(i=>i.Ingrediente==='Bechamel en brick')){
+    const row={Ingrediente:'Bechamel en brick',Categoria:'Lacteos',Unidad:'g',EsBasico:'No',ListaBasico:''};
+    (DATA.Ingredientes=DATA.Ingredientes||[]).push(row); await apiWrite({action:'append',sheet:'Ingredientes',row:row});
+  }
+  for(const ing of ['Leche','Mantequilla']){
+    const r=(DATA.Recetas||[]).find(x=>x.Comida==='Mousaka griega'&&x.Ingrediente===ing);
+    if(r && num(r.CantidadPorComensal)>0){ r.CantidadPorComensal='0'; await apiWrite({action:'update',sheet:'Recetas',match:{Comida:'Mousaka griega',Ingrediente:ing},set:{CantidadPorComensal:'0'}}); }
+  }
+  const adj=[['Bechamel en brick',120],['Berenjena',180],['Carne picada de ternera',140]];
+  for(const [ing,g] of adj){
+    const r=(DATA.Recetas||[]).find(x=>x.Comida==='Mousaka griega'&&x.Ingrediente===ing);
+    if(r){ r.CantidadPorComensal=String(g); await apiWrite({action:'update',sheet:'Recetas',match:{Comida:'Mousaka griega',Ingrediente:ing},set:{CantidadPorComensal:String(g)}}); }
+    else { const rr={Comida:'Mousaka griega',Ingrediente:ing,CantidadPorComensal:String(g),Grupo:'',PesoEnGrupo:'',Opcional:'No'}; (DATA.Recetas=DATA.Recetas||[]).push(rr); await apiWrite({action:'append',sheet:'Recetas',row:rr}); }
+  }
+}
 function maybeSeed(){
   if(bootSeeded) return; bootSeeded=true;
   if((userEmail||'').toLowerCase()!=='francisco.m.garcia@gmail.com') return;
-  const done=(DATA.Config||[]).some(c=>c.Clave==='SemillaV1' && truthy(c.Valor));
+  const done=(DATA.Config||[]).some(c=>c.Clave==='SemillaV2' && truthy(c.Valor));
   if(done) return;
   seedInitial();
 }
@@ -556,10 +573,11 @@ async function seedInitial(){
     await seedSalads();
     await seedPan();
     await seedMigas();
-    const row={Clave:'SemillaV1',Valor:'1',Descripcion:'Ensaladas, pan y complementos de migas aplicados'};
+    await seedMousaka();
+    const row={Clave:'SemillaV2',Valor:'1',Descripcion:'Ensaladas, pan, migas y mousaka aplicados'};
     (DATA.Config=DATA.Config||[]).push(row);
     await apiWrite({action:'append',sheet:'Config',row:row});
-    render(); toast('Ensaladas y complementos listos ✅');
+    render(); toast('Ajustes aplicados ✅');
   }catch(e){}
 }
 function saveDish(){
