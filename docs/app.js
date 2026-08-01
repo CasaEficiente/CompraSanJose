@@ -102,7 +102,7 @@ const IC={
   despensa:'<path d="M4 8l8-4 8 4-8 4z"/><path d="M4 8v8l8 4 8-4V8"/>',
   ajustes:'<circle cx="12" cy="12" r="3.2"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.5 5.5l2 2M16.5 16.5l2 2M18.5 5.5l-2 2M7.5 16.5l-2 2"/>'
 };
-const TABS=[['calendario','Calendario'],['comprar','Comprar'],['recetas','Recetas'],['despensa','Despensa'],['ajustes','Ajustes']];
+const TABS=[['calendario','Calendario'],['comprar','Comprar'],['recetas','Recetas'],['despensa','Disponibles'],['ajustes','Ajustes']];
 
 /* ------------------------------- render --------------------------------- */
 function render(){
@@ -119,7 +119,7 @@ function headTitle(){
   if(state.tab==='comprar')return 'Compra vigente';
   if(state.tab==='calendario')return '1 – 9 agosto';
   if(state.tab==='recetas')return 'Recetas';
-  if(state.tab==='despensa')return 'Ya en existencias';
+  if(state.tab==='despensa')return 'Disponibles';
   return 'Ajustes';
 }
 function viewTab(){
@@ -147,7 +147,7 @@ function viewComprar(){
     </select>`;
   let html = `<div class="hero"><div class="lab">Según calendario</div>
     <div class="big">${sh.total} para cocinar</div>
-    <div class="sub">${raciones()} raciones · marca ✓ y pasa a la despensa</div></div>
+    <div class="sub">${raciones()} raciones · marca ✓ y pasa a Disponibles</div></div>
     <div class="controls">${tramoSel}</div>
     <div class="controls"><button class="btn" data-act="clearcomprado" style="font-size:12.5px">🧹 Vaciar lo ya comprado (consumido)</button></div>`;
 
@@ -183,7 +183,7 @@ function viewComprar(){
           <div class="q">${need>0?esc(it.legible):(on?'para comprar':'sin pedir')}</div></div>
         <input class="qin" data-buyqty data-ing="${esc(name)}" data-need="${need}" type="number" inputmode="decimal" value="${buy}" aria-label="comprar" title="Ponle cantidad para comprarlo">
         <span class="uni">${esc(unit)}</span>
-        ${on?`<button class="check" data-act="buyingr" data-ing="${esc(name)}" data-buy="${buy}" data-unit="${esc(unit)}" aria-label="a despensa"></button>`:`<span class="ckoff"></span>`}
+        ${on?`<button class="check" data-act="buyingr" data-ing="${esc(name)}" data-buy="${buy}" data-unit="${esc(unit)}" aria-label="a Disponibles"></button>`:`<span class="ckoff"></span>`}
       </div>`;
     }).join('');
     const manItems=manualAll.filter(r=>r.Categoria===key);
@@ -192,7 +192,7 @@ function viewComprar(){
       <div class="it-main"><div class="n">${esc(r.Ingrediente)}</div><div class="q">${on?'para comprar':'toca para pedir'}</div></div>
       <input class="qin" data-manqty data-ing="${esc(r.Ingrediente)}" type="number" inputmode="decimal" value="${esc(r.Cantidad)}" aria-label="cantidad">
       <span class="uni">${esc(r.Unidad||'ud')}</span>
-      ${on?`<button class="check" data-act="buymanual" data-ing="${esc(r.Ingrediente)}" aria-label="comprado, a despensa"></button>`:`<span class="ckoff"></span>`}
+      ${on?`<button class="check" data-act="buymanual" data-ing="${esc(r.Ingrediente)}" aria-label="comprado, a Disponibles"></button>`:`<span class="ckoff"></span>`}
       <button class="delx" data-act="delmanual" data-ing="${esc(r.Ingrediente)}" aria-label="quitar">×</button>
     </div>`;}).join('');
     const active=catIngs.filter(n=>{const t=needByName[n];return ((t?t.need:0)+extraOf(n))>0;}).length + manItems.filter(r=>num(r.Cantidad)>0).length;
@@ -293,15 +293,15 @@ function viewReceta(name){
 
 function viewDespensa(){
   const rows=(DATA.Despensa||[]).filter(d=>num(d.Cantidad)>0);
-  return `<div class="banner">Lo que apuntes aquí se <b>descuenta</b> de la compra.</div>
+  return `<div class="banner">Lo que ya tienes disponible aquí se <b>descuenta</b> de la compra.</div>
     <div class="card" style="padding:2px 12px">${rows.length?rows.map(d=>
       `<div class="item"><div class="thumb">🥫</div><div class="it-main"><div class="n">${esc(d.Ingrediente)}</div>
       <div class="q">${esc(legible(num(d.Cantidad),d.Unidad||'g'))}${d.Notas?' · '+esc(d.Notas):''}</div></div>
       <input class="qin" data-despqty data-ing="${esc(d.Ingrediente)}" type="number" inputmode="decimal" value="${esc(d.Cantidad)}" aria-label="cantidad">
       <span class="uni">${esc(d.Unidad||'g')}</span>
       <button class="delx" data-act="deldesp" data-ing="${esc(d.Ingrediente)}" aria-label="quitar">×</button></div>`
-    ).join(''):'<div class="item"><div class="it-main muted small">Despensa vacía.</div></div>'}</div>
-    <div class="row-btns"><button class="btn solid" data-act="adddesp">+ Añadir a la despensa</button></div>`;
+    ).join(''):'<div class="item"><div class="it-main muted small">Nada disponible aún.</div></div>'}</div>
+    <div class="row-btns"><button class="btn solid" data-act="adddesp">+ Añadir a Disponibles</button></div>`;
 }
 
 function stepper(clave,label){
@@ -351,7 +351,7 @@ function modalHTML(m){
   }
   if(m.type==='adddesp'){
     return `<div class="backdrop" data-act="closebg"><div class="sheet">
-      <h2>Añadir a la despensa</h2>
+      <h2>Añadir a Disponibles</h2>
       <div class="grp"><label>Ingrediente</label><input id="d-nom" placeholder="p. ej. Aceite de oliva"></div>
       <div class="grp"><label>Cantidad</label><input id="d-cant" type="number" inputmode="decimal" placeholder="0"></div>
       <div class="grp"><label>Unidad</label><select id="d-uni"><option>g</option><option>ml</option><option>ud</option></select></div>
@@ -489,7 +489,7 @@ document.addEventListener('click',(e)=>{
   else if(act==='buymanual'){ buyManual(b.getAttribute('data-ing')); }
   else if(act==='delmanual'){ const ig=b.getAttribute('data-ing'); askDelete('Quitar "'+ig+'" de la lista.', ()=>delManual(ig)); }
   else if(act==='buyingr'){ buyIngr(b.getAttribute('data-ing'), num(b.getAttribute('data-buy')), b.getAttribute('data-unit')); }
-  else if(act==='clearcomprado'){ askDelete('Poner a 0 lo que ya compraste (marcado como comprado en la despensa) para recalcular la compra del siguiente tramo. Tu despensa inicial se conserva.', ()=>clearComprado()); }
+  else if(act==='clearcomprado'){ askDelete('Poner a 0 lo que ya compraste (marcado como comprado en Disponibles) para recalcular la compra del siguiente tramo. Tu stock inicial se conserva.', ()=>clearComprado()); }
   else if(act==='dellista'){ const it=b.getAttribute('data-item'); askDelete('Quitar "'+it+'" de la lista.', ()=>delLista(it)); }
   else if(act==='addlista'){ openModal({type:'addlista',tipo:b.getAttribute('data-tipo')}); }
   else if(act==='savelista'){ saveLista(b.getAttribute('data-tipo')); }
@@ -497,7 +497,7 @@ document.addEventListener('click',(e)=>{
   else if(act==='seedpan'){ seedPan(); }
   else if(act==='setgrillo'){ setGrillo(b.getAttribute('data-comida')); }
   else if(act==='delitem'){ const co=b.getAttribute('data-comida'), ig=b.getAttribute('data-ing'); askDelete('Quitar "'+ig+'" de '+co+'.', ()=>setRecetaQty(co,ig,0)); }
-  else if(act==='deldesp'){ const ig=b.getAttribute('data-ing'); askDelete('Quitar "'+ig+'" de la despensa.', ()=>delDespensa(ig)); }
+  else if(act==='deldesp'){ const ig=b.getAttribute('data-ing'); askDelete('Quitar "'+ig+'" de Disponibles.', ()=>delDespensa(ig)); }
   else if(act==='confirmyes'){ const fn=pendingDelete; pendingDelete=null; closeModal(); if(fn)fn(); }
   else if(act==='signout'){ signout(); }
   else if(act==='closemodal'||act==='closebg'){ if(act==='closebg'&&e.target.closest('.sheet'))return; closeModal(); }
@@ -594,7 +594,7 @@ function buyIngr(name,buy,unit){
   else { const row={Ingrediente:name,Cantidad:String(buy),Unidad:unit,Notas:'comprado'}; (DATA.Despensa=DATA.Despensa||[]).push(row); apiWrite({action:'append',sheet:'Despensa',row:row}); }
   const lc=(DATA.ListaCompra||[]).find(x=>x.Ingrediente===name); // limpia 'extra' para que no se re-sume al añadir comidas después
   if(lc && /extra=/i.test(lc.Notas||'')){ lc.Notas=String(lc.Notas).replace(/\s*extra=[\d.]+/ig,'').trim(); apiWrite({action:'update',sheet:'ListaCompra',match:{Ingrediente:name},set:{Notas:lc.Notas}}); }
-  render(); toast('✓ '+name+' → despensa');
+  render(); toast('✓ '+name+' → Disponibles');
 }
 function saveManual(cat){
   const nom=((($('#am-nom')||{}).value)||'').trim(); if(!nom){ toast('Pon un producto'); return; }
@@ -887,7 +887,7 @@ function delDespensa(ing){
   const d=(DATA.Despensa||[]).find(x=>x.Ingrediente===ing); if(!d)return;
   d.Cantidad='0';
   apiWrite({action:'update',sheet:'Despensa',match:{Ingrediente:ing},set:{Cantidad:'0'}});
-  render(); toast('Quitado de la despensa');
+  render(); toast('Quitado de Disponibles');
 }
 function setRecetaQty(comida,ing,val){
   const v=num(val);
