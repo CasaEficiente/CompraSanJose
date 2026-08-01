@@ -63,6 +63,36 @@ function tramoBounds(){
   if(i<0) return null;
   return { start:cs[i].Fecha, hasta:hastaOf(cs[i]), nextExcl:(i+1<cs.length)?cs[i+1].Fecha:null };
 }
+function addDays(s,n){ const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s||'')); if(!m) return s;
+  const d=new Date(Date.UTC(+m[1],+m[2]-1,+m[3])); d.setUTCDate(d.getUTCDate()+n); return d.toISOString().slice(0,10); }
+function momentosOf(fecha){ return (DATA.Calendario||[]).filter(s=>s.Fecha===fecha).sort((a,b)=>(a.Momento==='Almuerzo'?0:1)-(b.Momento==='Almuerzo'?0:1)); }
+function coverageReport(){ // analiza huecos/solapamientos de las compras contra los dias del calendario (misma semantica que includedComidas)
+  const cs=compras();
+  const evDates=[...new Set((DATA.Calendario||[]).filter(s=>String(s.Fecha).trim()).map(s=>s.Fecha))].sort();
+  if(!evDates.length) return {ok:true, empty:true, gaps:[], overlaps:[], invalid:[]};
+  if(!cs.length) return {ok:false, noPlan:true, gaps:evDates.slice(), overlaps:[], invalid:[], evDates};
+  const last=evDates[evDates.length-1];
+  const iv=cs.map((c,i)=>{ let end=hastaOf(c); if(!end){ end=(i+1<cs.length)?addDays(cs[i+1].Fecha,-1):last; } return {start:c.Fecha, end, c}; });
+  const invalid=iv.filter(x=>x.end && x.start && x.end<x.start).map(x=>x.c);
+  const cover={}; evDates.forEach(d=>cover[d]=0);
+  iv.forEach(x=>{ if(x.end<x.start) return; evDates.forEach(d=>{ if(d>=x.start && d<=x.end) cover[d]++; }); });
+  const gaps=evDates.filter(d=>cover[d]===0), overlaps=evDates.filter(d=>cover[d]>=2);
+  return {ok:!gaps.length && !overlaps.length && !invalid.length, gaps, overlaps, invalid, cover, evDates};
+}
+function coverageBanner(compact){
+  const r=coverageReport(); if(r.empty) return '';
+  const ok='background:#E7F0DD;border-color:#CFE1C1;color:#2B4E33', err='background:#FBE3DE;border-color:#ECCFC9;color:#8a2e1e';
+  if(r.ok) return compact?'':`<div class="banner" style="${ok}">✅ Cobertura completa: los ${r.evDates.length} días del evento están cubiertos, sin huecos ni solapamientos.</div>`;
+  if(r.noPlan) return `<div class="banner" style="${err}">⚠️ No has planificado ninguna compra. Añade al menos una que cubra del ${fdate(r.gaps[0])} al ${fdate(r.gaps[r.gaps.length-1])}.</div>`;
+  const parts=[];
+  if(r.invalid.length) parts.push('<b>Rango inválido</b> (el «cubrir hasta» es anterior a la fecha de compra): '+r.invalid.map(c=>fdate(c.Fecha)).join(', ')+'.');
+  if(r.gaps.length){
+    const lines=r.gaps.map(d=>{ const ms=momentosOf(d); const det=ms.length?ms.map(m=>m.Momento+(m.Comida?' — '+esc(m.Comida):' (sin asignar)')).join(', '):'sin comidas'; return '• '+fdate(d)+' ('+det+')'; }).join('<br>');
+    parts.push('<b>Días SIN compra que los cubra</b> — estas comidas no se calcularán en ningún tramo:<br>'+lines);
+  }
+  if(r.overlaps.length) parts.push('<b>Solapamiento</b>: '+r.overlaps.map(fdate).join(', ')+' están en 2 o más compras (se contarían doble si compras ambos tramos).');
+  return `<div class="banner" style="${err}">⚠️ ${parts.join('<br><br>')}</div>`;
+}
 function includedComidas(){
   if(state.mode==='catalogo') return (DATA.Comidas||[]).map(c=>c.Comida);
   let slots=(DATA.Calendario||[]).filter(s=>s.Comida&&String(s.Comida).trim());
@@ -149,7 +179,8 @@ function viewComprar(){
     <div class="big">${sh.total} para cocinar</div>
     <div class="sub">${raciones()} raciones · marca ✓ y pasa a Disponibles</div></div>
     <div class="controls">${tramoSel}</div>
-    <div class="controls"><button class="btn" data-act="clearcomprado" style="font-size:12.5px">🧹 Vaciar lo ya comprado (consumido)</button></div>`;
+    <div class="controls"><button class="btn" data-act="clearcomprado" style="font-size:12.5px">🧹 Vaciar lo ya comprado (consumido)</button></div>
+    ${coverageBanner(true)}`;
 
   if(!sh.total){ html+=`<div class="banner">Aún no hay comidas que generen compra automática. Abre cada categoría para ver los productos y ponles cantidad, o asigna comidas en el Calendario.</div>`; }
   const sec=(key,color,label,count,inner)=>{
@@ -321,7 +352,8 @@ function viewAjustes(){
       <button class="delx" data-act="delcompra" data-fecha="${esc(c.Fecha)}">×</button>
     </div>`).join('')||'<div class="item"><div class="it-main muted small">Sin compras planificadas.</div></div>'}</div>
     <div class="row-btns"><button class="btn solid" data-act="addcompra">+ Planificar compra</button></div>
-    <p class="muted small" style="margin:2px 4px 0">Cada compra cubre desde su fecha hasta la fecha "cubrir hasta". En Comprar → "Por calendario" eliges el tramo.</p>
+    <p class="muted small" style="margin:2px 4px 6px">Cada compra cubre desde su fecha hasta la fecha "cubrir hasta". En Comprar → "Por calendario" eliges el tramo.</p>
+    ${coverageBanner(false)}
     <div class="rlabel">Usuarios con acceso</div>
     <div class="card" style="padding:2px 12px">${(DATA.Usuarios||[]).map(u=>`<div class="item"><div class="thumb">👤</div><div class="it-main"><div class="n">${esc(u.Email)}</div>${u.Rol?`<div class="q">${esc(u.Rol)}</div>`:''}</div></div>`).join('')||'<div class="item"><div class="it-main muted small">Sin usuarios.</div></div>'}</div>
     <div class="controls"><input id="u-email" type="email" inputmode="email" placeholder="correo@gmail.com" style="flex:1">
@@ -685,6 +717,8 @@ function saveCompra(oldFecha){
   const fecha=((($('#cp-fecha')||{}).value)||'').trim(); if(!fecha){ toast('Pon la fecha de compra'); return; }
   const hasta=((($('#cp-hasta')||{}).value)||'').trim();
   const et=((($('#cp-et')||{}).value)||'').trim();
+  if(hasta && hasta<fecha){ toast('«Cubrir hasta» no puede ser anterior a la fecha de compra'); return; }
+  if((DATA.Compras||[]).some(c=>c.Fecha!==oldFecha && String(c.Fecha).trim()===fecha)){ toast('Ya hay una compra en esa fecha'); return; }
   if(oldFecha){
     const c=(DATA.Compras||[]).find(x=>x.Fecha===oldFecha);
     if(c){ c.Fecha=fecha; c.Etiqueta=et; c.Notas=hasta; }
