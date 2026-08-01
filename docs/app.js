@@ -158,8 +158,9 @@ function viewComprar(){
     html+=sec('cat:'+g.cat, CATCOLOR[g.cat]||'#888', g.cat, g.items.length, inner);
   });
   const bas=(DATA.Basicos||[]);
-  if(bas.length){ html+=sec('basicos','#6b7a5e','Básicos de cocina (compra única)', bas.length,
-    bas.map(b=>itemRow('basico',b.Item,'🧂',b.Item, b.Formato||'', truthy(b.Comprado))).join('')); }
+  html+=sec('basicos','#6b7a5e','Básicos de cocina (compra única)', bas.length,
+    bas.map(b=>itemRow('basico',b.Item,'🧂',b.Item, b.Formato||'', truthy(b.Comprado))).join('')
+    + `<div style="padding:8px 4px"><button class="btn" data-act="addbasico">+ Añadir básico (salsa, bote…)</button></div>`);
   ['Desayuno','Bebidas','Picoteo'].forEach(tipo=>{
     const rows=(DATA.ListasAbiertas||[]).filter(r=>r.Tipo===tipo);
     if(!rows.length)return;
@@ -198,7 +199,8 @@ function viewRecetas(){
       <div class="q">${esc(c.MomentoSugerido||'')}${c.Cocinero?' · '+esc(c.Cocinero):''}</div></div><span class="chev">›</span></button>`
   ).join('')+`</div>
     <div class="row-btns"><button class="btn solid" data-act="newdish">+ Nueva receta / plato</button></div>
-    <div class="row-btns"><button class="btn" data-act="seedsalads">🥗 Crear 3 ensaladas de ejemplo</button></div>`;
+    <div class="row-btns"><button class="btn" data-act="seedsalads">🥗 Crear 3 ensaladas de ejemplo</button>
+      <button class="btn" data-act="seedpan">🍞 Aplicar pan recomendado</button></div>`;
 }
 function viewReceta(name){
   const c=(DATA.Comidas||[]).find(x=>x.Comida===name); if(!c)return 'No encontrada.';
@@ -299,6 +301,15 @@ function modalHTML(m){
       <div class="row-btns"><button class="btn" data-act="closemodal">Cancelar</button>
         <button class="btn solid" data-act="savedesp">Guardar</button></div></div></div>`;
   }
+  if(m.type==='addbasico'){
+    return `<div class="backdrop" data-act="closebg"><div class="sheet">
+      <h2>Añadir a básicos (compra única)</h2>
+      <div class="grp"><label>Producto</label><input id="ab-nom" placeholder="p. ej. Kétchup, Salsa barbacoa, Tabasco…"></div>
+      <div class="grp"><label>Formato (opcional)</label><input id="ab-fmt" placeholder="p. ej. Bote, Botella 500 ml"></div>
+      <div class="row-btns"><button class="btn" data-act="closemodal">Cancelar</button>
+        <button class="btn solid" data-act="savebasico">Añadir</button></div>
+    </div></div>`;
+  }
   if(m.type==='newdish'){
     return `<div class="backdrop" data-act="closebg"><div class="sheet">
       <h2>Nueva receta / plato</h2>
@@ -367,6 +378,9 @@ document.addEventListener('click',(e)=>{
   else if(act==='newdish'){ openModal({type:'newdish'}); }
   else if(act==='savedish'){ saveDish(); }
   else if(act==='seedsalads'){ seedSalads(); }
+  else if(act==='addbasico'){ openModal({type:'addbasico'}); }
+  else if(act==='savebasico'){ saveBasico(); }
+  else if(act==='seedpan'){ seedPan(); }
   else if(act==='setgrillo'){ setGrillo(b.getAttribute('data-comida')); }
   else if(act==='delitem'){ const co=b.getAttribute('data-comida'), ig=b.getAttribute('data-ing'); askDelete('Quitar "'+ig+'" de '+co+'.', ()=>setRecetaQty(co,ig,0)); }
   else if(act==='deldesp'){ const ig=b.getAttribute('data-ing'); askDelete('Quitar "'+ig+'" de la despensa.', ()=>delDespensa(ig)); }
@@ -495,6 +509,25 @@ async function seedSalads(){
     }
   }
   render(); toast('Ensaladas creadas ✅');
+}
+function saveBasico(){
+  const nom=((($('#ab-nom')||{}).value)||'').trim(); if(!nom){ toast('Pon un nombre'); return; }
+  if((DATA.Basicos||[]).some(b=>b.Item===nom)){ toast('Ya está en básicos'); closeModal(); return; }
+  const fmt=((($('#ab-fmt')||{}).value)||'').trim();
+  const row={Item:nom,Lista:'Cocina',Formato:fmt,Comprado:'No'};
+  (DATA.Basicos=DATA.Basicos||[]).push(row);
+  apiWrite({action:'append',sheet:'Basicos',row:row});
+  closeModal(); toast('Añadido a básicos');
+}
+async function seedPan(){
+  toast('Aplicando pan…');
+  const set=[['Barbacoa 1',100],['Barbacoa 2',100],['Plato alpujarreno con huevos',50],['Pisto de verduras con huevos',100]];
+  for(const [com,g] of set){
+    const r=(DATA.Recetas||[]).find(x=>x.Comida===com&&x.Ingrediente==='Pan');
+    if(r){ r.CantidadPorComensal=String(g); await apiWrite({action:'update',sheet:'Recetas',match:{Comida:com,Ingrediente:'Pan'},set:{CantidadPorComensal:String(g)}}); }
+    else { const rr={Comida:com,Ingrediente:'Pan',CantidadPorComensal:String(g),Grupo:'',PesoEnGrupo:'',Opcional:'No'}; (DATA.Recetas=DATA.Recetas||[]).push(rr); await apiWrite({action:'append',sheet:'Recetas',row:rr}); }
+  }
+  render(); toast('Pan aplicado ✅');
 }
 function saveDish(){
   const nom=((($('#nd-nom')||{}).value)||'').trim(); if(!nom){ toast('Pon un nombre'); return; }
