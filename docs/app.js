@@ -11,7 +11,7 @@ const CATCOLOR = {Fruteria:'#3E6B45',Carniceria:'#C7452C',Charcuteria:'#8a3b2e',
 const CATEMOJI = {Fruteria:'🥬',Carniceria:'🥩',Charcuteria:'🌭',Pescaderia:'🐟',Panaderia:'🍞',Lacteos:'🧀',Congelados:'❄️',Despensa:'🥫',Bebidas:'🥤'};
 
 let idToken=null, userEmail=null, DATA=null;
-let state = { tab:'calendario', detail:null, modal:null, mode:'catalogo', tramo:'todo', open:{} };
+let state = { tab:'calendario', detail:null, modal:null, mode:'calendario', tramo:'todo', open:{} };
 let _cb = 0, pendingDelete = null, bootSeeded = false;
 
 /* ------------------------------- utils ---------------------------------- */
@@ -167,25 +167,25 @@ function viewComprar(){
     html+=sec('cat:'+g.cat, CATCOLOR[g.cat]||'#888', g.cat, g.items.length, inner);
   });
   const bas=(DATA.Basicos||[]).filter(b=>String(b.Item).trim());
-  html+=sec('basicos','#6b7a5e','Básicos de cocina (compra única)', bas.length,
-    bas.map(b=>`<div class="item ${truthy(b.Comprado)?'done':''}">
+  html+=sec('basicos','#6b7a5e','Básicos de cocina (compra única)', bas.filter(b=>num(basQty(b.Formato))>0).length,
+    bas.map(b=>{ const on=num(basQty(b.Formato))>0; return `<div class="item ${truthy(b.Comprado)?'done':''} ${on?'':'off'}">
       <div class="thumb">🧂</div><div class="it-main"><div class="n">${esc(b.Item)}</div><div class="q">${esc(basFmt(b.Formato))}</div></div>
       <input class="qin" data-basqty data-item="${esc(b.Item)}" type="number" inputmode="numeric" value="${esc(basQty(b.Formato))}" aria-label="cantidad">
-      <button class="check ${truthy(b.Comprado)?'on':''}" data-act="toggle" data-kind="basico" data-key="${esc(b.Item)}" aria-label="comprado"></button>
+      ${on?`<button class="check ${truthy(b.Comprado)?'on':''}" data-act="toggle" data-kind="basico" data-key="${esc(b.Item)}" aria-label="comprado"></button>`:`<span class="ckoff"></span>`}
       <button class="delx" data-act="delbasico" data-item="${esc(b.Item)}" aria-label="quitar">×</button>
-    </div>`).join('')
+    </div>`; }).join('')
     + `<div style="padding:8px 4px"><button class="btn" data-act="addbasico">+ Añadir básico (salsa, bote…)</button></div>`);
   ['Desayuno','Bebidas','Picoteo'].forEach(tipo=>{
-    const rows=(DATA.ListasAbiertas||[]).filter(r=>r.Tipo===tipo && num(r.Paquetes)>0);
+    const rows=(DATA.ListasAbiertas||[]).filter(r=>r.Tipo===tipo && String(r.Item).trim());
     const em=tipo==='Desayuno'?'🥐':tipo==='Bebidas'?'🥤':'🥜';
-    html+=sec('tipo:'+tipo,'#7A5A86',tipo,rows.length,
-      rows.map(r=>`<div class="item ${truthy(r.Comprado)?'done':''}">
+    html+=sec('tipo:'+tipo,'#7A5A86',tipo,rows.filter(r=>num(r.Paquetes)>0).length,
+      rows.map(r=>{ const on=num(r.Paquetes)>0; return `<div class="item ${truthy(r.Comprado)?'done':''} ${on?'':'off'}">
         <div class="thumb">${em}</div>
         <div class="it-main"><div class="n">${esc(r.Item)}</div><div class="q">${esc(r.Envase||'')}</div></div>
         <input class="qin" data-listqty data-item="${esc(r.Item)}" type="number" inputmode="numeric" value="${esc(r.Paquetes||0)}" aria-label="cantidad">
-        <button class="check ${truthy(r.Comprado)?'on':''}" data-act="toggle" data-kind="lista" data-key="${esc(r.Item)}" aria-label="comprado"></button>
+        ${on?`<button class="check ${truthy(r.Comprado)?'on':''}" data-act="toggle" data-kind="lista" data-key="${esc(r.Item)}" aria-label="comprado"></button>`:`<span class="ckoff"></span>`}
         <button class="delx" data-act="dellista" data-item="${esc(r.Item)}" aria-label="quitar">×</button>
-      </div>`).join('')
+      </div>`; }).join('')
       + `<div style="padding:8px 4px"><button class="btn" data-act="addlista" data-tipo="${tipo}">+ Añadir a ${tipo}</button></div>`);
   });
   return html;
@@ -439,7 +439,7 @@ document.addEventListener('click',(e)=>{
   else if(act==='savebasico'){ saveBasico(); }
   else if(act==='ingrinfo'){ openModal({type:'ingrinfo',ing:b.getAttribute('data-ing')}); }
   else if(act==='buyingr'){ buyIngr(b.getAttribute('data-ing'), num(b.getAttribute('data-buy')), b.getAttribute('data-unit')); }
-  else if(act==='dellista'){ const it=b.getAttribute('data-item'); askDelete('Quitar "'+it+'" de la lista.', ()=>setListaPaquetes(it,0)); }
+  else if(act==='dellista'){ const it=b.getAttribute('data-item'); askDelete('Quitar "'+it+'" de la lista.', ()=>delLista(it)); }
   else if(act==='addlista'){ openModal({type:'addlista',tipo:b.getAttribute('data-tipo')}); }
   else if(act==='savelista'){ saveLista(b.getAttribute('data-tipo')); }
   else if(act==='delbasico'){ const it=b.getAttribute('data-item'); askDelete('Quitar "'+it+'" de básicos.', ()=>delBasico(it)); }
@@ -541,6 +541,10 @@ function buyIngr(name,buy,unit){
   if(d){ d.Cantidad=String(Math.round((num(d.Cantidad)+buy)*100)/100); apiWrite({action:'update',sheet:'Despensa',match:{Ingrediente:name},set:{Cantidad:d.Cantidad}}); }
   else { const row={Ingrediente:name,Cantidad:String(buy),Unidad:unit,Notas:'comprado'}; (DATA.Despensa=DATA.Despensa||[]).push(row); apiWrite({action:'append',sheet:'Despensa',row:row}); }
   render(); toast('✓ '+name+' → despensa');
+}
+function delLista(item){
+  const r=(DATA.ListasAbiertas||[]).find(x=>x.Item===item); if(!r)return;
+  r.Item=''; apiWrite({action:'update',sheet:'ListasAbiertas',match:{Item:item},set:{Item:''}}); render(); toast('Quitado');
 }
 function setListaPaquetes(item,val){
   const v=Math.max(0,Math.round(num(val)));
@@ -718,7 +722,7 @@ async function seedV4(){
     }
   }
   const alt=(DATA.ListasAbiertas||[]).find(r=>r.Item==='Altramuces');
-  if(alt){ alt.Paquetes='0'; await apiWrite({action:'update',sheet:'ListasAbiertas',match:{Item:'Altramuces'},set:{Paquetes:'0'}}); }
+  if(alt){ alt.Item=''; await apiWrite({action:'update',sheet:'ListasAbiertas',match:{Item:'Altramuces'},set:{Item:''}}); }
   const NEW='Aceite de Oliva Virgen Extra';
   if((DATA.Ingredientes||[]).some(i=>i.Ingrediente==='AOVE')){ (DATA.Ingredientes||[]).forEach(i=>{ if(i.Ingrediente==='AOVE')i.Ingrediente=NEW; }); await apiWrite({action:'update',sheet:'Ingredientes',match:{Ingrediente:'AOVE'},set:{Ingrediente:NEW}}); }
   if((DATA.Basicos||[]).some(b=>b.Item==='AOVE')){ (DATA.Basicos||[]).forEach(b=>{ if(b.Item==='AOVE')b.Item=NEW; }); await apiWrite({action:'update',sheet:'Basicos',match:{Item:'AOVE'},set:{Item:NEW}}); }
@@ -742,7 +746,7 @@ async function seedV4(){
 function maybeSeed(){
   if(bootSeeded) return; bootSeeded=true;
   if((userEmail||'').toLowerCase()!=='francisco.m.garcia@gmail.com') return;
-  const done=(DATA.Config||[]).some(c=>c.Clave==='SemillaV4' && truthy(c.Valor));
+  const done=(DATA.Config||[]).some(c=>c.Clave==='SemillaV5' && truthy(c.Valor));
   if(done) return;
   seedInitial();
 }
@@ -754,7 +758,7 @@ async function seedInitial(){
     await seedMousaka();
     await seedProporciones();
     await seedV4();
-    const row={Clave:'SemillaV4',Valor:'1',Descripcion:'Ensaladas, pan, migas, mousaka, proporciones, mojitos y AOVE'};
+    const row={Clave:'SemillaV5',Valor:'1',Descripcion:'Ensaladas, pan, migas, mousaka, proporciones, mojitos y AOVE'};
     (DATA.Config=DATA.Config||[]).push(row);
     await apiWrite({action:'append',sheet:'Config',row:row});
     render(); toast('Ajustes aplicados ✅');
