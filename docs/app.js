@@ -209,7 +209,10 @@ function viewReceta(name){
     ${c.PasosPrevios?`<div class="rlabel">Pasos previos (con antelación)</div><div class="rtext">${esc(c.PasosPrevios)}</div>`:''}
     <div class="rlabel">Preparación</div><div class="rtext" id="prep">${esc(c.Preparacion)}</div>
     <div class="row-btns"><button class="btn" data-act="editprep" data-comida="${esc(name)}">✎ Editar preparación</button></div>
-    ${c.Fuente?`<div style="margin:12px 4px"><a href="${esc(c.Fuente)}" target="_blank" rel="noopener">🔗 Ver receta original</a></div>`:''}
+    <div class="rlabel">Enlace de la receta (fuente)</div>
+    ${c.Fuente?`<div style="margin:2px 4px 8px"><a href="${esc(c.Fuente)}" target="_blank" rel="noopener">🔗 Abrir receta original</a></div>`:''}
+    <div class="controls"><input id="rc-fuente" type="url" inputmode="url" value="${esc(c.Fuente||'')}" placeholder="https://..." style="flex:1">
+      <button class="btn solid" style="width:auto;white-space:nowrap" data-act="setfuente" data-comida="${esc(name)}">Guardar</button></div>
     <div class="rlabel">Ingredientes (para ${rac} raciones)</div>
     <div class="card" style="padding:2px 12px">${items||'<div class="item"><div class="it-main muted small">Sin ingredientes.</div></div>'}</div>
   </div>`;
@@ -303,6 +306,7 @@ document.addEventListener('click',(e)=>{
   else if(act==='editprep'){ editPrep(b.getAttribute('data-comida')); }
   else if(act==='setmomento'){ setMomento(b.getAttribute('data-comida'), b.getAttribute('data-val')); }
   else if(act==='setcocinero'){ setCocinero(b.getAttribute('data-comida')); }
+  else if(act==='setfuente'){ setFuente(b.getAttribute('data-comida')); }
   else if(act==='signout'){ signout(); }
   else if(act==='closemodal'||act==='closebg'){ if(act==='closebg'&&e.target.closest('.sheet'))return; closeModal(); }
 });
@@ -375,6 +379,13 @@ function setCocinero(name){
   c.Cocinero=v;
   apiWrite({action:'update',sheet:'Comidas',match:{Comida:name},set:{Cocinero:v}});
   render(); toast('Cocinero guardado');
+}
+function setFuente(name){
+  const v=((($('#rc-fuente')||{}).value)||'').trim();
+  const c=(DATA.Comidas||[]).find(x=>x.Comida===name); if(!c)return;
+  c.Fuente=v;
+  apiWrite({action:'update',sheet:'Comidas',match:{Comida:name},set:{Fuente:v}});
+  render(); toast('Enlace guardado');
 }
 function signout(){ try{ google.accounts.id.disableAutoSelect(); }catch(e){} idToken=null; DATA=null; bootLogin(); }
 
