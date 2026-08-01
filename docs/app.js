@@ -147,7 +147,7 @@ function viewComprar(){
       <button data-sel="mode" data-val="calendario" class="${state.mode==='calendario'?'on':''}">Por calendario</button>
     </div></div>${tramoSel?`<div class="controls">${tramoSel}</div>`:''}`;
 
-  if(!sh.total){ html+=`<div class="banner">No hay ingredientes que comprar con esta selección. ${state.mode==='calendario'?'Asigna comidas en el Calendario o cambia a "Todas las comidas".':''}</div>`; }
+  if(!sh.total){ html+=`<div class="banner">Aún no hay comidas que generen compra automática. Abre cada categoría para ver los productos y ponles cantidad, o asigna comidas en el Calendario.</div>`; }
   const sec=(key,color,label,count,inner)=>{
     const open=!!state.open[key];
     return `<button class="sect sec-btn" data-act="togglecat" data-key="${esc(key)}">
@@ -162,19 +162,27 @@ function viewComprar(){
     ['Especias','Especias y condimentos','#9c6b2e','🌿'],['Despensa','Despensa','#6b7a5e','🥫'],
     ['Bebidas','Bebidas','#4a8f8a','🥤']
   ];
-  const recByCat={}; sh.groups.forEach(g=>recByCat[g.cat]=g.items);
+  const needByName={}; sh.groups.forEach(g=>g.items.forEach(it=>needByName[it.name]=it));
+  const ing=ingMap();
   const manualAll=(DATA.ListaCompra||[]).filter(r=>/manual/i.test(r.Notas||'') && String(r.Ingrediente).trim());
   DISPLAY_CATS.forEach(([key,label,color,emoji])=>{
-    const recItems=recByCat[key]||[], manItems=manualAll.filter(r=>r.Categoria===key);
-    const recHTML=recItems.map(it=>`<div class="item">
-      <div class="thumb">${emoji}</div>
-      <div class="it-main"><div class="n">${esc(it.name)}</div>
-        <button class="tag-cook" data-act="ingrinfo" data-ing="${esc(it.name)}">Incluido x receta ›</button>
-        <div class="q">${esc(it.legible)}</div></div>
-      <input class="qin" data-buyqty data-ing="${esc(it.name)}" data-need="${it.need}" type="number" inputmode="decimal" value="${it.buy}" aria-label="comprar" title="Solo al alza">
-      <span class="uni">${esc(it.unit)}</span>
-      <button class="check" data-act="buyingr" data-ing="${esc(it.name)}" data-buy="${it.buy}" data-unit="${esc(it.unit)}" aria-label="a despensa"></button>
-    </div>`).join('');
+    const catIngs=(DATA.Ingredientes||[]).filter(i=>i.Categoria===key && !truthy(i.EsBasico))
+      .map(i=>i.Ingrediente).sort((a,b)=>a.localeCompare(b));
+    const catHTML=catIngs.map(name=>{
+      const it=needByName[name], meta=ing[name]||{Unidad:'g'};
+      const need=it?it.need:0, unit=it?it.unit:(meta.Unidad||'g');
+      const buy=Math.round((need+extraOf(name))*100)/100, on=buy>0;
+      return `<div class="item ${on?'':'off'}">
+        <div class="thumb">${emoji}</div>
+        <div class="it-main"><div class="n">${esc(name)}</div>
+          ${need>0?`<button class="tag-cook" data-act="ingrinfo" data-ing="${esc(name)}">Incluido x receta ›</button>`:''}
+          <div class="q">${need>0?esc(it.legible):(on?'para comprar':'sin pedir')}</div></div>
+        <input class="qin" data-buyqty data-ing="${esc(name)}" data-need="${need}" type="number" inputmode="decimal" value="${buy}" aria-label="comprar" title="Ponle cantidad para comprarlo">
+        <span class="uni">${esc(unit)}</span>
+        ${on?`<button class="check" data-act="buyingr" data-ing="${esc(name)}" data-buy="${buy}" data-unit="${esc(unit)}" aria-label="a despensa"></button>`:`<span class="ckoff"></span>`}
+      </div>`;
+    }).join('');
+    const manItems=manualAll.filter(r=>r.Categoria===key);
     const manHTML=manItems.map(r=>{const on=num(r.Cantidad)>0;return `<div class="item ${on?'':'off'}">
       <div class="thumb">${emoji}</div>
       <div class="it-main"><div class="n">${esc(r.Ingrediente)}</div><div class="q">${on?'para comprar':'toca para pedir'}</div></div>
@@ -183,8 +191,9 @@ function viewComprar(){
       ${on?`<button class="check" data-act="buymanual" data-ing="${esc(r.Ingrediente)}" aria-label="comprado, a despensa"></button>`:`<span class="ckoff"></span>`}
       <button class="delx" data-act="delmanual" data-ing="${esc(r.Ingrediente)}" aria-label="quitar">×</button>
     </div>`;}).join('');
-    const inner=recHTML+manHTML+`<div style="padding:8px 4px"><button class="btn" data-act="addmanual" data-cat="${esc(key)}">+ Añadir a ${esc(label)}</button></div>`;
-    html+=sec('cat:'+key, color, label, recItems.length+manItems.length, inner);
+    const active=catIngs.filter(n=>{const t=needByName[n];return ((t?t.need:0)+extraOf(n))>0;}).length + manItems.filter(r=>num(r.Cantidad)>0).length;
+    const inner=catHTML+manHTML+`<div style="padding:8px 4px"><button class="btn" data-act="addmanual" data-cat="${esc(key)}">+ Añadir a ${esc(label)}</button></div>`;
+    html+=sec('cat:'+key, color, label, active, inner);
   });
   const bas=(DATA.Basicos||[]).filter(b=>String(b.Item).trim());
   html+=sec('basicos','#6b7a5e','Básicos de cocina (compra única)', bas.filter(b=>num(basQty(b.Formato))>0).length,
