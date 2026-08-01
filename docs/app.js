@@ -154,17 +154,37 @@ function viewComprar(){
         <span class="dot" style="background:${color}"></span>${esc(label)}<span class="n">${count}</span><span class="caret ${open?'open':''}">▾</span></button>
       ${open?`<div class="card" style="padding:2px 12px">${inner}</div>`:''}`;
   };
-  sh.groups.forEach(g=>{
-    const inner=g.items.map(it=>`<div class="item">
-      <div class="thumb">${CATEMOJI[it.cat]||'🛒'}</div>
+  const DISPLAY_CATS=[
+    ['Fruteria','Frutería / Verdura','#3E6B45','🥬'],['Carniceria','Carnicería','#C7452C','🥩'],
+    ['Charcuteria','Charcutería','#8a3b2e','🌭'],['Pescaderia','Pescadería','#3B7DA6','🐟'],
+    ['Precocinados','Precocinados','#c98a3b','🍕'],['Panaderia','Panadería','#C99A5B','🍞'],
+    ['Lacteos','Lácteos y huevos','#E0A126','🧀'],['Congelados','Congelados','#5aa9b5','❄️'],
+    ['Especias','Especias y condimentos','#9c6b2e','🌿'],['Despensa','Despensa','#6b7a5e','🥫'],
+    ['Bebidas','Bebidas','#4a8f8a','🥤'],['Otros','Otros','#7A5A86','🛍️']
+  ];
+  const recByCat={}; sh.groups.forEach(g=>recByCat[g.cat]=g.items);
+  const manualAll=(DATA.ListaCompra||[]).filter(r=>/manual/i.test(r.Notas||'') && String(r.Ingrediente).trim());
+  DISPLAY_CATS.forEach(([key,label,color,emoji])=>{
+    const recItems=recByCat[key]||[], manItems=manualAll.filter(r=>r.Categoria===key);
+    const recHTML=recItems.map(it=>`<div class="item">
+      <div class="thumb">${emoji}</div>
       <div class="it-main"><div class="n">${esc(it.name)}</div>
         <button class="tag-cook" data-act="ingrinfo" data-ing="${esc(it.name)}">Incluido x receta ›</button>
         <div class="q">${esc(it.legible)}</div></div>
-      <input class="qin" data-buyqty data-ing="${esc(it.name)}" data-need="${it.need}" type="number" inputmode="decimal" value="${it.buy}" aria-label="comprar" title="Solo al alza (comprar de más)">
+      <input class="qin" data-buyqty data-ing="${esc(it.name)}" data-need="${it.need}" type="number" inputmode="decimal" value="${it.buy}" aria-label="comprar" title="Solo al alza">
       <span class="uni">${esc(it.unit)}</span>
       <button class="check" data-act="buyingr" data-ing="${esc(it.name)}" data-buy="${it.buy}" data-unit="${esc(it.unit)}" aria-label="a despensa"></button>
     </div>`).join('');
-    html+=sec('cat:'+g.cat, CATCOLOR[g.cat]||'#888', g.cat, g.items.length, inner);
+    const manHTML=manItems.map(r=>{const on=num(r.Cantidad)>0;return `<div class="item ${on?'':'off'} ${truthy(r.Comprado)?'done':''}">
+      <div class="thumb">${emoji}</div>
+      <div class="it-main"><div class="n">${esc(r.Ingrediente)}</div><div class="q">${on?'manual':'toca para pedir'}</div></div>
+      <input class="qin" data-manqty data-ing="${esc(r.Ingrediente)}" type="number" inputmode="decimal" value="${esc(r.Cantidad)}" aria-label="cantidad">
+      <span class="uni">${esc(r.Unidad||'ud')}</span>
+      ${on?`<button class="check ${truthy(r.Comprado)?'on':''}" data-act="togglemanual" data-ing="${esc(r.Ingrediente)}" aria-label="comprado"></button>`:`<span class="ckoff"></span>`}
+      <button class="delx" data-act="delmanual" data-ing="${esc(r.Ingrediente)}" aria-label="quitar">×</button>
+    </div>`;}).join('');
+    const inner=recHTML+manHTML+`<div style="padding:8px 4px"><button class="btn" data-act="addmanual" data-cat="${esc(key)}">+ Añadir a ${esc(label)}</button></div>`;
+    html+=sec('cat:'+key, color, label, recItems.length+manItems.length, inner);
   });
   const bas=(DATA.Basicos||[]).filter(b=>String(b.Item).trim());
   html+=sec('basicos','#6b7a5e','Básicos de cocina (compra única)', bas.filter(b=>num(basQty(b.Formato))>0).length,
@@ -333,6 +353,16 @@ function modalHTML(m){
         <button class="btn solid" data-act="savecompra" data-old="${esc(m.fecha||'')}">Guardar</button></div>
     </div></div>`;
   }
+  if(m.type==='addmanual'){
+    return `<div class="backdrop" data-act="closebg"><div class="sheet">
+      <h2>Añadir a ${esc(m.cat)}</h2>
+      <div class="grp"><label>Producto</label><input id="am-nom" placeholder="p. ej. Pizza preparada, Papel vegetal…"></div>
+      <div class="grp"><label>Cantidad</label><input id="am-cant" type="number" inputmode="decimal" placeholder="1"></div>
+      <div class="grp"><label>Unidad</label><select id="am-uni"><option>ud</option><option>g</option><option>kg</option><option>ml</option><option>L</option></select></div>
+      <div class="row-btns"><button class="btn" data-act="closemodal">Cancelar</button>
+        <button class="btn solid" data-act="savemanual" data-cat="${esc(m.cat)}">Añadir</button></div>
+    </div></div>`;
+  }
   if(m.type==='ingrinfo'){
     const inc=new Set(includedComidas()); const meta=ingMap()[m.ing]||{Unidad:'g'};
     const rows=(DATA.Recetas||[]).filter(r=>r.Ingrediente===m.ing && inc.has(r.Comida) && num(r.CantidadPorComensal)>0)
@@ -438,6 +468,10 @@ document.addEventListener('click',(e)=>{
   else if(act==='addbasico'){ openModal({type:'addbasico'}); }
   else if(act==='savebasico'){ saveBasico(); }
   else if(act==='ingrinfo'){ openModal({type:'ingrinfo',ing:b.getAttribute('data-ing')}); }
+  else if(act==='addmanual'){ openModal({type:'addmanual',cat:b.getAttribute('data-cat')}); }
+  else if(act==='savemanual'){ saveManual(b.getAttribute('data-cat')); }
+  else if(act==='togglemanual'){ toggleManual(b.getAttribute('data-ing')); }
+  else if(act==='delmanual'){ const ig=b.getAttribute('data-ing'); askDelete('Quitar "'+ig+'" de la lista.', ()=>delManual(ig)); }
   else if(act==='buyingr'){ buyIngr(b.getAttribute('data-ing'), num(b.getAttribute('data-buy')), b.getAttribute('data-unit')); }
   else if(act==='dellista'){ const it=b.getAttribute('data-item'); askDelete('Quitar "'+it+'" de la lista.', ()=>delLista(it)); }
   else if(act==='addlista'){ openModal({type:'addlista',tipo:b.getAttribute('data-tipo')}); }
@@ -458,6 +492,7 @@ document.addEventListener('change',(e)=>{
   const dq=e.target.closest('[data-despqty]'); if(dq){ setDespensaQty(dq.getAttribute('data-ing'), dq.value); return; }
   const bq=e.target.closest('[data-basqty]'); if(bq){ setBasicoQty(bq.getAttribute('data-item'), bq.value); return; }
   const by=e.target.closest('[data-buyqty]'); if(by){ setBuyQty(by.getAttribute('data-ing'), by.value, num(by.getAttribute('data-need'))); }
+  const mq=e.target.closest('[data-manqty]'); if(mq){ setManualQty(mq.getAttribute('data-ing'), mq.value); return; }
 });
 
 function toggle(kind,key){
@@ -541,6 +576,29 @@ function buyIngr(name,buy,unit){
   if(d){ d.Cantidad=String(Math.round((num(d.Cantidad)+buy)*100)/100); apiWrite({action:'update',sheet:'Despensa',match:{Ingrediente:name},set:{Cantidad:d.Cantidad}}); }
   else { const row={Ingrediente:name,Cantidad:String(buy),Unidad:unit,Notas:'comprado'}; (DATA.Despensa=DATA.Despensa||[]).push(row); apiWrite({action:'append',sheet:'Despensa',row:row}); }
   render(); toast('✓ '+name+' → despensa');
+}
+function saveManual(cat){
+  const nom=((($('#am-nom')||{}).value)||'').trim(); if(!nom){ toast('Pon un producto'); return; }
+  const cant=String(Math.max(0,num((($('#am-cant')||{}).value)||0))), uni=(($('#am-uni')||{}).value)||'ud';
+  const ex=(DATA.ListaCompra||[]).find(x=>x.Ingrediente===nom);
+  if(ex){ Object.assign(ex,{Categoria:cat,Cantidad:cant,Unidad:uni,Notas:'manual'});
+    apiWrite({action:'update',sheet:'ListaCompra',match:{Ingrediente:nom},set:{Categoria:cat,Cantidad:cant,Unidad:uni,Notas:'manual'}}); }
+  else { const row={Categoria:cat,Ingrediente:nom,Cantidad:cant,Unidad:uni,CantidadLegible:'',Comprado:'No',Notas:'manual'};
+    (DATA.ListaCompra=DATA.ListaCompra||[]).push(row); apiWrite({action:'append',sheet:'ListaCompra',row:row}); }
+  closeModal(); render(); toast('Añadido: '+nom);
+}
+function setManualQty(ing,val){
+  const v=Math.max(0,num(val)); const r=(DATA.ListaCompra||[]).find(x=>x.Ingrediente===ing); if(!r)return;
+  r.Cantidad=String(v); apiWrite({action:'update',sheet:'ListaCompra',match:{Ingrediente:ing},set:{Cantidad:String(v)}}); render();
+}
+function toggleManual(ing){
+  const r=(DATA.ListaCompra||[]).find(x=>x.Ingrediente===ing); if(!r)return;
+  const v=!truthy(r.Comprado); r.Comprado=v?'Si':'No';
+  apiWrite({action:'update',sheet:'ListaCompra',match:{Ingrediente:ing},set:{Comprado:v?'Si':'No'}}); render();
+}
+function delManual(ing){
+  const r=(DATA.ListaCompra||[]).find(x=>x.Ingrediente===ing); if(!r)return;
+  r.Ingrediente=''; apiWrite({action:'update',sheet:'ListaCompra',match:{Ingrediente:ing},set:{Ingrediente:''}}); render(); toast('Quitado');
 }
 function delLista(item){
   const r=(DATA.ListasAbiertas||[]).find(x=>x.Item===item); if(!r)return;
@@ -746,23 +804,40 @@ async function seedV4(){
 function maybeSeed(){
   if(bootSeeded) return; bootSeeded=true;
   if((userEmail||'').toLowerCase()!=='francisco.m.garcia@gmail.com') return;
-  const done=(DATA.Config||[]).some(c=>c.Clave==='SemillaV5' && truthy(c.Valor));
+  const done=(DATA.Config||[]).some(c=>c.Clave==='SemillaV6' && truthy(c.Valor));
   if(done) return;
   seedInitial();
 }
 async function seedInitial(){
   try{
-    await seedSalads();
-    await seedPan();
-    await seedMigas();
-    await seedMousaka();
-    await seedProporciones();
-    await seedV4();
-    const row={Clave:'SemillaV5',Valor:'1',Descripcion:'Ensaladas, pan, migas, mousaka, proporciones, mojitos y AOVE'};
-    (DATA.Config=DATA.Config||[]).push(row);
-    await apiWrite({action:'append',sheet:'Config',row:row});
+    const hasV5=(DATA.Config||[]).some(c=>c.Clave==='SemillaV5' && truthy(c.Valor));
+    if(!hasV5){
+      await seedSalads();
+      await seedPan();
+      await seedMigas();
+      await seedMousaka();
+      await seedProporciones();
+      await seedV4();
+      const r5={Clave:'SemillaV5',Valor:'1',Descripcion:'Ensaladas, pan, migas, mousaka, proporciones, mojitos y AOVE'};
+      (DATA.Config=DATA.Config||[]).push(r5); await apiWrite({action:'append',sheet:'Config',row:r5});
+    }
+    await seedV6();
+    const r6={Clave:'SemillaV6',Valor:'1',Descripcion:'Precocinados (a 0) y cerveza por cajas'};
+    (DATA.Config=DATA.Config||[]).push(r6); await apiWrite({action:'append',sheet:'Config',row:r6});
     render(); toast('Ajustes aplicados ✅');
   }catch(e){}
+}
+async function seedV6(){
+  const pre=[['Pizza preparada','Precocinados','ud'],['Tortilla de patatas preparada','Precocinados','ud'],['Helados','Otros','ud']];
+  for(const p of pre){
+    if(!(DATA.ListaCompra||[]).some(r=>r.Ingrediente===p[0])){
+      const row={Categoria:p[1],Ingrediente:p[0],Cantidad:'0',Unidad:p[2],CantidadLegible:'',Comprado:'No',Notas:'manual'};
+      (DATA.ListaCompra=DATA.ListaCompra||[]).push(row); await apiWrite({action:'append',sheet:'ListaCompra',row:row});
+    }
+  }
+  const cz=(DATA.ListasAbiertas||[]).find(r=>/cerveza/i.test(r.Item||''));
+  if(cz && !/caja/i.test(cz.Envase||'')){ cz.Envase='caja (24 latas)';
+    await apiWrite({action:'update',sheet:'ListasAbiertas',match:{Item:cz.Item},set:{Envase:'caja (24 latas)'}}); }
 }
 function saveDish(){
   const nom=((($('#nd-nom')||{}).value)||'').trim(); if(!nom){ toast('Pon un nombre'); return; }
