@@ -12,7 +12,7 @@ const CATEMOJI = {Fruteria:'🥬',Carniceria:'🥩',Charcuteria:'🌭',Pescaderi
 
 let idToken=null, userEmail=null, DATA=null;
 let state = { tab:'calendario', detail:null, modal:null, mode:'catalogo', tramo:'todo', open:{} };
-let _cb = 0;
+let _cb = 0, pendingDelete = null;
 
 /* ------------------------------- utils ---------------------------------- */
 const $ = (s,e=document)=>e.querySelector(s);
@@ -225,11 +225,12 @@ function viewReceta(name){
 }
 
 function viewDespensa(){
-  const rows=(DATA.Despensa||[]);
+  const rows=(DATA.Despensa||[]).filter(d=>num(d.Cantidad)>0);
   return `<div class="banner">Lo que apuntes aquí se <b>descuenta</b> de la compra.</div>
     <div class="card" style="padding:2px 12px">${rows.length?rows.map(d=>
       `<div class="item"><div class="thumb">🥫</div><div class="it-main"><div class="n">${esc(d.Ingrediente)}</div>
-      <div class="q">${esc(legible(num(d.Cantidad),d.Unidad||'g'))}${d.Notas?' · '+esc(d.Notas):''}</div></div></div>`
+      <div class="q">${esc(legible(num(d.Cantidad),d.Unidad||'g'))}${d.Notas?' · '+esc(d.Notas):''}</div></div>
+      <button class="delx" data-act="deldesp" data-ing="${esc(d.Ingrediente)}" aria-label="quitar">×</button></div>`
     ).join(''):'<div class="item"><div class="it-main muted small">Despensa vacía.</div></div>'}</div>
     <div class="row-btns"><button class="btn solid" data-act="adddesp">+ Añadir a la despensa</button></div>`;
 }
@@ -281,6 +282,12 @@ function modalHTML(m){
       <div class="row-btns"><button class="btn" data-act="closemodal">Cancelar</button>
         <button class="btn solid" data-act="savedesp">Guardar</button></div></div></div>`;
   }
+  if(m.type==='confirm'){
+    return `<div class="backdrop" data-act="closebg"><div class="sheet">
+      <h2>¿Eliminar?</h2><p class="muted" style="margin:0 4px 14px;line-height:1.4">${esc(m.msg)}</p>
+      <div class="row-btns"><button class="btn" data-act="closemodal">Cancelar</button>
+        <button class="btn warn" data-act="confirmyes">Eliminar</button></div></div></div>`;
+  }
   if(m.type==='additem'){
     const cat=(DATA.Ingredientes||[]).map(i=>i.Ingrediente).sort((a,b)=>a.localeCompare(b));
     return `<div class="backdrop" data-act="closebg"><div class="sheet">
@@ -329,7 +336,9 @@ document.addEventListener('click',(e)=>{
   else if(act==='setfuente'){ setFuente(b.getAttribute('data-comida')); }
   else if(act==='additem'){ openModal({type:'additem',comida:b.getAttribute('data-comida')}); }
   else if(act==='saveitem'){ saveItem(b.getAttribute('data-comida')); }
-  else if(act==='delitem'){ setRecetaQty(b.getAttribute('data-comida'), b.getAttribute('data-ing'), 0); toast('Quitado'); }
+  else if(act==='delitem'){ const co=b.getAttribute('data-comida'), ig=b.getAttribute('data-ing'); askDelete('Quitar "'+ig+'" de '+co+'.', ()=>setRecetaQty(co,ig,0)); }
+  else if(act==='deldesp'){ const ig=b.getAttribute('data-ing'); askDelete('Quitar "'+ig+'" de la despensa.', ()=>delDespensa(ig)); }
+  else if(act==='confirmyes'){ const fn=pendingDelete; pendingDelete=null; closeModal(); if(fn)fn(); }
   else if(act==='signout'){ signout(); }
   else if(act==='closemodal'||act==='closebg'){ if(act==='closebg'&&e.target.closest('.sheet'))return; closeModal(); }
 });
@@ -403,6 +412,13 @@ function setCocinero(name){
   c.Cocinero=v;
   apiWrite({action:'update',sheet:'Comidas',match:{Comida:name},set:{Cocinero:v}});
   render(); toast('Cocinero guardado');
+}
+function askDelete(msg, fn){ pendingDelete=fn; openModal({type:'confirm',msg:msg}); }
+function delDespensa(ing){
+  const d=(DATA.Despensa||[]).find(x=>x.Ingrediente===ing); if(!d)return;
+  d.Cantidad='0';
+  apiWrite({action:'update',sheet:'Despensa',match:{Ingrediente:ing},set:{Cantidad:'0'}});
+  render(); toast('Quitado de la despensa');
 }
 function setRecetaQty(comida,ing,val){
   const v=num(val);
