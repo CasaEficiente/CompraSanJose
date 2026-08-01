@@ -39,6 +39,19 @@ Permite el botón "Entrar con Google".
    - **Implementar** → autoriza (te pedirá permisos de tu cuenta; acéptalos).
 4. Copia la **URL de la aplicación web** (termina en **`/exec`**). **→ me la pasas.**
 
+### Actualizar el backend (IMPORTANTE)
+Cuando cambia `apps-script/Code.gs`, **pegarlo no basta**: la URL `/exec` sigue sirviendo
+la versión ya implementada. Hay que publicar la nueva:
+
+1. Pega el `Code.gs` nuevo y **guarda** (💾).
+2. **Implementar → Gestionar implementaciones** → en la implementación activa, el **lápiz ✎**.
+3. **Versión: Nueva versión** → **Implementar**.
+   (La URL `/exec` no cambia; si crearas una implementación nueva, sí cambiaría y habría
+   que actualizar `BACKEND_URL` en `docs/app.js`.)
+4. En el móvil, cierra y abre la app y comprueba: cambia una fecha en
+   Ajustes → Planificador, pulsa **⟳** arriba y la fecha debe seguir cambiada.
+   Si algo no se guarda, la app ahora lo avisa con "⚠️ No se guardó en la hoja".
+
 ---
 
 ## Parte 3 · Autorizar a tu grupo

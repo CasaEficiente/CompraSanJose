@@ -18,13 +18,19 @@ var CLIENT_ID = '1023508400728-0slk8sh110iad5hkcsbsij8v8a8hfpkl.apps.googleuserc
 var SHEETS = ['Config','Comidas','Ingredientes','Recetas','Calendario','Compras',
               'Despensa','Basicos','ListasAbiertas','Usuarios','ListaCompra'];
 
+/* Escrituras por GET+JSONP: el navegador SÍ puede leer la respuesta (con POST
+   la app usa 'no-cors' y los fallos pasaban desapercibidos). 'written:true'
+   le confirma a la app que este backend ya entiende las escrituras por GET. */
 function doGet(e){
   var p = e.parameter || {};
   var email = verify(p.token);
-  var payload = allowed(email) ? {ok:true, data:readAll()} : {ok:false, error:'no-autorizado'};
-  var body = JSON.stringify(payload);
-  if(p.callback){ return out(p.callback + '(' + body + ')', ContentService.MimeType.JAVASCRIPT); }
-  return out(body, ContentService.MimeType.JSON);
+  if(!allowed(email)) return reply(p, {ok:false, error:'no-autorizado', written:(p.action === 'write')});
+  if(p.action !== 'write') return reply(p, {ok:true, data:readAll()});
+  var req = {};
+  try{ req = JSON.parse(p.payload || '{}'); }catch(err){ return reply(p, {ok:false, error:'payload', written:true}); }
+  var res = applyReq(req);
+  res.written = true;
+  return reply(p, res);
 }
 
 function doPost(e){
@@ -32,11 +38,24 @@ function doPost(e){
   try{ req = JSON.parse(e.postData.contents); }catch(err){ return out('{"ok":false}', ContentService.MimeType.JSON); }
   var email = verify(req.token);
   if(!allowed(email)) return out(JSON.stringify({ok:false,error:'no-autorizado'}), ContentService.MimeType.JSON);
-  var res = {ok:false};
-  if(req.action === 'read') res = {ok:true, data:readAll()};
-  else if(req.action === 'update') res = updateRows(req.sheet, req.match||{}, req.set||{}, req.appendIfMissing, req.appendRow);
-  else if(req.action === 'append') res = {ok:true, appended:appendRowObj(req.sheet, req.row||{})};
-  return out(JSON.stringify(res), ContentService.MimeType.JSON);
+  return out(JSON.stringify(applyReq(req)), ContentService.MimeType.JSON);
+}
+
+function applyReq(req){
+  if(req.action === 'read') return {ok:true, data:readAll()};
+  var lock = null;   // evita que dos móviles a la vez se pisen la misma fila
+  try{ lock = LockService.getScriptLock(); lock.tryLock(15000); }catch(err){ lock = null; }
+  try{
+    if(req.action === 'update') return updateRows(req.sheet, req.match||{}, req.set||{}, req.appendIfMissing, req.appendRow);
+    if(req.action === 'append') return {ok:true, appended:appendRowObj(req.sheet, req.row||{})};
+    return {ok:false, error:'accion'};
+  } finally { if(lock) try{ lock.releaseLock(); }catch(err){} }
+}
+
+function reply(p, payload){
+  var body = JSON.stringify(payload);
+  if(p.callback){ return out(p.callback + '(' + body + ')', ContentService.MimeType.JAVASCRIPT); }
+  return out(body, ContentService.MimeType.JSON);
 }
 
 function out(text, mime){ return ContentService.createTextOutput(text).setMimeType(mime); }
@@ -70,6 +89,15 @@ var SHEET_ID = '1dViCbOztGH_I4ar8ff_Gv86aUo-rK1zigi4Cma5e47E'; // Google Sheet C
 function ss(){ return SHEET_ID ? SpreadsheetApp.openById(SHEET_ID) : SpreadsheetApp.getActiveSpreadsheet(); }
 function tz_(){ try{ return ss().getSpreadsheetTimeZone() || 'Europe/Madrid'; }catch(e){ return 'Europe/Madrid'; } }
 function cell_(v){ return (v instanceof Date) ? Utilities.formatDate(v, tz_(), 'yyyy-MM-dd') : v; } // fechas -> 'YYYY-MM-DD'
+/* Clave de comparación: la MISMA fecha puede llegar como Date (celda con formato
+   fecha), como '2026-08-04T00:00:00.000Z' o como texto '2026-08-04'. Sin esto,
+   buscar la fila por Fecha fallaba y el update no escribía nada (en silencio). */
+function norm_(v){
+  if(v instanceof Date) return Utilities.formatDate(v, tz_(), 'yyyy-MM-dd');
+  var s = String(v == null ? '' : v).trim();
+  var m = /^(\d{4}-\d{2}-\d{2})[T ]/.exec(s);
+  return m ? m[1] : s;
+}
 function readAll(){
   var data = {};
   SHEETS.forEach(function(name){
@@ -87,15 +115,22 @@ function readAll(){
   return data;
 }
 function updateRows(name, match, set, appendIfMissing, appendRow){
-  var sh = ss().getSheetByName(name); if(!sh) return {ok:false,error:'sheet'};
-  var vals = sh.getDataRange().getValues(); var hdr = vals[0].map(String); var found = false;
+  var sh = ss().getSheetByName(name); if(!sh) return {ok:false, error:'sheet', updated:0};
+  var vals = sh.getDataRange().getValues(); if(!vals.length) return {ok:false, error:'vacia', updated:0};
+  var hdr = vals[0].map(String); var n = 0;
+  for(var k0 in match){ if(hdr.indexOf(k0) < 0) return {ok:false, error:'columna:'+k0, updated:0}; }
   for(var i=1;i<vals.length;i++){
     var ok = true;
-    for(var k in match){ var ci = hdr.indexOf(k); if(ci<0 || String(cell_(vals[i][ci])) !== String(match[k])){ ok=false; break; } }
-    if(ok){ for(var c in set){ var cj = hdr.indexOf(c); if(cj>=0) sh.getRange(i+1, cj+1).setValue(set[c]); } found = true; }
+    for(var k in match){ if(norm_(vals[i][hdr.indexOf(k)]) !== norm_(match[k])){ ok=false; break; } }
+    if(!ok) continue;
+    for(var c in set){ var cj = hdr.indexOf(c); if(cj>=0) sh.getRange(i+1, cj+1).setValue(set[c]); }
+    n++;
   }
-  if(!found && appendIfMissing){ var obj={}; for(var a in match)obj[a]=match[a]; for(var b in set)obj[b]=set[b]; if(appendRow)for(var d in appendRow)obj[d]=appendRow[d]; appendRowObj(name, obj); }
-  return {ok:true, updated:found};
+  if(!n && appendIfMissing){
+    var obj={}; for(var a in match)obj[a]=match[a]; for(var b in set)obj[b]=set[b]; if(appendRow)for(var d in appendRow)obj[d]=appendRow[d];
+    return {ok:appendRowObj(name, obj), updated:0, appended:true};
+  }
+  return {ok:n>0, updated:n};   // updated:0 => la app avisa en vez de dar por hecho que se guardó
 }
 function appendRowObj(name, obj){
   var sh = ss().getSheetByName(name); if(!sh) return false;

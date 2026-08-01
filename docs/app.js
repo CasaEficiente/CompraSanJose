@@ -31,7 +31,7 @@ function jwtEmail(t){ try{ return JSON.parse(atob(t.split('.')[1].replace(/-/g,'
 function toast(msg){ const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),1800); }
 
 /* ------------------------------ backend --------------------------------- */
-function apiRead(){
+function jsonp(makeUrl){ // makeUrl(cb) -> url; JSONP porque asi SI podemos leer la respuesta
   return new Promise((resolve,reject)=>{
     if(!BACKEND_URL) return reject(new Error('sin backend'));
     const cb='jsonp_'+(++_cb);
@@ -40,15 +40,35 @@ function apiRead(){
     function cleanup(){ clearTimeout(to); delete window[cb]; s.remove(); }
     window[cb]=(res)=>{ cleanup(); resolve(res); };
     s.onerror=()=>{ cleanup(); reject(new Error('red')); };
-    s.src=BACKEND_URL+'?action=read&callback='+cb+'&token='+encodeURIComponent(idToken||'');
+    s.src=makeUrl(cb);
     document.body.appendChild(s);
   });
 }
-function apiWrite(payload){
-  if(!BACKEND_URL) return Promise.resolve();
+function apiRead(){
+  return jsonp(cb=>BACKEND_URL+'?action=read&callback='+cb+'&token='+encodeURIComponent(idToken||''));
+}
+/* Escribe y COMPRUEBA el resultado. Antes iba por POST 'no-cors': el navegador
+   no puede leer esa respuesta, así que un guardado fallido parecía correcto y la
+   app seguía mostrando el dato nuevo hasta la siguiente recarga. */
+async function apiWrite(payload){
+  if(!BACKEND_URL) return {ok:true};
+  const q='&token='+encodeURIComponent(idToken||'')+'&payload='+encodeURIComponent(JSON.stringify(payload));
+  if((BACKEND_URL.length+q.length) < 7000){
+    let res;
+    try{ res=await jsonp(cb=>BACKEND_URL+'?action=write&callback='+cb+q); }
+    catch(e){ toast('⚠️ Sin conexión: NO se guardó'); return {ok:false,error:'red'}; }
+    if(res && res.written){                       // backend actualizado: sabemos si se guardó
+      if(!res.ok) toast('⚠️ No se guardó en la hoja'+(res.error?' ('+res.error+')':''));
+      return res;
+    }
+  }
+  return apiWritePost(payload);                   // backend antiguo o payload enorme: a ciegas
+}
+function apiWritePost(payload){
   return fetch(BACKEND_URL,{ method:'POST', mode:'no-cors',
     headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body:JSON.stringify(Object.assign({token:idToken}, payload)) }).catch(()=>{});
+    body:JSON.stringify(Object.assign({token:idToken}, payload)) })
+    .then(()=>({ok:true,blind:true})).catch(()=>({ok:false,error:'red'}));
 }
 
 /* ---------------------------- data helpers ------------------------------ */
@@ -559,12 +579,14 @@ function toggle(kind,key){
   }
   render();
 }
-function saveAssign(fecha,momento){
+async function saveAssign(fecha,momento){
   const comida=$('#m-comida').value, cocinero=$('#m-cocinero').value;
   const row=(DATA.Calendario||[]).find(s=>s.Fecha===fecha&&s.Momento===momento);
+  const prev=row?{Comida:row.Comida,Cocinero:row.Cocinero}:null;
   if(row){ row.Comida=comida; row.Cocinero=cocinero; }
-  apiWrite({action:'update',sheet:'Calendario',match:{Fecha:fecha,Momento:momento},set:{Comida:comida,Cocinero:cocinero}});
   closeModal(); toast('Guardado');
+  const res=await apiWrite({action:'update',sheet:'Calendario',match:{Fecha:fecha,Momento:momento},set:{Comida:comida,Cocinero:cocinero}});
+  if(res && res.ok===false && row && prev){ Object.assign(row,prev); render(); }
 }
 function setCfg(clave,delta){
   const row=(DATA.Config||[]).find(x=>x.Clave===clave); if(!row)return;
@@ -713,28 +735,35 @@ async function seedSalads(){
   }
   render(); toast('Ensaladas creadas ✅');
 }
-function saveCompra(oldFecha){
-  const fecha=((($('#cp-fecha')||{}).value)||'').trim(); if(!fecha){ toast('Pon la fecha de compra'); return; }
-  const hasta=((($('#cp-hasta')||{}).value)||'').trim();
+async function saveCompra(oldFecha){
+  const fecha=ymd(((($('#cp-fecha')||{}).value)||'').trim()); if(!fecha){ toast('Pon la fecha de compra'); return; }
+  const hasta=ymd(((($('#cp-hasta')||{}).value)||'').trim());
   const et=((($('#cp-et')||{}).value)||'').trim();
   if(hasta && hasta<fecha){ toast('«Cubrir hasta» no puede ser anterior a la fecha de compra'); return; }
   if((DATA.Compras||[]).some(c=>c.Fecha!==oldFecha && String(c.Fecha).trim()===fecha)){ toast('Ya hay una compra en esa fecha'); return; }
   if(oldFecha){
-    const c=(DATA.Compras||[]).find(x=>x.Fecha===oldFecha);
-    if(c){ c.Fecha=fecha; c.Etiqueta=et; c.Notas=hasta; }
-    apiWrite({action:'update',sheet:'Compras',match:{Fecha:oldFecha},set:{Fecha:fecha,Etiqueta:et,Notas:hasta}});
+    const c=(DATA.Compras||[]).find(x=>x.Fecha===oldFecha); if(!c){ toast('No encuentro esa compra'); closeModal(); return; }
+    const prev={Fecha:c.Fecha,Etiqueta:c.Etiqueta,Notas:c.Notas};
+    c.Fecha=fecha; c.Etiqueta=et; c.Notas=hasta;
+    if(state.tramo===oldFecha) state.tramo=fecha;   // el tramo elegido en Comprar sigue a su compra
+    closeModal(); toast('Compra guardada');
+    const res=await apiWrite({action:'update',sheet:'Compras',match:{Fecha:oldFecha},set:{Fecha:fecha,Etiqueta:et,Notas:hasta}});
+    if(res && res.ok===false){ Object.assign(c,prev); if(state.tramo===fecha) state.tramo=oldFecha; render(); }  // deshaz: la hoja manda
   } else {
     const row={Fecha:fecha,Etiqueta:et,Notas:hasta};
     (DATA.Compras=DATA.Compras||[]).push(row);
-    apiWrite({action:'append',sheet:'Compras',row:row});
+    closeModal(); toast('Compra guardada');
+    const res=await apiWrite({action:'append',sheet:'Compras',row:row});
+    if(res && res.ok===false){ DATA.Compras=DATA.Compras.filter(x=>x!==row); render(); }
   }
-  closeModal(); toast('Compra guardada');
 }
-function delCompra(fecha){
+async function delCompra(fecha){
   const c=(DATA.Compras||[]).find(x=>x.Fecha===fecha); if(!c)return;
   c.Fecha='';
-  apiWrite({action:'update',sheet:'Compras',match:{Fecha:fecha},set:{Fecha:''}});
+  if(state.tramo===fecha) state.tramo='todo';
   render(); toast('Compra eliminada');
+  const res=await apiWrite({action:'update',sheet:'Compras',match:{Fecha:fecha},set:{Fecha:''}});
+  if(res && res.ok===false){ c.Fecha=fecha; render(); }
 }
 function saveLista(tipo){
   const nom=((($('#al-nom')||{}).value)||'').trim(); if(!nom){ toast('Pon un nombre'); return; }
