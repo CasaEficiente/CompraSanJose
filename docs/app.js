@@ -12,7 +12,7 @@ const CATEMOJI = {Fruteria:'🥬',Carniceria:'🥩',Charcuteria:'🌭',Pescaderi
 
 let idToken=null, userEmail=null, DATA=null;
 let state = { tab:'calendario', detail:null, modal:null, mode:'catalogo', tramo:'todo', open:{} };
-let _cb = 0, pendingDelete = null;
+let _cb = 0, pendingDelete = null, bootSeeded = false;
 
 /* ------------------------------- utils ---------------------------------- */
 const $ = (s,e=document)=>e.querySelector(s);
@@ -198,9 +198,7 @@ function viewRecetas(){
       <div class="thumb">🍽️</div><div class="it-main"><div class="n">${esc(c.Comida)}</div>
       <div class="q">${esc(c.MomentoSugerido||'')}${c.Cocinero?' · '+esc(c.Cocinero):''}</div></div><span class="chev">›</span></button>`
   ).join('')+`</div>
-    <div class="row-btns"><button class="btn solid" data-act="newdish">+ Nueva receta / plato</button></div>
-    <div class="row-btns"><button class="btn" data-act="seedsalads">🥗 Crear 3 ensaladas de ejemplo</button>
-      <button class="btn" data-act="seedpan">🍞 Aplicar pan recomendado</button></div>`;
+    <div class="row-btns"><button class="btn solid" data-act="newdish">+ Nueva receta / plato</button></div>`;
 }
 function viewReceta(name){
   const c=(DATA.Comidas||[]).find(x=>x.Comida===name); if(!c)return 'No encontrada.';
@@ -529,6 +527,41 @@ async function seedPan(){
   }
   render(); toast('Pan aplicado ✅');
 }
+async function seedMigas(){
+  const newIng=[['Semola','Despensa','g'],['Sardinas','Pescaderia','g'],['Melon','Fruteria','g']];
+  for(const [nom,cat,uni] of newIng){
+    if(!(DATA.Ingredientes||[]).some(i=>i.Ingrediente===nom)){
+      const row={Ingrediente:nom,Categoria:cat,Unidad:uni,EsBasico:'No',ListaBasico:''};
+      (DATA.Ingredientes=DATA.Ingredientes||[]).push(row); await apiWrite({action:'append',sheet:'Ingredientes',row:row});
+    }
+  }
+  const pan=(DATA.Recetas||[]).find(r=>r.Comida==='Migas'&&r.Ingrediente==='Pan del dia anterior');
+  if(pan && num(pan.CantidadPorComensal)>0){ pan.CantidadPorComensal='0'; await apiWrite({action:'update',sheet:'Recetas',match:{Comida:'Migas',Ingrediente:'Pan del dia anterior'},set:{CantidadPorComensal:'0'}}); }
+  const comp=[['Semola',100,'No'],['Pimiento verde',40,'No'],['Chistorra',40,'Si'],['Sardinas',60,'Si'],['Boquerones',60,'Si'],['Melon',80,'Si']];
+  for(const [ing,g,opc] of comp){
+    const r=(DATA.Recetas||[]).find(x=>x.Comida==='Migas'&&x.Ingrediente===ing);
+    if(r){ r.CantidadPorComensal=String(g); r.Opcional=opc; await apiWrite({action:'update',sheet:'Recetas',match:{Comida:'Migas',Ingrediente:ing},set:{CantidadPorComensal:String(g),Opcional:opc}}); }
+    else { const rr={Comida:'Migas',Ingrediente:ing,CantidadPorComensal:String(g),Grupo:'',PesoEnGrupo:'',Opcional:opc}; (DATA.Recetas=DATA.Recetas||[]).push(rr); await apiWrite({action:'append',sheet:'Recetas',row:rr}); }
+  }
+}
+function maybeSeed(){
+  if(bootSeeded) return; bootSeeded=true;
+  if((userEmail||'').toLowerCase()!=='francisco.m.garcia@gmail.com') return;
+  const done=(DATA.Config||[]).some(c=>c.Clave==='SemillaV1' && truthy(c.Valor));
+  if(done) return;
+  seedInitial();
+}
+async function seedInitial(){
+  try{
+    await seedSalads();
+    await seedPan();
+    await seedMigas();
+    const row={Clave:'SemillaV1',Valor:'1',Descripcion:'Ensaladas, pan y complementos de migas aplicados'};
+    (DATA.Config=DATA.Config||[]).push(row);
+    await apiWrite({action:'append',sheet:'Config',row:row});
+    render(); toast('Ensaladas y complementos listos ✅');
+  }catch(e){}
+}
 function saveDish(){
   const nom=((($('#nd-nom')||{}).value)||'').trim(); if(!nom){ toast('Pon un nombre'); return; }
   if((DATA.Comidas||[]).some(c=>c.Comida===nom)){ toast('Ya existe ese plato'); return; }
@@ -587,6 +620,7 @@ async function reload(){
     }
     DATA = (res && res.data) ? res.data : res;   // el backend envuelve en {ok,data}
     render();
+    maybeSeed();
   }
   catch(err){ $('#app').innerHTML=`<div class="center"><div class="brand">Compra<em>SanJose</em></div>
     <p>No se pudieron cargar los datos.<br>Puede que tu sesión haya caducado.</p>
