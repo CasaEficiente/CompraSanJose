@@ -135,17 +135,15 @@ function itemRow(kind,key,emoji,name,q,comprado){
 function viewComprar(){
   const sh=computeShopping();
   const cs=compras();
-  const tramoSel = state.mode==='calendario' ? `<select data-sel="tramo" style="flex:1">
+  const tramoSel = `<select data-sel="tramo" style="flex:1">
       <option value="todo" ${state.tramo==='todo'?'selected':''}>Todo el evento</option>
       ${cs.map(c=>`<option value="${esc(c.Fecha)}" ${state.tramo===c.Fecha?'selected':''}>${esc(c.Fecha)}${hastaOf(c)?' → '+esc(hastaOf(c)):''}${c.Etiqueta?' · '+esc(c.Etiqueta):''}</option>`).join('')}
-    </select>` : '';
-  let html = `<div class="hero"><div class="lab">${state.mode==='catalogo'?'Todo el catálogo':'Según calendario'}</div>
+    </select>`;
+  let html = `<div class="hero"><div class="lab">Según calendario</div>
     <div class="big">${sh.total} para cocinar</div>
     <div class="sub">${raciones()} raciones · marca ✓ y pasa a la despensa</div></div>
-    <div class="controls"><div class="seg" style="flex:1">
-      <button data-sel="mode" data-val="catalogo" class="${state.mode==='catalogo'?'on':''}">Todas las comidas</button>
-      <button data-sel="mode" data-val="calendario" class="${state.mode==='calendario'?'on':''}">Por calendario</button>
-    </div></div>${tramoSel?`<div class="controls">${tramoSel}</div>`:''}`;
+    <div class="controls">${tramoSel}</div>
+    <div class="controls"><button class="btn" data-act="clearcomprado" style="font-size:12.5px">🧹 Vaciar lo ya comprado (consumido)</button></div>`;
 
   if(!sh.total){ html+=`<div class="banner">Aún no hay comidas que generen compra automática. Abre cada categoría para ver los productos y ponles cantidad, o asigna comidas en el Calendario.</div>`; }
   const sec=(key,color,label,count,inner)=>{
@@ -483,6 +481,7 @@ document.addEventListener('click',(e)=>{
   else if(act==='buymanual'){ buyManual(b.getAttribute('data-ing')); }
   else if(act==='delmanual'){ const ig=b.getAttribute('data-ing'); askDelete('Quitar "'+ig+'" de la lista.', ()=>delManual(ig)); }
   else if(act==='buyingr'){ buyIngr(b.getAttribute('data-ing'), num(b.getAttribute('data-buy')), b.getAttribute('data-unit')); }
+  else if(act==='clearcomprado'){ askDelete('Poner a 0 lo que ya compraste (marcado como comprado en la despensa) para recalcular la compra del siguiente tramo. Tu despensa inicial se conserva.', ()=>clearComprado()); }
   else if(act==='dellista'){ const it=b.getAttribute('data-item'); askDelete('Quitar "'+it+'" de la lista.', ()=>delLista(it)); }
   else if(act==='addlista'){ openModal({type:'addlista',tipo:b.getAttribute('data-tipo')}); }
   else if(act==='savelista'){ saveLista(b.getAttribute('data-tipo')); }
@@ -602,6 +601,12 @@ function saveManual(cat){
 function setManualQty(ing,val){
   const v=Math.max(0,num(val)); const r=(DATA.ListaCompra||[]).find(x=>x.Ingrediente===ing); if(!r)return;
   r.Cantidad=String(v); apiWrite({action:'update',sheet:'ListaCompra',match:{Ingrediente:ing},set:{Cantidad:String(v)}}); render();
+}
+function clearComprado(){
+  let n=0;
+  (DATA.Despensa||[]).forEach(d=>{ if(/comprado/i.test(d.Notas||'') && num(d.Cantidad)>0){ d.Cantidad='0';
+    apiWrite({action:'update',sheet:'Despensa',match:{Ingrediente:d.Ingrediente},set:{Cantidad:'0'}}); n++; } });
+  render(); toast(n?('Vaciado lo comprado ('+n+')'):'No hay compras que vaciar');
 }
 function buyManual(ing){
   const r=(DATA.ListaCompra||[]).find(x=>x.Ingrediente===ing); if(!r)return;
