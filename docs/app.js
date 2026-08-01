@@ -71,7 +71,7 @@ function computeShopping(){
   const ing=ingMap(), inc=new Set(includedComidas()), qty={};
   (DATA.Recetas||[]).forEach(r=>{
     if(!inc.has(r.Comida)) return;
-    const meta=ing[r.Ingrediente]; if(!meta || truthy(meta.EsBasico)) return;
+    const meta=ing[r.Ingrediente]; if(meta && truthy(meta.EsBasico)) return; // sin ficha => se incluye igual (no olvidar nada)
     qty[r.Ingrediente]=(qty[r.Ingrediente]||0)+num(r.CantidadPorComensal)*racionesDe(r.Comida);
   });
   (DATA.Despensa||[]).forEach(d=>{ if(qty[d.Ingrediente]!=null) qty[d.Ingrediente]-=num(d.Cantidad); });
@@ -166,8 +166,9 @@ function viewComprar(){
   const ing=ingMap();
   const manualAll=(DATA.ListaCompra||[]).filter(r=>/manual/i.test(r.Notas||'') && String(r.Ingrediente).trim());
   DISPLAY_CATS.forEach(([key,label,color,emoji])=>{
-    const catIngs=(DATA.Ingredientes||[]).filter(i=>i.Categoria===key && !truthy(i.EsBasico))
-      .map(i=>i.Ingrediente).sort((a,b)=>a.localeCompare(b));
+    const names=new Set((DATA.Ingredientes||[]).filter(i=>i.Categoria===key && !truthy(i.EsBasico)).map(i=>i.Ingrediente));
+    Object.values(needByName).forEach(it=>{ if(it.cat===key) names.add(it.name); }); // ingredientes de receta sin ficha
+    const catIngs=[...names].sort((a,b)=>a.localeCompare(b));
     const catHTML=catIngs.map(name=>{
       const it=needByName[name], meta=ing[name]||{Unidad:'g'};
       const need=it?it.need:0, unit=it?it.unit:(meta.Unidad||'g');
@@ -584,6 +585,8 @@ function buyIngr(name,buy,unit){
   const d=(DATA.Despensa||[]).find(x=>x.Ingrediente===name);
   if(d){ d.Cantidad=String(Math.round((num(d.Cantidad)+buy)*100)/100); apiWrite({action:'update',sheet:'Despensa',match:{Ingrediente:name},set:{Cantidad:d.Cantidad}}); }
   else { const row={Ingrediente:name,Cantidad:String(buy),Unidad:unit,Notas:'comprado'}; (DATA.Despensa=DATA.Despensa||[]).push(row); apiWrite({action:'append',sheet:'Despensa',row:row}); }
+  const lc=(DATA.ListaCompra||[]).find(x=>x.Ingrediente===name); // limpia 'extra' para que no se re-sume al añadir comidas después
+  if(lc && /extra=/i.test(lc.Notas||'')){ lc.Notas=String(lc.Notas).replace(/\s*extra=[\d.]+/ig,'').trim(); apiWrite({action:'update',sheet:'ListaCompra',match:{Ingrediente:name},set:{Notas:lc.Notas}}); }
   render(); toast('✓ '+name+' → despensa');
 }
 function saveManual(cat){

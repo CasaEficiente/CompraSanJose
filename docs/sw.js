@@ -1,6 +1,6 @@
 /* Service worker — cachea el "cascaron" de la app para uso offline.
    Los datos (backend Apps Script y login de Google) NO se cachean. */
-const CACHE = 'csj-v23';
+const CACHE = 'csj-v24';
 const ASSETS = [
   './', './index.html', './styles.css', './app.js', './manifest.webmanifest', './favicon.ico',
   './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png'
