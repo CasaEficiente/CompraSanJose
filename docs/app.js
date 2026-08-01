@@ -195,10 +195,15 @@ function viewRecetas(){
 function viewReceta(name){
   const c=(DATA.Comidas||[]).find(x=>x.Comida===name); if(!c)return 'No encontrada.';
   const rac=raciones(), ing=ingMap();
-  const items=(DATA.Recetas||[]).filter(r=>r.Comida===name).map(r=>{
-    const m=ing[r.Ingrediente]||{Unidad:'g'}; const q=num(r.CantidadPorComensal)*rac;
-    return `<div class="item"><div class="it-main"><div class="n">${esc(r.Ingrediente)}${truthy(r.Opcional)?' <span class="chip warm" style="padding:2px 7px">opcional</span>':''}</div>
-      <div class="q">${esc(legible(q,m.Unidad))}</div></div></div>`;
+  const items=(DATA.Recetas||[]).filter(r=>r.Comida===name && num(r.CantidadPorComensal)>0).map(r=>{
+    const m=ing[r.Ingrediente]||{Unidad:'g'}; const tot=num(r.CantidadPorComensal)*rac;
+    return `<div class="item">
+      <div class="it-main"><div class="n">${esc(r.Ingrediente)}${truthy(r.Opcional)?' <span class="chip warm" style="padding:1px 6px">opc.</span>':''}</div>
+        <div class="q">${esc(legible(tot,m.Unidad))} en total</div></div>
+      <input class="qin" data-recqty data-comida="${esc(name)}" data-ing="${esc(r.Ingrediente)}" type="number" inputmode="decimal" value="${esc(r.CantidadPorComensal)}" aria-label="por comensal">
+      <span class="uni">${esc(m.Unidad)}/pers</span>
+      <button class="delx" data-act="delitem" data-comida="${esc(name)}" data-ing="${esc(r.Ingrediente)}" aria-label="quitar">×</button>
+    </div>`;
   }).join('');
   return `<div>
     <div class="rlabel">Momento</div>
@@ -213,8 +218,9 @@ function viewReceta(name){
     ${c.Fuente?`<div style="margin:2px 4px 8px"><a href="${esc(c.Fuente)}" target="_blank" rel="noopener">🔗 Abrir receta original</a></div>`:''}
     <div class="controls"><input id="rc-fuente" type="url" inputmode="url" value="${esc(c.Fuente||'')}" placeholder="https://..." style="flex:1">
       <button class="btn solid" style="width:auto;white-space:nowrap" data-act="setfuente" data-comida="${esc(name)}">Guardar</button></div>
-    <div class="rlabel">Ingredientes (para ${rac} raciones)</div>
+    <div class="rlabel">Ingredientes (edita la cantidad por comensal · total para ${rac} raciones)</div>
     <div class="card" style="padding:2px 12px">${items||'<div class="item"><div class="it-main muted small">Sin ingredientes.</div></div>'}</div>
+    <div class="row-btns"><button class="btn" data-act="additem" data-comida="${esc(name)}">+ Añadir ingrediente / acompañamiento</button></div>
   </div>`;
 }
 
@@ -275,6 +281,20 @@ function modalHTML(m){
       <div class="row-btns"><button class="btn" data-act="closemodal">Cancelar</button>
         <button class="btn solid" data-act="savedesp">Guardar</button></div></div></div>`;
   }
+  if(m.type==='additem'){
+    const cat=(DATA.Ingredientes||[]).map(i=>i.Ingrediente).sort((a,b)=>a.localeCompare(b));
+    return `<div class="backdrop" data-act="closebg"><div class="sheet">
+      <h2>Añadir a ${esc(m.comida)}</h2>
+      <div class="grp"><label>Ingrediente o acompañamiento</label>
+        <input id="ai-nom" list="ai-list" placeholder="Escribe o elige (p. ej. Sardinas, Melón, Chistorra…)">
+        <datalist id="ai-list">${cat.map(n=>`<option value="${esc(n)}"></option>`).join('')}</datalist></div>
+      <div class="grp"><label>Cantidad por comensal</label><input id="ai-cant" type="number" inputmode="decimal" placeholder="0"></div>
+      <div class="grp"><label>Unidad (solo si es nuevo)</label><select id="ai-uni"><option>g</option><option>ml</option><option>ud</option></select></div>
+      <div class="grp"><label>Sección del súper (solo si es nuevo)</label><select id="ai-cat">${CATORDER.map(x=>`<option>${x}</option>`).join('')}</select></div>
+      <div class="row-btns"><button class="btn" data-act="closemodal">Cancelar</button>
+        <button class="btn solid" data-act="saveitem" data-comida="${esc(m.comida)}">Añadir</button></div>
+    </div></div>`;
+  }
   if(m.type==='install'){
     return `<div class="backdrop" data-act="closebg"><div class="sheet"><h2>Instalar la app</h2>
       <p class="rlabel">Android (Chrome/Edge)</p><div class="rtext">Menú ⋮ → <b>Añadir a pantalla de inicio</b> / <b>Instalar app</b>.</div>
@@ -307,11 +327,15 @@ document.addEventListener('click',(e)=>{
   else if(act==='setmomento'){ setMomento(b.getAttribute('data-comida'), b.getAttribute('data-val')); }
   else if(act==='setcocinero'){ setCocinero(b.getAttribute('data-comida')); }
   else if(act==='setfuente'){ setFuente(b.getAttribute('data-comida')); }
+  else if(act==='additem'){ openModal({type:'additem',comida:b.getAttribute('data-comida')}); }
+  else if(act==='saveitem'){ saveItem(b.getAttribute('data-comida')); }
+  else if(act==='delitem'){ setRecetaQty(b.getAttribute('data-comida'), b.getAttribute('data-ing'), 0); toast('Quitado'); }
   else if(act==='signout'){ signout(); }
   else if(act==='closemodal'||act==='closebg'){ if(act==='closebg'&&e.target.closest('.sheet'))return; closeModal(); }
 });
 document.addEventListener('change',(e)=>{
-  const s=e.target.closest('[data-sel="tramo"]'); if(s){ state.tramo=s.value; render(); }
+  const s=e.target.closest('[data-sel="tramo"]'); if(s){ state.tramo=s.value; render(); return; }
+  const q=e.target.closest('[data-recqty]'); if(q){ setRecetaQty(q.getAttribute('data-comida'), q.getAttribute('data-ing'), q.value); }
 });
 
 function toggle(kind,key){
@@ -379,6 +403,27 @@ function setCocinero(name){
   c.Cocinero=v;
   apiWrite({action:'update',sheet:'Comidas',match:{Comida:name},set:{Cocinero:v}});
   render(); toast('Cocinero guardado');
+}
+function setRecetaQty(comida,ing,val){
+  const v=num(val);
+  const r=(DATA.Recetas||[]).find(x=>x.Comida===comida&&x.Ingrediente===ing); if(!r)return;
+  r.CantidadPorComensal=String(v);
+  apiWrite({action:'update',sheet:'Recetas',match:{Comida:comida,Ingrediente:ing},set:{CantidadPorComensal:String(v)}});
+  render();
+}
+function saveItem(comida){
+  const nom=((($('#ai-nom')||{}).value)||'').trim(); if(!nom){ toast('Escribe un ingrediente'); return; }
+  const cant=String(num((($('#ai-cant')||{}).value)||0));
+  if(!(DATA.Ingredientes||[]).some(i=>i.Ingrediente===nom)){
+    const uni=(($('#ai-uni')||{}).value)||'g', cat=(($('#ai-cat')||{}).value)||'Despensa';
+    (DATA.Ingredientes=DATA.Ingredientes||[]).push({Ingrediente:nom,Categoria:cat,Unidad:uni,EsBasico:'No',ListaBasico:''});
+    apiWrite({action:'append',sheet:'Ingredientes',row:{Ingrediente:nom,Categoria:cat,Unidad:uni,EsBasico:'No',ListaBasico:''}});
+  }
+  const r=(DATA.Recetas||[]).find(x=>x.Comida===comida&&x.Ingrediente===nom);
+  if(r){ r.CantidadPorComensal=cant; apiWrite({action:'update',sheet:'Recetas',match:{Comida:comida,Ingrediente:nom},set:{CantidadPorComensal:cant}}); }
+  else { const row={Comida:comida,Ingrediente:nom,CantidadPorComensal:cant,Grupo:'',PesoEnGrupo:'',Opcional:'No'};
+    (DATA.Recetas=DATA.Recetas||[]).push(row); apiWrite({action:'append',sheet:'Recetas',row:row}); }
+  closeModal(); toast('Añadido: '+nom);
 }
 function setFuente(name){
   const v=((($('#rc-fuente')||{}).value)||'').trim();
