@@ -197,7 +197,8 @@ function viewRecetas(){
       <div class="thumb">🍽️</div><div class="it-main"><div class="n">${esc(c.Comida)}</div>
       <div class="q">${esc(c.MomentoSugerido||'')}${c.Cocinero?' · '+esc(c.Cocinero):''}</div></div><span class="chev">›</span></button>`
   ).join('')+`</div>
-    <div class="row-btns"><button class="btn solid" data-act="newdish">+ Nueva receta / plato</button></div>`;
+    <div class="row-btns"><button class="btn solid" data-act="newdish">+ Nueva receta / plato</button></div>
+    <div class="row-btns"><button class="btn" data-act="seedsalads">🥗 Crear 3 ensaladas de ejemplo</button></div>`;
 }
 function viewReceta(name){
   const c=(DATA.Comidas||[]).find(x=>x.Comida===name); if(!c)return 'No encontrada.';
@@ -212,6 +213,10 @@ function viewReceta(name){
       <button class="delx" data-act="delitem" data-comida="${esc(name)}" data-ing="${esc(r.Ingrediente)}" aria-label="quitar">×</button>
     </div>`;
   }).join('');
+  let gPax=0;
+  (DATA.Recetas||[]).filter(r=>r.Comida===name && num(r.CantidadPorComensal)>0).forEach(r=>{
+    const m=ing[r.Ingrediente]||{Unidad:'g'}; if(m.Unidad==='g') gPax+=num(r.CantidadPorComensal);
+  });
   return `<div>
     <div class="rlabel">Momento</div>
     <div class="seg" style="max-width:280px">${['Almuerzo','Cena'].map(mm=>`<button data-act="setmomento" data-comida="${esc(name)}" data-val="${mm}" class="${c.MomentoSugerido===mm?'on':''}">${mm}</button>`).join('')}</div>
@@ -230,6 +235,7 @@ function viewReceta(name){
       <button class="btn solid" style="width:auto;white-space:nowrap" data-act="setgrillo" data-comida="${esc(name)}">Guardar</button></div>
     <p class="muted small" style="margin:2px 4px 6px">Comensales que apenas/no comen este plato (se restan del total). Ahora lo comen <b>${effR}</b> de ${rac}.</p>
     <div class="rlabel">Ingredientes (edita la cantidad por comensal · total para ${effR} raciones)</div>
+    <p class="small" style="margin:-2px 4px 8px;color:${gPax>400?'var(--tomato)':'var(--muted)'}">Total sólido: <b>${fmt(gPax)} g/persona</b>${gPax>400?' ⚠️ te estás pasando':''}<br><span class="muted">Referencia: complemento/guarnición ~100-150 g · plato único ~300-400 g</span></p>
     <div class="card" style="padding:2px 12px">${items||'<div class="item"><div class="it-main muted small">Sin ingredientes.</div></div>'}</div>
     <div class="row-btns"><button class="btn" data-act="additem" data-comida="${esc(name)}">+ Añadir ingrediente / acompañamiento</button></div>
   </div>`;
@@ -360,6 +366,7 @@ document.addEventListener('click',(e)=>{
   else if(act==='saveitem'){ saveItem(b.getAttribute('data-comida')); }
   else if(act==='newdish'){ openModal({type:'newdish'}); }
   else if(act==='savedish'){ saveDish(); }
+  else if(act==='seedsalads'){ seedSalads(); }
   else if(act==='setgrillo'){ setGrillo(b.getAttribute('data-comida')); }
   else if(act==='delitem'){ const co=b.getAttribute('data-comida'), ig=b.getAttribute('data-ing'); askDelete('Quitar "'+ig+'" de '+co+'.', ()=>setRecetaQty(co,ig,0)); }
   else if(act==='deldesp'){ const ig=b.getAttribute('data-ing'); askDelete('Quitar "'+ig+'" de la despensa.', ()=>delDespensa(ig)); }
@@ -457,6 +464,37 @@ function setGrillo(name){
   c.Notas=notes;
   apiWrite({action:'update',sheet:'Comidas',match:{Comida:name},set:{Notas:notes}});
   render(); toast(e>0?('Restados '+e+' comensales'):'Lo comen todos');
+}
+async function seedSalads(){
+  const SEED_ING=[['Pepino','Fruteria','g'],['Atun','Despensa','g'],['Pasta','Despensa','g']];
+  const SEED=[
+    ['Ensalada mixta','Almuerzo',[['Lechuga',40],['Tomate',60],['Cebolla',15],['Pepino',30],['Zanahoria',15],['Aceitunas negras',10],['Atun',25],['Lata de maiz',15]]],
+    ['Ensalada de pasta','Almuerzo',[['Pasta',60],['Tomate',30],['Lata de maiz',20],['Atun',30],['Aceitunas negras',10],['Huevo',0.5],['Cebolla',10]]],
+    ['Ensalada campera','Almuerzo',[['Patata',120],['Tomate',60],['Cebolla',20],['Pimiento verde',20],['Atun',30],['Huevo',0.5],['Aceitunas negras',15]]]
+  ];
+  toast('Creando ensaladas…');
+  for(const [nom,cat,uni] of SEED_ING){
+    if(!(DATA.Ingredientes||[]).some(i=>i.Ingrediente===nom)){
+      const row={Ingrediente:nom,Categoria:cat,Unidad:uni,EsBasico:'No',ListaBasico:''};
+      (DATA.Ingredientes=DATA.Ingredientes||[]).push(row);
+      await apiWrite({action:'append',sheet:'Ingredientes',row:row});
+    }
+  }
+  for(const [com,mom,ings] of SEED){
+    if(!(DATA.Comidas||[]).some(c=>c.Comida===com)){
+      const drow={Comida:com,MomentoSugerido:mom,Cocinero:'',PasosPrevios:'',Preparacion:'Trocea y mezcla los ingredientes. Alina con AOVE, vinagre y sal al gusto. Sirve fria.',Fuente:'',Notas:''};
+      (DATA.Comidas=DATA.Comidas||[]).push(drow);
+      await apiWrite({action:'append',sheet:'Comidas',row:drow});
+    }
+    for(const [ing,g] of ings){
+      if(!(DATA.Recetas||[]).some(r=>r.Comida===com&&r.Ingrediente===ing)){
+        const rr={Comida:com,Ingrediente:ing,CantidadPorComensal:String(g),Grupo:'',PesoEnGrupo:'',Opcional:'No'};
+        (DATA.Recetas=DATA.Recetas||[]).push(rr);
+        await apiWrite({action:'append',sheet:'Recetas',row:rr});
+      }
+    }
+  }
+  render(); toast('Ensaladas creadas ✅');
 }
 function saveDish(){
   const nom=((($('#nd-nom')||{}).value)||'').trim(); if(!nom){ toast('Pon un nombre'); return; }
