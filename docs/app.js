@@ -118,7 +118,7 @@ function render(){
 function headTitle(){
   if(state.tab==='comprar')return 'Qué comprar y cuánto';
   if(state.tab==='calendario')return 'El menú del 1 al 9 de agosto';
-  if(state.tab==='recetas')return 'Nuestros platos, paso a paso';
+  if(state.tab==='recetas')return 'Nuestros platos, paso a paso, y cantidades por ración';
   if(state.tab==='despensa')return 'Lo que ya tienes en casa';
   return 'Comensales, compras y accesos';
 }
