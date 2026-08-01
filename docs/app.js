@@ -165,7 +165,13 @@ function viewComprar(){
     if(!rows.length)return;
     const em=tipo==='Desayuno'?'🥐':tipo==='Bebidas'?'🥤':'🥜';
     html+=sec('tipo:'+tipo,'#7A5A86',tipo,rows.length,
-      rows.map(r=>itemRow('lista',r.Item,em,r.Item, r.Paquetes?`${r.Paquetes} ${r.Envase||''}`:'', truthy(r.Comprado))).join(''));
+      rows.map(r=>`<div class="item ${truthy(r.Comprado)?'done':''}">
+        <div class="thumb">${em}</div>
+        <div class="it-main"><div class="n">${esc(r.Item)}</div><div class="q">${esc(r.Envase||'')}</div></div>
+        <input class="qin" data-listqty data-item="${esc(r.Item)}" type="number" inputmode="numeric" value="${esc(r.Paquetes||0)}" aria-label="paquetes">
+        <span class="uni">uds</span>
+        <button class="check ${truthy(r.Comprado)?'on':''}" data-act="toggle" data-kind="lista" data-key="${esc(r.Item)}" aria-label="comprado"></button>
+      </div>`).join(''));
   });
   return html;
 }
@@ -344,7 +350,8 @@ document.addEventListener('click',(e)=>{
 });
 document.addEventListener('change',(e)=>{
   const s=e.target.closest('[data-sel="tramo"]'); if(s){ state.tramo=s.value; render(); return; }
-  const q=e.target.closest('[data-recqty]'); if(q){ setRecetaQty(q.getAttribute('data-comida'), q.getAttribute('data-ing'), q.value); }
+  const q=e.target.closest('[data-recqty]'); if(q){ setRecetaQty(q.getAttribute('data-comida'), q.getAttribute('data-ing'), q.value); return; }
+  const l=e.target.closest('[data-listqty]'); if(l){ setListaPaquetes(l.getAttribute('data-item'), l.value); }
 });
 
 function toggle(kind,key){
@@ -412,6 +419,13 @@ function setCocinero(name){
   c.Cocinero=v;
   apiWrite({action:'update',sheet:'Comidas',match:{Comida:name},set:{Cocinero:v}});
   render(); toast('Cocinero guardado');
+}
+function setListaPaquetes(item,val){
+  const v=Math.max(0,Math.round(num(val)));
+  const r=(DATA.ListasAbiertas||[]).find(x=>x.Item===item); if(!r)return;
+  r.Paquetes=String(v);
+  apiWrite({action:'update',sheet:'ListasAbiertas',match:{Item:item},set:{Paquetes:String(v)}});
+  render();
 }
 function askDelete(msg, fn){ pendingDelete=fn; openModal({type:'confirm',msg:msg}); }
 function delDespensa(ing){
