@@ -160,7 +160,7 @@ function viewComprar(){
     ['Precocinados','Precocinados','#c98a3b','🍕'],['Panaderia','Panadería','#C99A5B','🍞'],
     ['Lacteos','Lácteos y huevos','#E0A126','🧀'],['Congelados','Congelados','#5aa9b5','❄️'],
     ['Especias','Especias y condimentos','#9c6b2e','🌿'],['Despensa','Despensa','#6b7a5e','🥫'],
-    ['Bebidas','Bebidas','#4a8f8a','🥤'],['Otros','Otros','#7A5A86','🛍️']
+    ['Bebidas','Bebidas','#4a8f8a','🥤']
   ];
   const recByCat={}; sh.groups.forEach(g=>recByCat[g.cat]=g.items);
   const manualAll=(DATA.ListaCompra||[]).filter(r=>/manual/i.test(r.Notas||'') && String(r.Ingrediente).trim());
@@ -175,12 +175,12 @@ function viewComprar(){
       <span class="uni">${esc(it.unit)}</span>
       <button class="check" data-act="buyingr" data-ing="${esc(it.name)}" data-buy="${it.buy}" data-unit="${esc(it.unit)}" aria-label="a despensa"></button>
     </div>`).join('');
-    const manHTML=manItems.map(r=>{const on=num(r.Cantidad)>0;return `<div class="item ${on?'':'off'} ${truthy(r.Comprado)?'done':''}">
+    const manHTML=manItems.map(r=>{const on=num(r.Cantidad)>0;return `<div class="item ${on?'':'off'}">
       <div class="thumb">${emoji}</div>
-      <div class="it-main"><div class="n">${esc(r.Ingrediente)}</div><div class="q">${on?'manual':'toca para pedir'}</div></div>
+      <div class="it-main"><div class="n">${esc(r.Ingrediente)}</div><div class="q">${on?'para comprar':'toca para pedir'}</div></div>
       <input class="qin" data-manqty data-ing="${esc(r.Ingrediente)}" type="number" inputmode="decimal" value="${esc(r.Cantidad)}" aria-label="cantidad">
       <span class="uni">${esc(r.Unidad||'ud')}</span>
-      ${on?`<button class="check ${truthy(r.Comprado)?'on':''}" data-act="togglemanual" data-ing="${esc(r.Ingrediente)}" aria-label="comprado"></button>`:`<span class="ckoff"></span>`}
+      ${on?`<button class="check" data-act="buymanual" data-ing="${esc(r.Ingrediente)}" aria-label="comprado, a despensa"></button>`:`<span class="ckoff"></span>`}
       <button class="delx" data-act="delmanual" data-ing="${esc(r.Ingrediente)}" aria-label="quitar">×</button>
     </div>`;}).join('');
     const inner=recHTML+manHTML+`<div style="padding:8px 4px"><button class="btn" data-act="addmanual" data-cat="${esc(key)}">+ Añadir a ${esc(label)}</button></div>`;
@@ -470,7 +470,7 @@ document.addEventListener('click',(e)=>{
   else if(act==='ingrinfo'){ openModal({type:'ingrinfo',ing:b.getAttribute('data-ing')}); }
   else if(act==='addmanual'){ openModal({type:'addmanual',cat:b.getAttribute('data-cat')}); }
   else if(act==='savemanual'){ saveManual(b.getAttribute('data-cat')); }
-  else if(act==='togglemanual'){ toggleManual(b.getAttribute('data-ing')); }
+  else if(act==='buymanual'){ buyManual(b.getAttribute('data-ing')); }
   else if(act==='delmanual'){ const ig=b.getAttribute('data-ing'); askDelete('Quitar "'+ig+'" de la lista.', ()=>delManual(ig)); }
   else if(act==='buyingr'){ buyIngr(b.getAttribute('data-ing'), num(b.getAttribute('data-buy')), b.getAttribute('data-unit')); }
   else if(act==='dellista'){ const it=b.getAttribute('data-item'); askDelete('Quitar "'+it+'" de la lista.', ()=>delLista(it)); }
@@ -591,10 +591,11 @@ function setManualQty(ing,val){
   const v=Math.max(0,num(val)); const r=(DATA.ListaCompra||[]).find(x=>x.Ingrediente===ing); if(!r)return;
   r.Cantidad=String(v); apiWrite({action:'update',sheet:'ListaCompra',match:{Ingrediente:ing},set:{Cantidad:String(v)}}); render();
 }
-function toggleManual(ing){
+function buyManual(ing){
   const r=(DATA.ListaCompra||[]).find(x=>x.Ingrediente===ing); if(!r)return;
-  const v=!truthy(r.Comprado); r.Comprado=v?'Si':'No';
-  apiWrite({action:'update',sheet:'ListaCompra',match:{Ingrediente:ing},set:{Comprado:v?'Si':'No'}}); render();
+  const q=num(r.Cantidad), u=r.Unidad||'ud'; if(!(q>0)) return;
+  r.Cantidad='0'; apiWrite({action:'update',sheet:'ListaCompra',match:{Ingrediente:ing},set:{Cantidad:'0'}});
+  buyIngr(ing,q,u); // suma a despensa (y así resta de recetas con ese ingrediente)
 }
 function delManual(ing){
   const r=(DATA.ListaCompra||[]).find(x=>x.Ingrediente===ing); if(!r)return;
@@ -804,31 +805,25 @@ async function seedV4(){
 function maybeSeed(){
   if(bootSeeded) return; bootSeeded=true;
   if((userEmail||'').toLowerCase()!=='francisco.m.garcia@gmail.com') return;
-  const done=(DATA.Config||[]).some(c=>c.Clave==='SemillaV6' && truthy(c.Valor));
+  const done=(DATA.Config||[]).some(c=>c.Clave==='SemillaV7' && truthy(c.Valor));
   if(done) return;
   seedInitial();
 }
 async function seedInitial(){
   try{
-    const hasV5=(DATA.Config||[]).some(c=>c.Clave==='SemillaV5' && truthy(c.Valor));
-    if(!hasV5){
-      await seedSalads();
-      await seedPan();
-      await seedMigas();
-      await seedMousaka();
-      await seedProporciones();
-      await seedV4();
-      const r5={Clave:'SemillaV5',Valor:'1',Descripcion:'Ensaladas, pan, migas, mousaka, proporciones, mojitos y AOVE'};
-      (DATA.Config=DATA.Config||[]).push(r5); await apiWrite({action:'append',sheet:'Config',row:r5});
+    const has=k=>(DATA.Config||[]).some(c=>c.Clave===k && truthy(c.Valor));
+    const flag=async(k,desc)=>{ const r={Clave:k,Valor:'1',Descripcion:desc}; (DATA.Config=DATA.Config||[]).push(r); await apiWrite({action:'append',sheet:'Config',row:r}); };
+    if(!has('SemillaV5')){
+      await seedSalads(); await seedPan(); await seedMigas(); await seedMousaka(); await seedProporciones(); await seedV4();
+      await flag('SemillaV5','Ensaladas, pan, migas, mousaka, proporciones, mojitos y AOVE');
     }
-    await seedV6();
-    const r6={Clave:'SemillaV6',Valor:'1',Descripcion:'Precocinados (a 0) y cerveza por cajas'};
-    (DATA.Config=DATA.Config||[]).push(r6); await apiWrite({action:'append',sheet:'Config',row:r6});
+    if(!has('SemillaV6')){ await seedV6(); await flag('SemillaV6','Precocinados (a 0) y cerveza por cajas'); }
+    if(!has('SemillaV7')){ await seedV7(); await flag('SemillaV7','Helados a Congelados'); }
     render(); toast('Ajustes aplicados ✅');
   }catch(e){}
 }
 async function seedV6(){
-  const pre=[['Pizza preparada','Precocinados','ud'],['Tortilla de patatas preparada','Precocinados','ud'],['Helados','Otros','ud']];
+  const pre=[['Pizza preparada','Precocinados','ud'],['Tortilla de patatas preparada','Precocinados','ud'],['Helados','Congelados','ud']];
   for(const p of pre){
     if(!(DATA.ListaCompra||[]).some(r=>r.Ingrediente===p[0])){
       const row={Categoria:p[1],Ingrediente:p[0],Cantidad:'0',Unidad:p[2],CantidadLegible:'',Comprado:'No',Notas:'manual'};
@@ -838,6 +833,11 @@ async function seedV6(){
   const cz=(DATA.ListasAbiertas||[]).find(r=>/cerveza/i.test(r.Item||''));
   if(cz && !/caja/i.test(cz.Envase||'')){ cz.Envase='caja (24 latas)';
     await apiWrite({action:'update',sheet:'ListasAbiertas',match:{Item:cz.Item},set:{Envase:'caja (24 latas)'}}); }
+}
+async function seedV7(){
+  const h=(DATA.ListaCompra||[]).find(r=>r.Ingrediente==='Helados');
+  if(h && h.Categoria!=='Congelados'){ h.Categoria='Congelados';
+    await apiWrite({action:'update',sheet:'ListaCompra',match:{Ingrediente:'Helados'},set:{Categoria:'Congelados'}}); }
 }
 function saveDish(){
   const nom=((($('#nd-nom')||{}).value)||'').trim(); if(!nom){ toast('Pon un nombre'); return; }
