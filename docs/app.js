@@ -21,6 +21,12 @@ const num = (x)=>{ const n=parseFloat(String(x==null?0:x).replace(',','.')); ret
 function fmt(x){ x=Math.round(x*100)/100; if(Math.abs(x-Math.round(x))<1e-9) return String(Math.round(x)); return x.toFixed(2).replace(/0+$/,'').replace(/\.$/,'').replace('.',','); }
 function legible(q,u){ q=Math.round(q*100)/100; if(u==='g'&&q>=1000)return fmt(q/1000)+' kg'; if(u==='ml'&&q>=1000)return fmt(q/1000)+' L'; if(u==='ud')return Math.ceil(q)+' ud'; return fmt(q)+' '+u; }
 function truthy(v){ v=String(v==null?'':v).trim().toLowerCase(); return v==='si'||v==='sí'||v==='true'||v==='x'||v==='1'; }
+function ymd(v){ // normaliza cualquier fecha a 'YYYY-MM-DD' (Sheets a veces devuelve ISO con hora/zona)
+  if(v==null) return ''; const s=String(v).trim(); if(!s) return '';
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  const d=new Date(s); if(isNaN(d)) return s;
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function fdate(v){ const s=ymd(v); const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s); return m?(m[3]+'/'+m[2]+'/'+m[1]):s; } // muestra DD/MM/AAAA
 function jwtEmail(t){ try{ return JSON.parse(atob(t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).email; }catch(e){ return null; } }
 function toast(msg){ const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),1800); }
 
@@ -137,7 +143,7 @@ function viewComprar(){
   const cs=compras();
   const tramoSel = `<select data-sel="tramo" style="flex:1">
       <option value="todo" ${state.tramo==='todo'?'selected':''}>Todo el evento</option>
-      ${cs.map(c=>`<option value="${esc(c.Fecha)}" ${state.tramo===c.Fecha?'selected':''}>${esc(c.Fecha)}${hastaOf(c)?' → '+esc(hastaOf(c)):''}${c.Etiqueta?' · '+esc(c.Etiqueta):''}</option>`).join('')}
+      ${cs.map(c=>`<option value="${esc(c.Fecha)}" ${state.tramo===c.Fecha?'selected':''}>${esc(fdate(c.Fecha))}${hastaOf(c)?' → '+esc(fdate(hastaOf(c))):''}${c.Etiqueta?' · '+esc(c.Etiqueta):''}</option>`).join('')}
     </select>`;
   let html = `<div class="hero"><div class="lab">Según calendario</div>
     <div class="big">${sh.total} para cocinar</div>
@@ -307,7 +313,7 @@ function viewAjustes(){
     ${stepper('AdultosM','Adultos ♂')}${stepper('AdultosF','Adultos ♀')}${stepper('Ninos','Niños')}
     <div class="rlabel">Planificador de compras</div>
     <div class="card" style="padding:2px 12px">${compras().map(c=>`<div class="item">
-      <div class="thumb">🛒</div><div class="it-main"><div class="n">${esc(c.Fecha)}${hastaOf(c)?' → '+esc(hastaOf(c)):''}</div>
+      <div class="thumb">🛒</div><div class="it-main"><div class="n">${esc(fdate(c.Fecha))}${hastaOf(c)?' → '+esc(fdate(hastaOf(c))):''}</div>
       <div class="q">${esc(c.Etiqueta||'')}${hastaOf(c)?'':' · sin fecha de cobertura'}</div></div>
       <button class="check" style="border:none;background:none;color:var(--olive);width:32px" data-act="editcompra" data-fecha="${esc(c.Fecha)}">✎</button>
       <button class="delx" data-act="delcompra" data-fecha="${esc(c.Fecha)}">×</button>
@@ -333,7 +339,7 @@ function modalHTML(m){
     const comidas=(DATA.Comidas||[]).map(c=>c.Comida);
     const cur=(DATA.Calendario||[]).find(s=>s.Fecha===m.fecha&&s.Momento===m.momento)||{};
     return `<div class="backdrop" data-act="closebg"><div class="sheet">
-      <h2>${esc(m.momento)} · ${esc(m.fecha)}</h2>
+      <h2>${esc(m.momento)} · ${esc(fdate(m.fecha))}</h2>
       <div class="grp"><label>Comida</label><select id="m-comida"><option value="">— Sin asignar —</option>
         ${comidas.map(c=>`<option ${cur.Comida===c?'selected':''}>${esc(c)}</option>`).join('')}</select></div>
       <div class="grp"><label>Cocinero</label><input id="m-cocinero" value="${esc(cur.Cocinero||'')}" placeholder="Quién cocina"></div>
@@ -354,8 +360,8 @@ function modalHTML(m){
     const cur=m.fecha?(DATA.Compras||[]).find(c=>c.Fecha===m.fecha):null;
     return `<div class="backdrop" data-act="closebg"><div class="sheet">
       <h2>${m.fecha?'Editar compra':'Planificar compra'}</h2>
-      <div class="grp"><label>Fecha de la compra</label><input id="cp-fecha" type="date" value="${esc((cur&&cur.Fecha)||'')}"></div>
-      <div class="grp"><label>Cubrir hasta (fecha incluida)</label><input id="cp-hasta" type="date" value="${esc(cur?(hastaOf(cur)||''):'')}"></div>
+      <div class="grp"><label>Fecha de la compra</label><input id="cp-fecha" type="date" value="${esc(ymd((cur&&cur.Fecha)||''))}"></div>
+      <div class="grp"><label>Cubrir hasta (fecha incluida)</label><input id="cp-hasta" type="date" value="${esc(ymd(cur?(hastaOf(cur)||''):''))}"></div>
       <div class="grp"><label>Etiqueta (opcional)</label><input id="cp-et" value="${esc((cur&&cur.Etiqueta)||'')}" placeholder="p. ej. Compra grande, Reposición…"></div>
       <div class="row-btns"><button class="btn" data-act="closemodal">Cancelar</button>
         <button class="btn solid" data-act="savecompra" data-old="${esc(m.fecha||'')}">Guardar</button></div>
@@ -913,6 +919,8 @@ async function reload(){
       return;
     }
     DATA = (res && res.data) ? res.data : res;   // el backend envuelve en {ok,data}
+    (DATA.Calendario||[]).forEach(r=>{ if(r.Fecha) r.Fecha=ymd(r.Fecha); });        // normaliza fechas ISO -> YYYY-MM-DD
+    (DATA.Compras||[]).forEach(r=>{ if(r.Fecha) r.Fecha=ymd(r.Fecha); if(r.Notas) r.Notas=ymd(r.Notas); });
     render();
     maybeSeed();
   }

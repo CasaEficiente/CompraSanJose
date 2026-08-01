@@ -68,6 +68,8 @@ function allowed(email){
 /* --------------------------- data --------------------------- */
 var SHEET_ID = '1dViCbOztGH_I4ar8ff_Gv86aUo-rK1zigi4Cma5e47E'; // Google Sheet CompraSanJose
 function ss(){ return SHEET_ID ? SpreadsheetApp.openById(SHEET_ID) : SpreadsheetApp.getActiveSpreadsheet(); }
+function tz_(){ try{ return ss().getSpreadsheetTimeZone() || 'Europe/Madrid'; }catch(e){ return 'Europe/Madrid'; } }
+function cell_(v){ return (v instanceof Date) ? Utilities.formatDate(v, tz_(), 'yyyy-MM-dd') : v; } // fechas -> 'YYYY-MM-DD'
 function readAll(){
   var data = {};
   SHEETS.forEach(function(name){
@@ -77,7 +79,7 @@ function readAll(){
     for(var i=1;i<vals.length;i++){
       var empty = vals[i].every(function(c){ return c === '' || c === null; });
       if(empty) continue;
-      var o = {}; for(var j=0;j<hdr.length;j++){ o[hdr[j]] = vals[i][j]; }
+      var o = {}; for(var j=0;j<hdr.length;j++){ o[hdr[j]] = cell_(vals[i][j]); }
       rows.push(o);
     }
     data[name] = rows;
@@ -89,7 +91,7 @@ function updateRows(name, match, set, appendIfMissing, appendRow){
   var vals = sh.getDataRange().getValues(); var hdr = vals[0].map(String); var found = false;
   for(var i=1;i<vals.length;i++){
     var ok = true;
-    for(var k in match){ var ci = hdr.indexOf(k); if(ci<0 || String(vals[i][ci]) !== String(match[k])){ ok=false; break; } }
+    for(var k in match){ var ci = hdr.indexOf(k); if(ci<0 || String(cell_(vals[i][ci])) !== String(match[k])){ ok=false; break; } }
     if(ok){ for(var c in set){ var cj = hdr.indexOf(c); if(cj>=0) sh.getRange(i+1, cj+1).setValue(set[c]); } found = true; }
   }
   if(!found && appendIfMissing){ var obj={}; for(var a in match)obj[a]=match[a]; for(var b in set)obj[b]=set[b]; if(appendRow)for(var d in appendRow)obj[d]=appendRow[d]; appendRowObj(name, obj); }
