@@ -11,7 +11,7 @@ const CATCOLOR = {Fruteria:'#3E6B45',Carniceria:'#C7452C',Charcuteria:'#8a3b2e',
 const CATEMOJI = {Fruteria:'🥬',Carniceria:'🥩',Charcuteria:'🌭',Pescaderia:'🐟',Panaderia:'🍞',Lacteos:'🧀',Congelados:'❄️',Despensa:'🥫',Bebidas:'🥤'};
 
 let idToken=null, userEmail=null, DATA=null;
-let state = { tab:'comprar', detail:null, modal:null, mode:'catalogo', tramo:'todo', open:{} };
+let state = { tab:'calendario', detail:null, modal:null, mode:'catalogo', tramo:'todo', open:{} };
 let _cb = 0;
 
 /* ------------------------------- utils ---------------------------------- */
@@ -93,7 +93,7 @@ const IC={
   despensa:'<path d="M4 8l8-4 8 4-8 4z"/><path d="M4 8v8l8 4 8-4V8"/>',
   ajustes:'<circle cx="12" cy="12" r="3.2"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.5 5.5l2 2M16.5 16.5l2 2M18.5 5.5l-2 2M7.5 16.5l-2 2"/>'
 };
-const TABS=[['comprar','Comprar'],['calendario','Calendario'],['recetas','Recetas'],['despensa','Despensa'],['ajustes','Ajustes']];
+const TABS=[['calendario','Calendario'],['comprar','Comprar'],['recetas','Recetas'],['despensa','Despensa'],['ajustes','Ajustes']];
 
 /* ------------------------------- render --------------------------------- */
 function render(){
@@ -201,7 +201,11 @@ function viewReceta(name){
       <div class="q">${esc(legible(q,m.Unidad))}</div></div></div>`;
   }).join('');
   return `<div>
-    <div>${c.Cocinero?`<span class="chip olive">👨‍🍳 ${esc(c.Cocinero)}</span>`:''}${c.MomentoSugerido?`<span class="chip">${esc(c.MomentoSugerido)}</span>`:''}</div>
+    <div class="rlabel">Momento</div>
+    <div class="seg" style="max-width:280px">${['Almuerzo','Cena'].map(mm=>`<button data-act="setmomento" data-comida="${esc(name)}" data-val="${mm}" class="${c.MomentoSugerido===mm?'on':''}">${mm}</button>`).join('')}</div>
+    <div class="rlabel">Cocinero</div>
+    <div class="controls"><input id="rc-cocinero" value="${esc(c.Cocinero||'')}" placeholder="Quién cocina" style="flex:1">
+      <button class="btn solid" style="width:auto;white-space:nowrap" data-act="setcocinero" data-comida="${esc(name)}">Guardar</button></div>
     ${c.PasosPrevios?`<div class="rlabel">Pasos previos (con antelación)</div><div class="rtext">${esc(c.PasosPrevios)}</div>`:''}
     <div class="rlabel">Preparación</div><div class="rtext" id="prep">${esc(c.Preparacion)}</div>
     <div class="row-btns"><button class="btn" data-act="editprep" data-comida="${esc(name)}">✎ Editar preparación</button></div>
@@ -297,6 +301,8 @@ document.addEventListener('click',(e)=>{
   else if(act==='adduser'){ addUser(); }
   else if(act==='togglecat'){ const k=b.getAttribute('data-key'); state.open[k]=!state.open[k]; render(); }
   else if(act==='editprep'){ editPrep(b.getAttribute('data-comida')); }
+  else if(act==='setmomento'){ setMomento(b.getAttribute('data-comida'), b.getAttribute('data-val')); }
+  else if(act==='setcocinero'){ setCocinero(b.getAttribute('data-comida')); }
   else if(act==='signout'){ signout(); }
   else if(act==='closemodal'||act==='closebg'){ if(act==='closebg'&&e.target.closest('.sheet'))return; closeModal(); }
 });
@@ -356,6 +362,19 @@ function addUser(){
   (DATA.Usuarios=DATA.Usuarios||[]).push({Email:email,Proveedor:'Google',Rol:'invitado'});
   apiWrite({action:'append',sheet:'Usuarios',row:{Email:email,Proveedor:'Google',Rol:'invitado'}});
   render(); toast('Autorizado: '+email);
+}
+function setMomento(name,val){
+  const c=(DATA.Comidas||[]).find(x=>x.Comida===name); if(!c)return;
+  c.MomentoSugerido=val;
+  apiWrite({action:'update',sheet:'Comidas',match:{Comida:name},set:{MomentoSugerido:val}});
+  render(); toast('Momento: '+val);
+}
+function setCocinero(name){
+  const v=((($('#rc-cocinero')||{}).value)||'').trim();
+  const c=(DATA.Comidas||[]).find(x=>x.Comida===name); if(!c)return;
+  c.Cocinero=v;
+  apiWrite({action:'update',sheet:'Comidas',match:{Comida:name},set:{Cocinero:v}});
+  render(); toast('Cocinero guardado');
 }
 function signout(){ try{ google.accounts.id.disableAutoSelect(); }catch(e){} idToken=null; DATA=null; bootLogin(); }
 
