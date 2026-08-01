@@ -116,11 +116,11 @@ function render(){
   app.innerHTML = head+body+tabs + (state.modalHTML||'');
 }
 function headTitle(){
-  if(state.tab==='comprar')return 'Compra vigente';
-  if(state.tab==='calendario')return '1 – 9 agosto';
-  if(state.tab==='recetas')return 'Recetas';
-  if(state.tab==='despensa')return 'Disponibles';
-  return 'Ajustes';
+  if(state.tab==='comprar')return 'Qué comprar y cuánto';
+  if(state.tab==='calendario')return 'El menú del 1 al 9 de agosto';
+  if(state.tab==='recetas')return 'Nuestros platos, paso a paso';
+  if(state.tab==='despensa')return 'Lo que ya tienes en casa';
+  return 'Comensales, compras y accesos';
 }
 function viewTab(){
   if(state.tab==='comprar')return viewComprar();
