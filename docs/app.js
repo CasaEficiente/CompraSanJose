@@ -66,24 +66,26 @@ function includedComidas(){
 }
 function compradoIngr(){ const m={}; (DATA.ListaCompra||[]).forEach(r=>{ m[r.Ingrediente]=truthy(r.Comprado); }); return m; }
 
+function extraOf(name){ const r=(DATA.ListaCompra||[]).find(x=>x.Ingrediente===name); const m=/extra=([\d.]+)/i.exec((r&&r.Notas)||''); return m?parseFloat(m[1]):0; }
 function computeShopping(){
-  const ing=ingMap(), rac=raciones(), inc=new Set(includedComidas()), qty={};
+  const ing=ingMap(), inc=new Set(includedComidas()), qty={};
   (DATA.Recetas||[]).forEach(r=>{
     if(!inc.has(r.Comida)) return;
     const meta=ing[r.Ingrediente]; if(!meta || truthy(meta.EsBasico)) return;
     qty[r.Ingrediente]=(qty[r.Ingrediente]||0)+num(r.CantidadPorComensal)*racionesDe(r.Comida);
   });
   (DATA.Despensa||[]).forEach(d=>{ if(qty[d.Ingrediente]!=null) qty[d.Ingrediente]-=num(d.Cantidad); });
-  const done=compradoIngr(); const byCat={};
+  const byCat={};
   Object.keys(qty).forEach(name=>{
     if(qty[name]<=0.0001) return;
     const meta=ing[name]||{Categoria:'Despensa',Unidad:'g'};
-    (byCat[meta.Categoria]=byCat[meta.Categoria]||[]).push({name, legible:legible(qty[name],meta.Unidad), comprado:!!done[name], cat:meta.Categoria});
+    const need=Math.round(qty[name]*100)/100, buy=Math.round((need+extraOf(name))*100)/100;
+    (byCat[meta.Categoria]=byCat[meta.Categoria]||[]).push({name, cat:meta.Categoria, unit:meta.Unidad, need, buy, legible:legible(buy,meta.Unidad)});
   });
   const groups=Object.keys(byCat).sort((a,b)=>(CATORDER.indexOf(a)+1||99)-(CATORDER.indexOf(b)+1||99))
     .map(cat=>({cat, items:byCat[cat].sort((x,y)=>x.name.localeCompare(y.name))}));
-  let total=0,doneN=0; groups.forEach(g=>g.items.forEach(it=>{ total++; if(it.comprado)doneN++; }));
-  return {groups,total,done:doneN};
+  let total=0; groups.forEach(g=>total+=g.items.length);
+  return {groups,total};
 }
 
 /* --------------------------------- SVG ---------------------------------- */
@@ -137,11 +139,9 @@ function viewComprar(){
       <option value="todo" ${state.tramo==='todo'?'selected':''}>Todo el evento</option>
       ${cs.map(c=>`<option value="${esc(c.Fecha)}" ${state.tramo===c.Fecha?'selected':''}>${esc(c.Fecha)}${hastaOf(c)?' → '+esc(hastaOf(c)):''}${c.Etiqueta?' · '+esc(c.Etiqueta):''}</option>`).join('')}
     </select>` : '';
-  const pct = sh.total? Math.round(sh.done/sh.total*100):0;
   let html = `<div class="hero"><div class="lab">${state.mode==='catalogo'?'Todo el catálogo':'Según calendario'}</div>
-    <div class="big">${sh.done} / ${sh.total} comprado</div>
-    <div class="sub">${sh.total-sh.done} pendientes · ${raciones()} raciones</div>
-    <div class="bar"><i style="width:${pct}%"></i></div></div>
+    <div class="big">${sh.total} para cocinar</div>
+    <div class="sub">${raciones()} raciones · marca ✓ y pasa a la despensa</div></div>
     <div class="controls"><div class="seg" style="flex:1">
       <button data-sel="mode" data-val="catalogo" class="${state.mode==='catalogo'?'on':''}">Todas las comidas</button>
       <button data-sel="mode" data-val="calendario" class="${state.mode==='calendario'?'on':''}">Por calendario</button>
@@ -155,13 +155,22 @@ function viewComprar(){
       ${open?`<div class="card" style="padding:2px 12px">${inner}</div>`:''}`;
   };
   sh.groups.forEach(g=>{
-    const inner=g.items.map(it=>itemRow('ingr',it.name,CATEMOJI[it.cat],it.name,it.legible,it.comprado)).join('');
+    const inner=g.items.map(it=>`<div class="item">
+      <div class="thumb">${CATEMOJI[it.cat]||'🛒'}</div>
+      <div class="it-main"><div class="n">${esc(it.name)}</div>
+        <button class="tag-cook" data-act="ingrinfo" data-ing="${esc(it.name)}">Incluido x receta ›</button>
+        <div class="q">${esc(it.legible)}</div></div>
+      <input class="qin" data-buyqty data-ing="${esc(it.name)}" data-need="${it.need}" type="number" inputmode="decimal" value="${it.buy}" aria-label="comprar" title="Solo al alza (comprar de más)">
+      <span class="uni">${esc(it.unit)}</span>
+      <button class="check" data-act="buyingr" data-ing="${esc(it.name)}" data-buy="${it.buy}" data-unit="${esc(it.unit)}" aria-label="a despensa"></button>
+    </div>`).join('');
     html+=sec('cat:'+g.cat, CATCOLOR[g.cat]||'#888', g.cat, g.items.length, inner);
   });
   const bas=(DATA.Basicos||[]).filter(b=>String(b.Item).trim());
   html+=sec('basicos','#6b7a5e','Básicos de cocina (compra única)', bas.length,
     bas.map(b=>`<div class="item ${truthy(b.Comprado)?'done':''}">
-      <div class="thumb">🧂</div><div class="it-main"><div class="n">${esc(b.Item)}</div><div class="q">${esc(b.Formato||'')}</div></div>
+      <div class="thumb">🧂</div><div class="it-main"><div class="n">${esc(b.Item)}</div><div class="q">${esc(basFmt(b.Formato))}</div></div>
+      <input class="qin" data-basqty data-item="${esc(b.Item)}" type="number" inputmode="numeric" value="${esc(basQty(b.Formato))}" aria-label="cantidad">
       <button class="check ${truthy(b.Comprado)?'on':''}" data-act="toggle" data-kind="basico" data-key="${esc(b.Item)}" aria-label="comprado"></button>
       <button class="delx" data-act="delbasico" data-item="${esc(b.Item)}" aria-label="quitar">×</button>
     </div>`).join('')
@@ -324,6 +333,17 @@ function modalHTML(m){
         <button class="btn solid" data-act="savecompra" data-old="${esc(m.fecha||'')}">Guardar</button></div>
     </div></div>`;
   }
+  if(m.type==='ingrinfo'){
+    const inc=new Set(includedComidas()); const meta=ingMap()[m.ing]||{Unidad:'g'};
+    const rows=(DATA.Recetas||[]).filter(r=>r.Ingrediente===m.ing && inc.has(r.Comida) && num(r.CantidadPorComensal)>0)
+      .map(r=>({comida:r.Comida, per:num(r.CantidadPorComensal), tot:num(r.CantidadPorComensal)*racionesDe(r.Comida)}))
+      .sort((a,b)=>b.tot-a.tot);
+    return `<div class="backdrop" data-act="closebg"><div class="sheet">
+      <h2>${esc(m.ing)}</h2><p class="muted small" style="margin:0 4px 10px">Recetas que lo incluyen (selección actual) y su proporción:</p>
+      <div class="card" style="padding:2px 12px">${rows.map(r=>`<div class="item"><div class="it-main"><div class="n">${esc(r.comida)}</div><div class="q">${fmt(r.per)} ${esc(meta.Unidad)}/persona</div></div><div class="q">${esc(legible(r.tot,meta.Unidad))}</div></div>`).join('')||'<div class="item"><div class="it-main muted small">No interviene en la selección actual.</div></div>'}</div>
+      <div class="row-btns"><button class="btn solid" data-act="closemodal">Cerrar</button></div>
+    </div></div>`;
+  }
   if(m.type==='addlista'){
     return `<div class="backdrop" data-act="closebg"><div class="sheet">
       <h2>Añadir a ${esc(m.tipo)}</h2>
@@ -417,6 +437,8 @@ document.addEventListener('click',(e)=>{
   else if(act==='delcompra'){ const f=b.getAttribute('data-fecha'); askDelete('Eliminar la compra del '+f+'.', ()=>delCompra(f)); }
   else if(act==='addbasico'){ openModal({type:'addbasico'}); }
   else if(act==='savebasico'){ saveBasico(); }
+  else if(act==='ingrinfo'){ openModal({type:'ingrinfo',ing:b.getAttribute('data-ing')}); }
+  else if(act==='buyingr'){ buyIngr(b.getAttribute('data-ing'), num(b.getAttribute('data-buy')), b.getAttribute('data-unit')); }
   else if(act==='dellista'){ const it=b.getAttribute('data-item'); askDelete('Quitar "'+it+'" de la lista.', ()=>setListaPaquetes(it,0)); }
   else if(act==='addlista'){ openModal({type:'addlista',tipo:b.getAttribute('data-tipo')}); }
   else if(act==='savelista'){ saveLista(b.getAttribute('data-tipo')); }
@@ -433,7 +455,9 @@ document.addEventListener('change',(e)=>{
   const s=e.target.closest('[data-sel="tramo"]'); if(s){ state.tramo=s.value; render(); return; }
   const q=e.target.closest('[data-recqty]'); if(q){ setRecetaQty(q.getAttribute('data-comida'), q.getAttribute('data-ing'), q.value); return; }
   const l=e.target.closest('[data-listqty]'); if(l){ setListaPaquetes(l.getAttribute('data-item'), l.value); return; }
-  const dq=e.target.closest('[data-despqty]'); if(dq){ setDespensaQty(dq.getAttribute('data-ing'), dq.value); }
+  const dq=e.target.closest('[data-despqty]'); if(dq){ setDespensaQty(dq.getAttribute('data-ing'), dq.value); return; }
+  const bq=e.target.closest('[data-basqty]'); if(bq){ setBasicoQty(bq.getAttribute('data-item'), bq.value); return; }
+  const by=e.target.closest('[data-buyqty]'); if(by){ setBuyQty(by.getAttribute('data-ing'), by.value, num(by.getAttribute('data-need'))); }
 });
 
 function toggle(kind,key){
@@ -501,6 +525,22 @@ function setCocinero(name){
   c.Cocinero=v;
   apiWrite({action:'update',sheet:'Comidas',match:{Comida:name},set:{Cocinero:v}});
   render(); toast('Cocinero guardado');
+}
+function setBuyQty(name,val,need){
+  const T=num(val), extra=Math.max(0, Math.round((T-need)*100)/100);
+  const r=(DATA.ListaCompra||[]).find(x=>x.Ingrediente===name);
+  let notes=r? String(r.Notas||'').replace(/\s*extra=[\d.]+/ig,'').trim() : '';
+  if(extra>0) notes=(notes?notes+' ':'')+'extra='+extra;
+  if(r){ r.Notas=notes; }
+  apiWrite({action:'update',sheet:'ListaCompra',match:{Ingrediente:name},set:{Notas:notes},appendIfMissing:true,appendRow:{Ingrediente:name,Comprado:'No',Notas:notes}});
+  render();
+}
+function buyIngr(name,buy,unit){
+  if(!(buy>0)) return;
+  const d=(DATA.Despensa||[]).find(x=>x.Ingrediente===name);
+  if(d){ d.Cantidad=String(Math.round((num(d.Cantidad)+buy)*100)/100); apiWrite({action:'update',sheet:'Despensa',match:{Ingrediente:name},set:{Cantidad:d.Cantidad}}); }
+  else { const row={Ingrediente:name,Cantidad:String(buy),Unidad:unit,Notas:'comprado'}; (DATA.Despensa=DATA.Despensa||[]).push(row); apiWrite({action:'append',sheet:'Despensa',row:row}); }
+  render(); toast('✓ '+name+' → despensa');
 }
 function setListaPaquetes(item,val){
   const v=Math.max(0,Math.round(num(val)));
@@ -587,6 +627,14 @@ function saveLista(tipo){
 function setDespensaQty(ing,val){
   const v=num(val); const d=(DATA.Despensa||[]).find(x=>x.Ingrediente===ing); if(!d)return;
   d.Cantidad=String(v); apiWrite({action:'update',sheet:'Despensa',match:{Ingrediente:ing},set:{Cantidad:String(v)}}); render();
+}
+function basQty(fmt){ const m=/^(\d+)\b/.exec(String(fmt||'').trim()); return m?m[1]:'1'; }
+function basFmt(fmt){ return String(fmt||'').trim().replace(/^\d+\s*/,''); }
+function setBasicoQty(item,val){
+  const n=Math.max(0,Math.round(num(val)));
+  const b=(DATA.Basicos||[]).find(x=>x.Item===item); if(!b)return;
+  b.Formato=(n+' '+basFmt(b.Formato)).trim();
+  apiWrite({action:'update',sheet:'Basicos',match:{Item:item},set:{Formato:b.Formato}}); render();
 }
 function delBasico(item){
   const b=(DATA.Basicos||[]).find(x=>x.Item===item); if(!b)return;
