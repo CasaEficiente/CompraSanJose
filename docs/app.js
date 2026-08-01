@@ -49,18 +49,19 @@ function apiWrite(payload){
 function cfg(k){ const r=(DATA.Config||[]).find(x=>x.Clave===k); return r?r.Valor:''; }
 function raciones(){ return (num(cfg('AdultosM'))+num(cfg('AdultosF')))+num(cfg('Ninos'))*num(cfg('FactorNino')); }
 function ingMap(){ const m={}; (DATA.Ingredientes||[]).forEach(i=>m[i.Ingrediente]=i); return m; }
-function compras(){ return (DATA.Compras||[]).slice().sort((a,b)=>String(a.Fecha).localeCompare(String(b.Fecha))); }
-function tramoWindow(){
-  if(state.tramo==='todo') return [null,null];
+function compras(){ return (DATA.Compras||[]).filter(c=>String(c.Fecha).trim()).slice().sort((a,b)=>String(a.Fecha).localeCompare(String(b.Fecha))); }
+function hastaOf(c){ const n=String((c&&c.Notas)||'').trim(); return /^\d{4}-\d{2}-\d{2}$/.test(n)?n:null; }
+function tramoBounds(){
+  if(state.tramo==='todo') return null;
   const cs=compras(); const i=cs.findIndex(c=>c.Fecha===state.tramo);
-  if(i<0) return [null,null];
-  return [cs[i].Fecha, (i+1<cs.length)?cs[i+1].Fecha:null];
+  if(i<0) return null;
+  return { start:cs[i].Fecha, hasta:hastaOf(cs[i]), nextExcl:(i+1<cs.length)?cs[i+1].Fecha:null };
 }
 function includedComidas(){
   if(state.mode==='catalogo') return (DATA.Comidas||[]).map(c=>c.Comida);
   let slots=(DATA.Calendario||[]).filter(s=>s.Comida&&String(s.Comida).trim());
-  const [a,b]=tramoWindow();
-  if(a) slots=slots.filter(s=> String(s.Fecha)>=a && (!b || String(s.Fecha)<b));
+  const t=tramoBounds();
+  if(t){ slots=slots.filter(s=>{ const f=String(s.Fecha); if(f<t.start) return false; if(t.hasta) return f<=t.hasta; if(t.nextExcl) return f<t.nextExcl; return true; }); }
   return [...new Set(slots.map(s=>s.Comida))];
 }
 function compradoIngr(){ const m={}; (DATA.ListaCompra||[]).forEach(r=>{ m[r.Ingrediente]=truthy(r.Comprado); }); return m; }
@@ -134,7 +135,7 @@ function viewComprar(){
   const cs=compras();
   const tramoSel = state.mode==='calendario' ? `<select data-sel="tramo" style="flex:1">
       <option value="todo" ${state.tramo==='todo'?'selected':''}>Todo el evento</option>
-      ${cs.map(c=>`<option value="${esc(c.Fecha)}" ${state.tramo===c.Fecha?'selected':''}>Desde ${esc(c.Fecha)}${c.Etiqueta?' · '+esc(c.Etiqueta):''}</option>`).join('')}
+      ${cs.map(c=>`<option value="${esc(c.Fecha)}" ${state.tramo===c.Fecha?'selected':''}>${esc(c.Fecha)}${hastaOf(c)?' → '+esc(hastaOf(c)):''}${c.Etiqueta?' · '+esc(c.Etiqueta):''}</option>`).join('')}
     </select>` : '';
   const pct = sh.total? Math.round(sh.done/sh.total*100):0;
   let html = `<div class="hero"><div class="lab">${state.mode==='catalogo'?'Todo el catálogo':'Según calendario'}</div>
@@ -261,8 +262,15 @@ function stepper(clave,label){
 function viewAjustes(){
   return `<div class="rlabel">Comensales (afecta al cálculo)</div>
     ${stepper('AdultosM','Adultos ♂')}${stepper('AdultosF','Adultos ♀')}${stepper('Ninos','Niños')}
-    <div class="rlabel">Fechas de compra (tramos)</div>
-    <div class="card">${compras().map(c=>`<span class="chip olive">${esc(c.Fecha)}${c.Etiqueta?' · '+esc(c.Etiqueta):''}</span>`).join('')||'<span class="muted small">Sin fechas.</span>'}</div>
+    <div class="rlabel">Planificador de compras</div>
+    <div class="card" style="padding:2px 12px">${compras().map(c=>`<div class="item">
+      <div class="thumb">🛒</div><div class="it-main"><div class="n">${esc(c.Fecha)}${hastaOf(c)?' → '+esc(hastaOf(c)):''}</div>
+      <div class="q">${esc(c.Etiqueta||'')}${hastaOf(c)?'':' · sin fecha de cobertura'}</div></div>
+      <button class="check" style="border:none;background:none;color:var(--olive);width:32px" data-act="editcompra" data-fecha="${esc(c.Fecha)}">✎</button>
+      <button class="delx" data-act="delcompra" data-fecha="${esc(c.Fecha)}">×</button>
+    </div>`).join('')||'<div class="item"><div class="it-main muted small">Sin compras planificadas.</div></div>'}</div>
+    <div class="row-btns"><button class="btn solid" data-act="addcompra">+ Planificar compra</button></div>
+    <p class="muted small" style="margin:2px 4px 0">Cada compra cubre desde su fecha hasta la fecha "cubrir hasta". En Comprar → "Por calendario" eliges el tramo.</p>
     <div class="rlabel">Usuarios con acceso</div>
     <div class="card" style="padding:2px 12px">${(DATA.Usuarios||[]).map(u=>`<div class="item"><div class="thumb">👤</div><div class="it-main"><div class="n">${esc(u.Email)}</div>${u.Rol?`<div class="q">${esc(u.Rol)}</div>`:''}</div></div>`).join('')||'<div class="item"><div class="it-main muted small">Sin usuarios.</div></div>'}</div>
     <div class="controls"><input id="u-email" type="email" inputmode="email" placeholder="correo@gmail.com" style="flex:1">
@@ -298,6 +306,17 @@ function modalHTML(m){
       <div class="grp"><label>Unidad</label><select id="d-uni"><option>g</option><option>ml</option><option>ud</option></select></div>
       <div class="row-btns"><button class="btn" data-act="closemodal">Cancelar</button>
         <button class="btn solid" data-act="savedesp">Guardar</button></div></div></div>`;
+  }
+  if(m.type==='compra'){
+    const cur=m.fecha?(DATA.Compras||[]).find(c=>c.Fecha===m.fecha):null;
+    return `<div class="backdrop" data-act="closebg"><div class="sheet">
+      <h2>${m.fecha?'Editar compra':'Planificar compra'}</h2>
+      <div class="grp"><label>Fecha de la compra</label><input id="cp-fecha" type="date" value="${esc((cur&&cur.Fecha)||'')}"></div>
+      <div class="grp"><label>Cubrir hasta (fecha incluida)</label><input id="cp-hasta" type="date" value="${esc(cur?(hastaOf(cur)||''):'')}"></div>
+      <div class="grp"><label>Etiqueta (opcional)</label><input id="cp-et" value="${esc((cur&&cur.Etiqueta)||'')}" placeholder="p. ej. Compra grande, Reposición…"></div>
+      <div class="row-btns"><button class="btn" data-act="closemodal">Cancelar</button>
+        <button class="btn solid" data-act="savecompra" data-old="${esc(m.fecha||'')}">Guardar</button></div>
+    </div></div>`;
   }
   if(m.type==='addbasico'){
     return `<div class="backdrop" data-act="closebg"><div class="sheet">
@@ -376,6 +395,10 @@ document.addEventListener('click',(e)=>{
   else if(act==='newdish'){ openModal({type:'newdish'}); }
   else if(act==='savedish'){ saveDish(); }
   else if(act==='seedsalads'){ seedSalads(); }
+  else if(act==='addcompra'){ openModal({type:'compra'}); }
+  else if(act==='editcompra'){ openModal({type:'compra',fecha:b.getAttribute('data-fecha')}); }
+  else if(act==='savecompra'){ saveCompra(b.getAttribute('data-old')); }
+  else if(act==='delcompra'){ const f=b.getAttribute('data-fecha'); askDelete('Eliminar la compra del '+f+'.', ()=>delCompra(f)); }
   else if(act==='addbasico'){ openModal({type:'addbasico'}); }
   else if(act==='savebasico'){ saveBasico(); }
   else if(act==='seedpan'){ seedPan(); }
@@ -509,6 +532,27 @@ async function seedSalads(){
   }
   render(); toast('Ensaladas creadas ✅');
 }
+function saveCompra(oldFecha){
+  const fecha=((($('#cp-fecha')||{}).value)||'').trim(); if(!fecha){ toast('Pon la fecha de compra'); return; }
+  const hasta=((($('#cp-hasta')||{}).value)||'').trim();
+  const et=((($('#cp-et')||{}).value)||'').trim();
+  if(oldFecha){
+    const c=(DATA.Compras||[]).find(x=>x.Fecha===oldFecha);
+    if(c){ c.Fecha=fecha; c.Etiqueta=et; c.Notas=hasta; }
+    apiWrite({action:'update',sheet:'Compras',match:{Fecha:oldFecha},set:{Fecha:fecha,Etiqueta:et,Notas:hasta}});
+  } else {
+    const row={Fecha:fecha,Etiqueta:et,Notas:hasta};
+    (DATA.Compras=DATA.Compras||[]).push(row);
+    apiWrite({action:'append',sheet:'Compras',row:row});
+  }
+  closeModal(); toast('Compra guardada');
+}
+function delCompra(fecha){
+  const c=(DATA.Compras||[]).find(x=>x.Fecha===fecha); if(!c)return;
+  c.Fecha='';
+  apiWrite({action:'update',sheet:'Compras',match:{Fecha:fecha},set:{Fecha:''}});
+  render(); toast('Compra eliminada');
+}
 function saveBasico(){
   const nom=((($('#ab-nom')||{}).value)||'').trim(); if(!nom){ toast('Pon un nombre'); return; }
   if((DATA.Basicos||[]).some(b=>b.Item===nom)){ toast('Ya está en básicos'); closeModal(); return; }
@@ -561,10 +605,27 @@ async function seedMousaka(){
     else { const rr={Comida:'Mousaka griega',Ingrediente:ing,CantidadPorComensal:String(g),Grupo:'',PesoEnGrupo:'',Opcional:'No'}; (DATA.Recetas=DATA.Recetas||[]).push(rr); await apiWrite({action:'append',sheet:'Recetas',row:rr}); }
   }
 }
+async function seedProporciones(){
+  const upd=[
+    ['Arroz campero','Arroz',85],['Arroz campero','Aguja de vaca',130],
+    ['Mousaka griega','Berenjena',150],
+    ['Couscous','Semola couscous',70],
+    ['Plato alpujarreno con huevos','Chorizo',40],['Plato alpujarreno con huevos','Longaniza',30],['Plato alpujarreno con huevos','Lomo de cerdo',60],
+    ['Salmorejo con acompanamiento','Filetes de ternera',150],['Salmorejo con acompanamiento','Pan',50],
+    ['Migas','Sardinas',40],['Migas','Boquerones',40],['Migas','Chistorra',30],
+    ['Chili con carne','Arroz',50],['Chili con carne','Tomate natural',100],
+    ['Pizzas','Masa de pizza',200],
+    ['Paella de marisco','Arroz',90]
+  ];
+  for(const [com,ing,g] of upd){
+    const r=(DATA.Recetas||[]).find(x=>x.Comida===com&&x.Ingrediente===ing);
+    if(r){ r.CantidadPorComensal=String(g); await apiWrite({action:'update',sheet:'Recetas',match:{Comida:com,Ingrediente:ing},set:{CantidadPorComensal:String(g)}}); }
+  }
+}
 function maybeSeed(){
   if(bootSeeded) return; bootSeeded=true;
   if((userEmail||'').toLowerCase()!=='francisco.m.garcia@gmail.com') return;
-  const done=(DATA.Config||[]).some(c=>c.Clave==='SemillaV2' && truthy(c.Valor));
+  const done=(DATA.Config||[]).some(c=>c.Clave==='SemillaV3' && truthy(c.Valor));
   if(done) return;
   seedInitial();
 }
@@ -574,10 +635,11 @@ async function seedInitial(){
     await seedPan();
     await seedMigas();
     await seedMousaka();
-    const row={Clave:'SemillaV2',Valor:'1',Descripcion:'Ensaladas, pan, migas y mousaka aplicados'};
+    await seedProporciones();
+    const row={Clave:'SemillaV3',Valor:'1',Descripcion:'Ensaladas, pan, migas, mousaka y proporciones revisadas'};
     (DATA.Config=DATA.Config||[]).push(row);
     await apiWrite({action:'append',sheet:'Config',row:row});
-    render(); toast('Ajustes aplicados ✅');
+    render(); toast('Proporciones revisadas ✅');
   }catch(e){}
 }
 function saveDish(){
