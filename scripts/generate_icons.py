@@ -63,4 +63,16 @@ for wx in (225, 292):
     d.ellipse([wx - 18, 307 - 18, wx + 18, 307 + 18], fill=WHITE)
 img.save(os.path.join(OUT, "maskable-512.png"))
 print("maskable-512.png")
-print("OK iconos en docs/icons/")
+
+# favicon.ico (carrito sobre fondo olivo, multi-tamano)
+fav = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+fd = ImageDraw.Draw(fav)
+rounded(fd, [0, 0, 64, 64], 14, OLIVE)
+lw = 4
+fd.line([(19, 22), (45, 22), (40, 37), (24, 37), (19, 22)], fill=WHITE, width=lw, joint="curve")
+fd.line([(19, 22), (14, 22), (11, 15)], fill=WHITE, width=lw, joint="curve")
+for wx in (28, 37):
+    fd.ellipse([wx - 3, 41 - 3, wx + 3, 41 + 3], fill=WHITE)
+fav.save(os.path.join(BASE, "docs", "favicon.ico"), sizes=[(16, 16), (32, 32), (48, 48)])
+print("docs/favicon.ico")
+print("OK iconos en docs/")
