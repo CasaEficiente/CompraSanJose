@@ -828,7 +828,7 @@ async function seedV4(){
 function maybeSeed(){
   if(bootSeeded) return; bootSeeded=true;
   if((userEmail||'').toLowerCase()!=='francisco.m.garcia@gmail.com') return;
-  const done=(DATA.Config||[]).some(c=>c.Clave==='SemillaV7' && truthy(c.Valor));
+  const done=(DATA.Config||[]).some(c=>c.Clave==='SemillaV8' && truthy(c.Valor));
   if(done) return;
   seedInitial();
 }
@@ -842,6 +842,7 @@ async function seedInitial(){
     }
     if(!has('SemillaV6')){ await seedV6(); await flag('SemillaV6','Precocinados (a 0) y cerveza por cajas'); }
     if(!has('SemillaV7')){ await seedV7(); await flag('SemillaV7','Helados a Congelados'); }
+    if(!has('SemillaV8')){ await seedV8(); await flag('SemillaV8','Cerveza: cantidad en cajas'); }
     render(); toast('Ajustes aplicados ✅');
   }catch(e){}
 }
@@ -861,6 +862,14 @@ async function seedV7(){
   const h=(DATA.ListaCompra||[]).find(r=>r.Ingrediente==='Helados');
   if(h && h.Categoria!=='Congelados'){ h.Categoria='Congelados';
     await apiWrite({action:'update',sheet:'ListaCompra',match:{Ingrediente:'Helados'},set:{Categoria:'Congelados'}}); }
+}
+async function seedV8(){ // la cerveza estaba en latas; con envase por cajas, pasar la cantidad a cajas
+  const cz=(DATA.ListasAbiertas||[]).find(r=>/cerveza/i.test(r.Item||''));
+  if(cz && /caja/i.test(cz.Envase||'')){
+    const p=num(cz.Paquetes);
+    if(p>30){ const cajas=String(Math.max(1,Math.ceil(p/24))); cz.Paquetes=cajas;
+      await apiWrite({action:'update',sheet:'ListasAbiertas',match:{Item:cz.Item},set:{Paquetes:cajas}}); }
+  }
 }
 function saveDish(){
   const nom=((($('#nd-nom')||{}).value)||'').trim(); if(!nom){ toast('Pon un nombre'); return; }
