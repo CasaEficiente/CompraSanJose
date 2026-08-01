@@ -70,7 +70,7 @@ function computeShopping(){
   (DATA.Recetas||[]).forEach(r=>{
     if(!inc.has(r.Comida)) return;
     const meta=ing[r.Ingrediente]; if(!meta || truthy(meta.EsBasico)) return;
-    qty[r.Ingrediente]=(qty[r.Ingrediente]||0)+num(r.CantidadPorComensal)*rac;
+    qty[r.Ingrediente]=(qty[r.Ingrediente]||0)+num(r.CantidadPorComensal)*racionesDe(r.Comida);
   });
   (DATA.Despensa||[]).forEach(d=>{ if(qty[d.Ingrediente]!=null) qty[d.Ingrediente]-=num(d.Cantidad); });
   const done=compradoIngr(); const byCat={};
@@ -196,13 +196,14 @@ function viewRecetas(){
     `<button class="item" data-act="open" data-comida="${esc(c.Comida)}" style="width:100%;text-align:left;background:none;border:none;border-bottom:1px solid var(--line)">
       <div class="thumb">🍽️</div><div class="it-main"><div class="n">${esc(c.Comida)}</div>
       <div class="q">${esc(c.MomentoSugerido||'')}${c.Cocinero?' · '+esc(c.Cocinero):''}</div></div><span class="chev">›</span></button>`
-  ).join('')+`</div>`;
+  ).join('')+`</div>
+    <div class="row-btns"><button class="btn solid" data-act="newdish">+ Nueva receta / plato</button></div>`;
 }
 function viewReceta(name){
   const c=(DATA.Comidas||[]).find(x=>x.Comida===name); if(!c)return 'No encontrada.';
-  const rac=raciones(), ing=ingMap();
+  const rac=raciones(), excl=excludedOf(c), effR=Math.max(0,rac-excl), ing=ingMap();
   const items=(DATA.Recetas||[]).filter(r=>r.Comida===name && num(r.CantidadPorComensal)>0).map(r=>{
-    const m=ing[r.Ingrediente]||{Unidad:'g'}; const tot=num(r.CantidadPorComensal)*rac;
+    const m=ing[r.Ingrediente]||{Unidad:'g'}; const tot=num(r.CantidadPorComensal)*effR;
     return `<div class="item">
       <div class="it-main"><div class="n">${esc(r.Ingrediente)}${truthy(r.Opcional)?' <span class="chip warm" style="padding:1px 6px">opc.</span>':''}</div>
         <div class="q">${esc(legible(tot,m.Unidad))} en total</div></div>
@@ -224,7 +225,11 @@ function viewReceta(name){
     ${c.Fuente?`<div style="margin:2px 4px 8px"><a href="${esc(c.Fuente)}" target="_blank" rel="noopener">🔗 Abrir receta original</a></div>`:''}
     <div class="controls"><input id="rc-fuente" type="url" inputmode="url" value="${esc(c.Fuente||'')}" placeholder="https://..." style="flex:1">
       <button class="btn solid" style="width:auto;white-space:nowrap" data-act="setfuente" data-comida="${esc(name)}">Guardar</button></div>
-    <div class="rlabel">Ingredientes (edita la cantidad por comensal · total para ${rac} raciones)</div>
+    <div class="rlabel">🦗 "De lo que come el grillo, poquillo"</div>
+    <div class="controls"><input id="rc-grillo" type="number" inputmode="numeric" value="${excl||''}" placeholder="0 (comen todos)" style="flex:1">
+      <button class="btn solid" style="width:auto;white-space:nowrap" data-act="setgrillo" data-comida="${esc(name)}">Guardar</button></div>
+    <p class="muted small" style="margin:2px 4px 6px">Comensales que apenas/no comen este plato (se restan del total). Ahora lo comen <b>${effR}</b> de ${rac}.</p>
+    <div class="rlabel">Ingredientes (edita la cantidad por comensal · total para ${effR} raciones)</div>
     <div class="card" style="padding:2px 12px">${items||'<div class="item"><div class="it-main muted small">Sin ingredientes.</div></div>'}</div>
     <div class="row-btns"><button class="btn" data-act="additem" data-comida="${esc(name)}">+ Añadir ingrediente / acompañamiento</button></div>
   </div>`;
@@ -288,6 +293,17 @@ function modalHTML(m){
       <div class="row-btns"><button class="btn" data-act="closemodal">Cancelar</button>
         <button class="btn solid" data-act="savedesp">Guardar</button></div></div></div>`;
   }
+  if(m.type==='newdish'){
+    return `<div class="backdrop" data-act="closebg"><div class="sheet">
+      <h2>Nueva receta / plato</h2>
+      <div class="grp"><label>Nombre del plato</label><input id="nd-nom" placeholder="p. ej. Ensalada mixta"></div>
+      <div class="grp"><label>Momento sugerido</label><select id="nd-mom"><option>Almuerzo</option><option>Cena</option></select></div>
+      <div class="grp"><label>Cocinero (opcional)</label><input id="nd-coc" placeholder="Quién lo prepara"></div>
+      <p class="muted small" style="margin:0 4px 10px">Después le añades ingredientes con "+ Añadir ingrediente".</p>
+      <div class="row-btns"><button class="btn" data-act="closemodal">Cancelar</button>
+        <button class="btn solid" data-act="savedish">Crear</button></div>
+    </div></div>`;
+  }
   if(m.type==='confirm'){
     return `<div class="backdrop" data-act="closebg"><div class="sheet">
       <h2>¿Eliminar?</h2><p class="muted" style="margin:0 4px 14px;line-height:1.4">${esc(m.msg)}</p>
@@ -342,6 +358,9 @@ document.addEventListener('click',(e)=>{
   else if(act==='setfuente'){ setFuente(b.getAttribute('data-comida')); }
   else if(act==='additem'){ openModal({type:'additem',comida:b.getAttribute('data-comida')}); }
   else if(act==='saveitem'){ saveItem(b.getAttribute('data-comida')); }
+  else if(act==='newdish'){ openModal({type:'newdish'}); }
+  else if(act==='savedish'){ saveDish(); }
+  else if(act==='setgrillo'){ setGrillo(b.getAttribute('data-comida')); }
   else if(act==='delitem'){ const co=b.getAttribute('data-comida'), ig=b.getAttribute('data-ing'); askDelete('Quitar "'+ig+'" de '+co+'.', ()=>setRecetaQty(co,ig,0)); }
   else if(act==='deldesp'){ const ig=b.getAttribute('data-ing'); askDelete('Quitar "'+ig+'" de la despensa.', ()=>delDespensa(ig)); }
   else if(act==='confirmyes'){ const fn=pendingDelete; pendingDelete=null; closeModal(); if(fn)fn(); }
@@ -426,6 +445,27 @@ function setListaPaquetes(item,val){
   r.Paquetes=String(v);
   apiWrite({action:'update',sheet:'ListasAbiertas',match:{Item:item},set:{Paquetes:String(v)}});
   render();
+}
+function excludedOf(c){ const m=/excluidos=(\d+)/i.exec((c&&c.Notas)||''); return m?parseInt(m[1],10):0; }
+function racionesDe(comida){ const c=(DATA.Comidas||[]).find(x=>x.Comida===comida); const e=c?excludedOf(c):0; return Math.max(0, raciones()-e); }
+function setGrillo(name){
+  const val=((($('#rc-grillo')||{}).value)||'').trim();
+  const c=(DATA.Comidas||[]).find(x=>x.Comida===name); if(!c)return;
+  let notes=String(c.Notas||'').replace(/\s*excluidos=\d+/ig,'').trim();
+  const e=Math.max(0,Math.round(num(val)));
+  if(e>0){ notes=(notes?notes+' ':'')+'excluidos='+e; }
+  c.Notas=notes;
+  apiWrite({action:'update',sheet:'Comidas',match:{Comida:name},set:{Notas:notes}});
+  render(); toast(e>0?('Restados '+e+' comensales'):'Lo comen todos');
+}
+function saveDish(){
+  const nom=((($('#nd-nom')||{}).value)||'').trim(); if(!nom){ toast('Pon un nombre'); return; }
+  if((DATA.Comidas||[]).some(c=>c.Comida===nom)){ toast('Ya existe ese plato'); return; }
+  const mom=(($('#nd-mom')||{}).value)||'Almuerzo', coc=((($('#nd-coc')||{}).value)||'').trim();
+  const row={Comida:nom,MomentoSugerido:mom,Cocinero:coc,PasosPrevios:'',Preparacion:'',Fuente:'',Notas:''};
+  (DATA.Comidas=DATA.Comidas||[]).push(row);
+  apiWrite({action:'append',sheet:'Comidas',row:row});
+  state.modal=null; state.modalHTML=''; state.detail=nom; state.tab='recetas'; render(); toast('Creado: '+nom);
 }
 function askDelete(msg, fn){ pendingDelete=fn; openModal({type:'confirm',msg:msg}); }
 function delDespensa(ing){
