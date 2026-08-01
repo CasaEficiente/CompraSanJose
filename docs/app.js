@@ -163,8 +163,7 @@ function viewComprar(){
     ['Charcuteria','Charcutería','#8a3b2e','🌭'],['Pescaderia','Pescadería','#3B7DA6','🐟'],
     ['Precocinados','Precocinados','#c98a3b','🍕'],['Panaderia','Panadería','#C99A5B','🍞'],
     ['Lacteos','Lácteos y huevos','#E0A126','🧀'],['Congelados','Congelados','#5aa9b5','❄️'],
-    ['Especias','Especias y condimentos','#9c6b2e','🌿'],['Despensa','Despensa','#6b7a5e','🥫'],
-    ['Bebidas','Bebidas','#4a8f8a','🥤']
+    ['Despensa','Despensa','#6b7a5e','🥫']
   ];
   const needByName={}; sh.groups.forEach(g=>g.items.forEach(it=>needByName[it.name]=it));
   const ing=ingMap();
@@ -201,14 +200,17 @@ function viewComprar(){
     html+=sec('cat:'+key, color, label, active, inner);
   });
   const bas=(DATA.Basicos||[]).filter(b=>String(b.Item).trim());
-  html+=sec('basicos','#6b7a5e','Básicos de cocina (compra única)', bas.filter(b=>num(basQty(b.Formato))>0).length,
-    bas.map(b=>{ const on=num(basQty(b.Formato))>0; return `<div class="item ${truthy(b.Comprado)?'done':''} ${on?'':'off'}">
-      <div class="thumb">🧂</div><div class="it-main"><div class="n">${esc(b.Item)}</div><div class="q">${esc(basFmt(b.Formato))}</div></div>
+  const RE_ESP=/\bsal\b|sal de|pimien|pimen|comino|canela|nuez moscada|ras el hanout|especia|or[eé]gano|romero|tomillo|laurel|jengibre|ketchup|mostaza|mayonesa|alioli|chimichurri|c[uú]rcuma|azafr/i;
+  const basRow=(b,em)=>{ const on=num(basQty(b.Formato))>0; return `<div class="item ${truthy(b.Comprado)?'done':''} ${on?'':'off'}">
+      <div class="thumb">${em}</div><div class="it-main"><div class="n">${esc(b.Item)}</div><div class="q">${esc(basFmt(b.Formato))}</div></div>
       <input class="qin" data-basqty data-item="${esc(b.Item)}" type="number" inputmode="numeric" value="${esc(basQty(b.Formato))}" aria-label="cantidad">
       ${on?`<button class="check ${truthy(b.Comprado)?'on':''}" data-act="toggle" data-kind="basico" data-key="${esc(b.Item)}" aria-label="comprado"></button>`:`<span class="ckoff"></span>`}
       <button class="delx" data-act="delbasico" data-item="${esc(b.Item)}" aria-label="quitar">×</button>
-    </div>`; }).join('')
-    + `<div style="padding:8px 4px"><button class="btn" data-act="addbasico">+ Añadir básico (salsa, bote…)</button></div>`);
+    </div>`; };
+  const esp=bas.filter(b=>RE_ESP.test(b.Item)), otros=bas.filter(b=>!RE_ESP.test(b.Item));
+  const addBas=`<div style="padding:8px 4px"><button class="btn" data-act="addbasico">+ Añadir básico (salsa, bote…)</button></div>`;
+  html+=sec('especias','#9c6b2e','Especias y condimentos (compra única)', esp.filter(b=>num(basQty(b.Formato))>0).length, esp.map(b=>basRow(b,'🌿')).join('')+addBas);
+  html+=sec('basicos','#6b7a5e','Básicos de cocina (compra única)', otros.filter(b=>num(basQty(b.Formato))>0).length, otros.map(b=>basRow(b,'🧂')).join('')+addBas);
   ['Desayuno','Bebidas','Picoteo'].forEach(tipo=>{
     const rows=(DATA.ListasAbiertas||[]).filter(r=>r.Tipo===tipo && String(r.Item).trim());
     const em=tipo==='Desayuno'?'🥐':tipo==='Bebidas'?'🥤':'🥜';
