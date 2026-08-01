@@ -22,15 +22,22 @@ var SHEETS = ['Config','Comidas','Ingredientes','Recetas','Calendario','Compras'
    la app usa 'no-cors' y los fallos pasaban desapercibidos). 'written:true'
    le confirma a la app que este backend ya entiende las escrituras por GET. */
 function doGet(e){
-  var p = e.parameter || {};
-  var email = verify(p.token);
-  if(!allowed(email)) return reply(p, {ok:false, error:'no-autorizado', written:(p.action === 'write')});
-  if(p.action !== 'write') return reply(p, {ok:true, data:readAll()});
-  var req = {};
-  try{ req = JSON.parse(p.payload || '{}'); }catch(err){ return reply(p, {ok:false, error:'payload', written:true}); }
-  var res = applyReq(req);
-  res.written = true;
-  return reply(p, res);
+  var p = (e && e.parameter) || {};
+  /* Si algo revienta aqui dentro, Apps Script devuelve una pagina HTML de error:
+     el <script> del JSONP no llama al callback y la app se queda 20 s colgada
+     hasta el timeout. Capturandolo, siempre sale una respuesta legible. */
+  try{
+    var email = verify(p.token);
+    if(!allowed(email)) return reply(p, {ok:false, error:'no-autorizado', written:(p.action === 'write')});
+    if(p.action !== 'write') return reply(p, {ok:true, data:readAll()});
+    var req = {};
+    try{ req = JSON.parse(p.payload || '{}'); }catch(err){ return reply(p, {ok:false, error:'payload', written:true}); }
+    var res = applyReq(req);
+    res.written = true;
+    return reply(p, res);
+  }catch(err){
+    return reply(p, {ok:false, error:String(err && err.message || err), written:(p.action === 'write')});
+  }
 }
 
 function doPost(e){
@@ -86,8 +93,13 @@ function allowed(email){
 
 /* --------------------------- data --------------------------- */
 var SHEET_ID = '1dViCbOztGH_I4ar8ff_Gv86aUo-rK1zigi4Cma5e47E'; // Google Sheet CompraSanJose
-function ss(){ return SHEET_ID ? SpreadsheetApp.openById(SHEET_ID) : SpreadsheetApp.getActiveSpreadsheet(); }
-function tz_(){ try{ return ss().getSpreadsheetTimeZone() || 'Europe/Madrid'; }catch(e){ return 'Europe/Madrid'; } }
+/* Abrir la hoja y pedir su zona horaria son llamadas CARAS (van a la red). Sin
+   cachearlas, un readAll hacia ~35 aperturas (11 hojas + una por cada celda de
+   fecha) y podia agotar el tiempo -> "No se pudieron cargar los datos". Estas
+   variables viven solo lo que dura una ejecucion, asi que no se quedan rancias. */
+var _SS = null, _TZ = null;
+function ss(){ if(!_SS){ _SS = SHEET_ID ? SpreadsheetApp.openById(SHEET_ID) : SpreadsheetApp.getActiveSpreadsheet(); } return _SS; }
+function tz_(){ if(!_TZ){ try{ _TZ = ss().getSpreadsheetTimeZone() || 'Europe/Madrid'; }catch(e){ _TZ = 'Europe/Madrid'; } } return _TZ; }
 function cell_(v){ return (v instanceof Date) ? Utilities.formatDate(v, tz_(), 'yyyy-MM-dd') : v; } // fechas -> 'YYYY-MM-DD'
 /* Clave de comparación: la MISMA fecha puede llegar como Date (celda con formato
    fecha), como '2026-08-04T00:00:00.000Z' o como texto '2026-08-04'. Sin esto,
@@ -99,9 +111,9 @@ function norm_(v){
   return m ? m[1] : s;
 }
 function readAll(){
-  var data = {};
+  var data = {}, book = ss();
   SHEETS.forEach(function(name){
-    var sh = ss().getSheetByName(name); if(!sh){ data[name]=[]; return; }
+    var sh = book.getSheetByName(name); if(!sh){ data[name]=[]; return; }
     var vals = sh.getDataRange().getValues(); if(vals.length < 1){ data[name]=[]; return; }
     var hdr = vals[0].map(String); var rows = [];
     for(var i=1;i<vals.length;i++){

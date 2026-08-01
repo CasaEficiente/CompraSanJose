@@ -31,12 +31,12 @@ function jwtEmail(t){ try{ return JSON.parse(atob(t.split('.')[1].replace(/-/g,'
 function toast(msg){ const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),1800); }
 
 /* ------------------------------ backend --------------------------------- */
-function jsonp(makeUrl){ // makeUrl(cb) -> url; JSONP porque asi SI podemos leer la respuesta
+function jsonp(makeUrl,ms){ // makeUrl(cb) -> url; JSONP porque asi SI podemos leer la respuesta
   return new Promise((resolve,reject)=>{
     if(!BACKEND_URL) return reject(new Error('sin backend'));
     const cb='jsonp_'+(++_cb);
     const s=document.createElement('script');
-    const to=setTimeout(()=>{ cleanup(); reject(new Error('timeout')); }, 20000);
+    const to=setTimeout(()=>{ cleanup(); reject(new Error('timeout')); }, ms||20000);
     function cleanup(){ clearTimeout(to); delete window[cb]; s.remove(); }
     window[cb]=(res)=>{ cleanup(); resolve(res); };
     s.onerror=()=>{ cleanup(); reject(new Error('red')); };
@@ -44,16 +44,17 @@ function jsonp(makeUrl){ // makeUrl(cb) -> url; JSONP porque asi SI podemos leer
     document.body.appendChild(s);
   });
 }
-function apiRead(){
-  return jsonp(cb=>BACKEND_URL+'?action=read&callback='+cb+'&token='+encodeURIComponent(idToken||''));
+function apiRead(){ // 35 s: leer las 11 hojas puede tardar si Google va lento
+  return jsonp(cb=>BACKEND_URL+'?action=read&callback='+cb+'&token='+encodeURIComponent(idToken||''), 35000);
 }
 /* Escribe y COMPRUEBA el resultado. Antes iba por POST 'no-cors': el navegador
    no puede leer esa respuesta, así que un guardado fallido parecía correcto y la
    app seguía mostrando el dato nuevo hasta la siguiente recarga. */
+let writeByGet = true;   // el backend viejo ignora action=write; se detecta una vez y no se reintenta
 async function apiWrite(payload){
   if(!BACKEND_URL) return {ok:true};
   const q='&token='+encodeURIComponent(idToken||'')+'&payload='+encodeURIComponent(JSON.stringify(payload));
-  if((BACKEND_URL.length+q.length) < 7000){
+  if(writeByGet && (BACKEND_URL.length+q.length) < 7000){
     let res;
     try{ res=await jsonp(cb=>BACKEND_URL+'?action=write&callback='+cb+q); }
     catch(e){ toast('⚠️ Sin conexión: NO se guardó'); return {ok:false,error:'red'}; }
@@ -61,6 +62,7 @@ async function apiWrite(payload){
       if(!res.ok) toast('⚠️ No se guardó en la hoja'+(res.error?' ('+res.error+')':''));
       return res;
     }
+    writeByGet=false;   // backend sin re-desplegar: nos devuelve TODOS los datos en cada escritura
   }
   return apiWritePost(payload);                   // backend antiguo o payload enorme: a ciegas
 }
@@ -983,9 +985,13 @@ function setFuente(name){
 function signout(){ try{ google.accounts.id.disableAutoSelect(); }catch(e){} idToken=null; DATA=null; bootLogin(); }
 
 /* ------------------------------- boot ----------------------------------- */
-async function reload(){
+async function reload(esReintento){
   try{
     const res = await apiRead();
+    if(res && res.ok === false && res.error !== 'no-autorizado'){   // fallo del servidor, no de permisos
+      if(!esReintento) return reload(true);
+      throw new Error(res.error||'backend');
+    }
     if(res && res.ok === false){
       $('#app').innerHTML=`<div class="center"><div class="brand">Compra<em>SanJose</em></div>
         <p>Tu correo <b>${esc(userEmail||'')}</b> aún no tiene acceso.<br>Pide a alguien del grupo que te añada en Ajustes → Usuarios.</p>
@@ -998,9 +1004,17 @@ async function reload(){
     render();
     maybeSeed();
   }
-  catch(err){ $('#app').innerHTML=`<div class="center"><div class="brand">Compra<em>SanJose</em></div>
-    <p>No se pudieron cargar los datos.<br>Puede que tu sesión haya caducado.</p>
-    <button class="btn solid" style="max-width:220px" onclick="bootLogin()">Reintentar / entrar</button></div>`; }
+  catch(err){
+    if(!esReintento) return reload(true);   // un reintento automatico: la lectura falla a veces por latencia
+    $('#app').innerHTML=`<div class="center"><div class="brand">Compra<em>SanJose</em></div>
+      <p>No se pudieron cargar los datos.<br><span class="muted small">${esc(err&&err.message||'sin respuesta del servidor')}</span></p>
+      <button class="btn solid" style="max-width:220px" onclick="retryLoad()">Reintentar</button>
+      <button class="btn" style="max-width:220px;margin-top:8px" onclick="bootLogin()">Entrar de nuevo</button></div>`;
+  }
+}
+function retryLoad(){   // reintenta con la sesion actual; solo re-loguea si de verdad no hay token
+  $('#app').innerHTML=`<div class="center"><div class="spinner"></div><p class="muted">Reintentando…</p></div>`;
+  if(idToken) reload(); else bootLogin();
 }
 function onCred(resp){ idToken=resp.credential; userEmail=jwtEmail(idToken);
   $('#app').innerHTML=`<div class="center"><div class="spinner"></div><p class="muted">Entrando…</p></div>`; reload(); }
@@ -1031,3 +1045,4 @@ function init(){
 }
 window.addEventListener('DOMContentLoaded', init);
 window.bootLogin=bootLogin;
+window.retryLoad=retryLoad;
